@@ -1,0 +1,126 @@
+---
+const projects = [
+  { n: '01', title: 'AAISM MasterClass Campaign', desc: 'One launch, every asset: sales video, ads, covers, typography' },
+  { n: '02', title: 'Ads in the Rain', desc: 'AI environment replacement composited into live footage' },
+  { n: '03', title: 'CISSP Video Ad Series', desc: 'Nine performance ads for certification training' },
+  { n: '04', title: 'Kinetic Typography System', desc: 'A reusable animated-type system — built once, shipped across the campaign' },
+  { n: '05', title: 'AAISM Book Cover Series', desc: 'Covers and a custom-illustrated workbook, concept to print' },
+  { n: '06', title: 'AI B-roll Pipeline', desc: 'Stills turned into usable b-roll at campaign scale, fully automated' },
+  { n: '07', title: 'MCP Workflow — Figma ↔ Claude ↔ Resolve', desc: 'My integration layer: design and edit talk to each other without me in the middle' },
+];
+---
+<section class="section section--ruled" id="work">
+  <div class="container">
+    <p class="eyebrow eyebrow--green">Selected work</p>
+    <h2 class="h-display h-section work-title">Work that shipped.</h2>
+
+    <!-- Showreel: the only video player on the site -->
+    <div class="player">
+      <button class="poster" type="button" aria-label="Play showreel, 60 seconds, sound on">
+        <!-- Phase 4: swap for <video poster=...> + real playback -->
+        <span class="play"><span class="play-tri" aria-hidden="true"></span></span>
+        <span class="poster-note">1:00 · sound on</span>
+      </button>
+      <div class="player-bar">
+        <div>
+          <p class="player-title">Showreel — 60 seconds</p>
+          <p class="player-sub">Edit · motion · AI · sound — everything in one cut. The rest of this site moves on its own.</p>
+        </div>
+        <span class="chip chip--reel">The only video here</span>
+      </div>
+    </div>
+
+    <p class="eyebrow index-caption">Project index — every row moves</p>
+    <ul class="index">
+      {projects.map((p) => (
+        <li class="row">
+          <div class="row-left">
+            <span class="row-n">{p.n}</span>
+            <h3 class="row-title">{p.title}</h3>
+            <span class="chip">Lottie</span>
+          </div>
+          <div class="row-right">
+            <p class="row-desc">{p.desc}</p>
+            <span class="row-arrow" aria-hidden="true">→</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .work-title { margin-top: 16px; }
+  .player {
+    margin-top: 36px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    overflow: hidden;
+  }
+  .poster {
+    width: 100%;
+    min-height: clamp(260px, 40vw, 620px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: linear-gradient(135deg, var(--band) 0%, color-mix(in srgb, var(--green) 38%, var(--band)) 100%);
+  }
+  .play {
+    width: clamp(72px, 8vw, 104px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--green);
+    display: grid;
+    place-items: center;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .poster:hover .play { transform: scale(1.06); }
+  .play-tri {
+    width: 0; height: 0;
+    border-block: 12px solid transparent;
+    border-left: 20px solid var(--cream);
+    margin-left: 5px;
+  }
+  .poster-note { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .player-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 32px 26px;
+    flex-wrap: wrap;
+  }
+  .player-title { font-family: var(--font-serif); font-weight: 500; font-size: clamp(22px, 2.2vw, 28px); }
+  .player-sub { margin-top: 6px; font-size: 14px; color: var(--muted); max-width: 60ch; }
+  .chip--reel { border-color: var(--green); font-size: 11px; padding: 8px 15px; }
+
+  .index-caption { margin-top: 44px; }
+  .index { list-style: none; margin: 14px 0 0; padding: 0; }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    padding-block: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .row-left { display: flex; align-items: center; gap: 18px; min-width: 0; }
+  .row-n { font-size: 14px; font-weight: 600; color: var(--green); }
+  .row-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.3vw, 30px);
+    line-height: 1.2;
+  }
+  .row-right { display: flex; align-items: center; gap: 22px; flex: none; }
+  .row-desc { font-size: 15px; color: var(--muted); max-width: 42ch; text-align: right; }
+  .row-arrow { font-family: var(--font-serif); font-size: 24px; }
+  @media (max-width: 860px) {
+    .row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .row-desc { text-align: left; }
+    .row-right { width: 100%; justify-content: space-between; }
+  }
+</style>

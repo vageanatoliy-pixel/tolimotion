@@ -1,0 +1,86 @@
+<section class="section section--ruled" id="about">
+  <div class="container">
+    <p class="eyebrow">About</p>
+    <h2 class="h-display h-section ab-title">Simple to watch. Light to feel. Deep underneath.</h2>
+
+    <div class="bio">
+      <div class="photo" role="img" aria-label="Portrait placeholder">
+        <span>Photo</span>
+      </div>
+      <div class="bio-copy">
+        <p>
+          Eight years in production — from quick social cuts to long-form launches.
+          My main client is Destination Certification, a North American EdTech
+          company, where I run the full video pipeline: sales videos, ad campaigns,
+          kinetic typography, book covers and sound design. The calendar has room
+          for a few outside projects at a time.
+        </p>
+        <p>
+          The part I care about most is the system underneath: generative video
+          (Veo, Kling, Seedance, Luma Ray 3, Flow) directed inside real edits, and
+          AI copilots (Claude, Gemini, ChatGPT) wired into the tools themselves.
+          Craft where it matters, automation where it scales.
+        </p>
+      </div>
+    </div>
+
+    <ul class="principles">
+      <li><h3>Simple</h3><p>Nothing on screen without a job to do.</p></li>
+      <li><h3>Light</h3><p>Pacing that never makes the viewer work.</p></li>
+      <li><h3>Deep</h3><p>Systems, sound and detail underneath.</p></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ab-title { margin-top: 16px; max-width: 20ch; }
+  .bio {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(32px, 5vw, 56px);
+    align-items: start;
+  }
+  .photo {
+    width: 150px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--band);
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .bio-copy { display: flex; flex-direction: column; gap: 18px; }
+  .bio-copy p {
+    font-family: var(--font-serif);
+    font-size: clamp(16px, 1.5vw, 19px);
+    line-height: 1.72;
+    color: var(--soft);
+    max-width: 70ch;
+  }
+  .principles {
+    list-style: none;
+    margin: 44px 0 0;
+    padding: 28px 0 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+  .principles h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 24px;
+    color: var(--green);
+  }
+  .principles p { margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--muted); }
+  @media (max-width: 720px) {
+    .bio { grid-template-columns: 1fr; }
+    .principles { grid-template-columns: 1fr; gap: 24px; }
+  }
+</style>

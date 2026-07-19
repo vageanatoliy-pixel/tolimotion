@@ -1,0 +1,77 @@
+---
+const adobe = ['Ae', 'Pr', 'Ps', 'Ai', 'Au', 'Id', 'Lr'];
+const motion3d = ['Cavalry', 'Cinema 4D', 'Blender', 'Rive', 'Lottie'];
+const editors = ['DaVinci Resolve', 'Premiere Pro', 'Final Cut Pro', 'After Effects', 'CapCut'];
+const ai = ['Veo', 'Kling', 'Seedance', 'Luma Ray 3', 'Flow', 'Gemini', 'ChatGPT', 'Claude'];
+---
+<section class="section section--ruled" id="toolbox">
+  <div class="container">
+    <p class="eyebrow">Toolbox</p>
+    <h2 class="h-display h-section tb-title">Fluent across the whole stack.</h2>
+
+    <div class="tb-grid">
+      <div class="years">
+        <p class="years-n" aria-label="8 years">8</p>
+        <p class="years-cap">years in full-time production</p>
+      </div>
+
+      <div class="groups">
+        <div class="group">
+          <p class="group-cap">Adobe Creative Cloud — the full suite, daily</p>
+          <div class="tiles">
+            {adobe.map((m) => <span class="tile">{m}</span>)}
+          </div>
+        </div>
+        <div class="group">
+          <p class="group-cap">Motion &amp; 3D</p>
+          <div class="pills">{motion3d.map((m) => <span class="pill">{m}</span>)}</div>
+        </div>
+        <div class="group">
+          <p class="group-cap">Editors I cut in</p>
+          <div class="pills">{editors.map((m) => <span class="pill">{m}</span>)}</div>
+        </div>
+        <div class="group">
+          <p class="group-cap">AI I direct — generation &amp; copilots</p>
+          <div class="pills">{ai.map((m) => <span class="pill pill--ai">{m}</span>)}</div>
+        </div>
+        <p class="tb-note">Fluency is the baseline. The difference is what happens when it's all connected — see the pipeline below.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tb-title { margin-top: 16px; }
+  .tb-grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(40px, 6vw, 72px);
+    align-items: start;
+  }
+  .years-n {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(120px, 12vw, 180px);
+    line-height: 1;
+    color: var(--green);
+  }
+  .years-cap { margin-top: 6px; font-size: 15px; font-weight: 500; color: var(--muted); }
+  .groups { display: flex; flex-direction: column; gap: 28px; }
+  .group-cap { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+  .tiles { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tile {
+    width: 62px; height: 62px;
+    display: grid; place-items: center;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tb-note { font-size: 14px; color: var(--muted); }
+  @media (max-width: 720px) {
+    .tb-grid { grid-template-columns: 1fr; }
+  }
+</style>

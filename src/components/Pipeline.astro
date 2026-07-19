@@ -1,0 +1,86 @@
+---
+import Spark from './Spark.astro';
+const stages = [
+  { s: 'Script & prompts', t: 'Claude · Gemini · ChatGPT' },
+  { s: 'Design & boards', t: 'Figma · Ps · Ai' },
+  { s: 'Generate', t: 'Veo · Kling · Seedance · Ray 3 · Flow' },
+  { s: 'Animate & comp', t: 'AE · Cavalry · C4D · Blender · Rive' },
+  { s: 'Edit & ship', t: 'Resolve · sound · grade' },
+];
+---
+<section class="section section--ruled" id="pipeline">
+  <div class="container">
+    <p class="eyebrow">The pipeline</p>
+    <h2 class="h-display h-section pl-title">Everything is wired together.</h2>
+    <p class="pl-sub">
+      One connected system instead of a toolchain: MCP servers, raw APIs and Python
+      put AI inside the production files, not beside them. For a client, that's the
+      whole point — more versions, more formats, faster rounds, without an agency's overhead.
+    </p>
+
+    <ol class="flow">
+      {stages.map((st, i) => (
+        <>
+          {i > 0 && <li class="arrow" aria-hidden="true">→</li>}
+          <li class="node">
+            <p class="node-stage">{st.s}</p>
+            <p class="node-tools">{st.t}</p>
+          </li>
+        </>
+      ))}
+    </ol>
+
+    <p class="pl-quote">
+      <Spark size={20} />
+      <em>The connectors are mine: MCP servers linking Figma, DaVinci Resolve and Claude;
+      Kling driven over raw API; Python everywhere in between.</em>
+    </p>
+  </div>
+</section>
+
+<style>
+  .pl-title { margin-top: 16px; }
+  .pl-sub { margin-top: 18px; max-width: 72ch; font-size: 16px; line-height: 1.6; color: var(--muted); }
+  .flow {
+    list-style: none;
+    margin: 36px 0 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .node {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px 20px;
+  }
+  .node-stage {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+  .node-tools { margin-top: 8px; font-size: 13.5px; line-height: 1.5; }
+  .arrow {
+    align-self: center;
+    font-family: var(--font-serif);
+    font-size: 22px;
+    color: var(--muted);
+  }
+  .pl-quote {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 1.7vw, 20px);
+    line-height: 1.5;
+  }
+  @media (max-width: 900px) {
+    .flow { flex-direction: column; }
+    .arrow { transform: rotate(90deg); align-self: flex-start; margin-left: 24px; }
+  }
+</style>

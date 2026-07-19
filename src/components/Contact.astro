@@ -1,0 +1,46 @@
+---
+import Spark from './Spark.astro';
+---
+<section class="contact-section">
+  <div class="container">
+    <div class="cta">
+      <Spark size={36} color="var(--cream)" />
+      <h2 class="h-display cta-title">Let's make something worth watching.</h2>
+      <p class="cta-sub">One clear brief is enough to start. I reply within a day.</p>
+      <a class="cta-btn" href="mailto:hello@tolimotion.com">hello@tolimotion.com</a>
+      <div class="socials">
+        <a href="#" aria-disabled="true">Behance</a>
+        <a href="#" aria-disabled="true">LinkedIn</a>
+        <a href="#" aria-disabled="true">Telegram</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-section { padding-block: 16px clamp(56px, 7vw, 88px); }
+  .cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    background: var(--green);
+    border-radius: 32px;
+    padding: clamp(56px, 7vw, 84px) clamp(24px, 6vw, 80px);
+  }
+  .cta-title { color: var(--cream); font-size: clamp(32px, 4.5vw, 54px); }
+  .cta-sub { color: var(--cream); opacity: 0.8; font-size: 16px; }
+  .cta-btn {
+    padding: 16px 32px;
+    border-radius: 999px;
+    background: var(--cream);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .cta-btn:hover { filter: brightness(1.04); }
+  .socials { display: flex; gap: 24px; }
+  .socials a { color: var(--cream); opacity: 0.85; font-size: 14px; font-weight: 500; }
+  .socials a:hover { opacity: 1; }
+</style>

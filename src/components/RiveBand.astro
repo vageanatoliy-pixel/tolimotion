@@ -1,0 +1,35 @@
+---
+import Spark from './Spark.astro';
+---
+<section class="rive-section">
+  <div class="container">
+    <!-- Phase 4: this whole band is replaced by the Rive canvas.
+         Keep id="rive-band" — the runtime mounts here. -->
+    <div class="rive-band" id="rive-band">
+      <Spark size={56} />
+      <p class="rive-title">The Timeline — drag the playhead</p>
+      <p class="rive-caption">simple → light → deep · scrub follows your cursor · idle loop on touch</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .rive-section { padding-block: 16px clamp(48px, 6vw, 80px); }
+  .rive-band {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: clamp(300px, 32vw, 440px);
+    background: var(--band);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+  }
+  .rive-title {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(20px, 2vw, 27px);
+  }
+  .rive-caption { font-size: 14px; color: var(--muted); text-align: center; padding-inline: 20px; }
+</style>
