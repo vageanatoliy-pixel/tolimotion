@@ -1,13 +1,7 @@
 <script>
   const revealSelector = [
-    '.hero-title',
-    '.hero-lead',
     '.work-title',
-    '.player',
-    '.row',
     '.tb-title',
-    '.years',
-    '.group',
     '.pl-title',
     '.ab-title',
     '.cta-title',
@@ -15,9 +9,8 @@
 
   const revealItems = [...document.querySelectorAll(revealSelector)];
 
-  revealItems.forEach((item, index) => {
+  revealItems.forEach((item) => {
     item.classList.add('scroll-reveal');
-    item.style.setProperty('--reveal-delay', `${Math.min(index * 45, 240)}ms`);
   });
 
   if ('IntersectionObserver' in window) {
@@ -31,8 +24,8 @@
         });
       },
       {
-        threshold: 0.16,
-        rootMargin: '0px 0px -10% 0px',
+        threshold: 0.2,
+        rootMargin: '0px 0px -12% 0px',
       }
     );
 
