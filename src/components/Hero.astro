@@ -1,4 +1,5 @@
 <section class="hero" id="top">
+  <canvas class="hero-canvas" aria-hidden="true"></canvas>
   <div class="container">
     <p class="eyebrow">Motion design × AI-integrated production</p>
     <h1 class="h-display hero-title">
@@ -18,7 +19,18 @@
 </section>
 
 <style>
-  .hero { padding-block: clamp(64px, 9vw, 110px) clamp(32px, 5vw, 48px); }
+  .hero {
+    position: relative;
+    padding-block: clamp(64px, 9vw, 110px) clamp(32px, 5vw, 48px);
+  }
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .hero .container { position: relative; }
   .hero-title {
     font-size: clamp(44px, 6.5vw, 84px);
     max-width: 13ch;
@@ -46,3 +58,125 @@
   .hero-mail { font-weight: 500; font-size: 16px; }
   .hero-mail:hover { color: var(--green); }
 </style>
+
+<script>
+  /* Cursor trail: tiny keyframe diamonds (echoing the timeline scene) spawn
+     along the pointer path and dissolve when it stops. Mouse/pen only;
+     prefers-reduced-motion disables it entirely. */
+  const hero = document.querySelector<HTMLElement>('.hero');
+  const canvas = document.querySelector<HTMLCanvasElement>('.hero-canvas');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (hero && canvas && !reduced) {
+    const ctx = canvas.getContext('2d')!;
+    const css = getComputedStyle(document.documentElement);
+    const INK = css.getPropertyValue('--ink').trim() || '#262319';
+    const GREEN = css.getPropertyValue('--green').trim() || '#2E5E4E';
+
+    let dpr = 1;
+    const resize = () => {
+      /* a backgrounded tab can report 0×0 at load — keep the old size and
+         retry on the next resize/spawn instead of collapsing the canvas */
+      if (!hero.clientWidth || !hero.clientHeight) return;
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = hero.clientWidth * dpr;
+      canvas.height = hero.clientHeight * dpr;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    type P = { x: number; y: number; vx: number; vy: number; t: number; life: number; s: number; a: number; rot: number; spin: number; color: string };
+    const parts: P[] = [];
+    const MAX = 90;
+    let rafId = 0;
+    let running = false;
+    let last = 0;
+
+    const tick = (now: number) => {
+      const dt = Math.min(50, now - last || 16);
+      last = now;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i];
+        p.t += dt;
+        if (p.t >= p.life) { parts.splice(i, 1); continue; }
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+        p.rot += p.spin * dt;
+
+        const k = p.t / p.life;               // 0 → 1 over the particle's life
+        const fade = 1 - k * k;               // ease-out fade
+        const size = p.s * (1 - 0.5 * k) * dpr;
+
+        ctx.save();
+        ctx.translate(p.x * dpr, p.y * dpr);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = p.a * fade;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      if (parts.length) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        running = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    const start = () => {
+      if (!canvas.width) resize();
+      if (!running) {
+        running = true;
+        last = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    let prevX = 0, prevY = 0, travelled = 0, hasPrev = false;
+    hero.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return;
+      const r = hero.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      if (!hasPrev) { prevX = x; prevY = y; hasPrev = true; return; }
+
+      const dx = x - prevX, dy = y - prevY;
+      const dist = Math.hypot(dx, dy);
+      travelled += dist;
+      prevX = x; prevY = y;
+
+      // one diamond per ~14px of pointer travel
+      while (travelled >= 14 && parts.length < MAX) {
+        travelled -= 14;
+        const green = Math.random() < 0.35;
+        parts.push({
+          x: x + (Math.random() - 0.5) * 10,
+          y: y + (Math.random() - 0.5) * 10,
+          vx: dx / 60 + (Math.random() - 0.5) * 0.04,
+          vy: dy / 60 + (Math.random() - 0.5) * 0.04 - 0.015,
+          t: 0,
+          life: 600 + Math.random() * 500,
+          s: 2.5 + Math.random() * 3.5,
+          a: green ? 0.25 + Math.random() * 0.25 : 0.12 + Math.random() * 0.18,
+          rot: Math.random() * Math.PI,
+          spin: (Math.random() - 0.5) * 0.002,
+          color: green ? GREEN : INK,
+        });
+      }
+      travelled = Math.min(travelled, 14);
+      start();
+    });
+    hero.addEventListener('pointerleave', () => { hasPrev = false; });
+  }
+</script>
