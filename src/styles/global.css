@@ -8,7 +8,12 @@
   --muted: #6F6857;
   --line:  #DCD5C3;
   --green: #2E5E4E;
-  --clay:  #C96F4A;
+  --clay:  #C96F4A;   /* illustration micro-palette only */
+  --indigo: #44518F;  /* illustration palette only */
+  --scene-red:    #D9493A;  /* illustration palette only */
+  --scene-blue:   #4E97CF;  /* illustration palette only */
+  --scene-yellow: #EDBE4B;  /* illustration palette only */
+  --scene-pink:   #E38DA6;  /* illustration palette only */
   --cream: #F6F3EA;
 
   --font-serif: 'Newsreader Variable', Georgia, 'Times New Roman', serif;

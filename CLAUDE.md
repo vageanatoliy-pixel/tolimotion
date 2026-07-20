@@ -20,7 +20,9 @@ Storyboard for the hero Rive scene: page **"Rive — The Timeline (storyboard)"*
 | --muted | #6F6857 | secondary text |
 | --line  | #DCD5C3 | hairlines, borders |
 | --green | #2E5E4E | the only accent |
-| --clay  | #C96F4A | reserved (video chip in spec) — currently unused |
+| --clay  | #C96F4A | reserved, currently unused |
+| --indigo | #44518F | illustration palette (hero scene: "deep" clip) |
+| --scene-red / blue / yellow / pink | #D9493A / #4E97CF / #EDBE4B / #E38DA6 | illustration palette ONLY |
 | --cream | #F6F3EA | text on green |
 
 Typography: **Newsreader Variable** (display + serif paragraphs, weight 500 for headings, italic for accents), **Inter Variable** (UI, labels, buttons). Both self-hosted via @fontsource-variable.
@@ -28,7 +30,7 @@ Typography: **Newsreader Variable** (display + serif paragraphs, weight 500 for 
 ## Hard rules
 1. Text stays real text — never bake copy into images, video or Lottie.
 2. Exactly **one** video on the whole site (the showreel). Everything else is Rive, Lottie or code.
-3. One accent color (green). The 8-point spark is the only brand mark.
+3. One accent color (green) in ALL site UI. Exception: illustration artwork (hero scene, future Lottie vignettes) uses the Bauhaus scene palette: scene-red, scene-blue, scene-yellow, scene-pink, indigo + ink, on cream. Deliberately NOT the Google primaries. These colors never leak into buttons, links, chips or body text. Mapping in the hero: ball = red (the character), simple = blue, light = yellow (label in ink for contrast), deep = indigo, playhead & diamonds = ink.
 4. `prefers-reduced-motion` must disable all animation and show final frames. Already wired in global.css — keep it working.
 5. No new npm dependencies without a reason. Approved for later phases: `gsap`, `@rive-app/canvas`, `@lottiefiles/dotlottie-web`.
 6. Lighthouse ≥ 90 on every category. Budget: each .lottie < 150 KB, .riv < 200 KB.
@@ -44,7 +46,7 @@ Typography: **Newsreader Variable** (display + serif paragraphs, weight 500 for 
 - Pipeline nodes: light up left-to-right on scroll, arrows draw in sequence.
 
 ## Phase 4 — animation slots (placeholders already in markup)
-- `#rive-band` — replaced by the Rive canvas. Scene "The Timeline": inputs `scrub` (0–100, from pointer X with lerp ~0.1), `pointer_in` (bool), `tap_burst` (trigger). Idle autoplay loop on touch. Spec lives in the Figma storyboard page.
+- Hero scene "The Timeline" is DONE in code: `src/components/TimelineScene.astro` (SVG + vanilla JS, zero deps). Behavior contract: pointer X scrubs the playhead (lerp), idle loop 8s + 1s hold + 0.45s rewind, IntersectionObserver pauses offscreen, prefers-reduced-motion shows a static frame. Ball physics: linear over "simple", eased hop above the line over "light", dive below the line over "deep". A Rive rebuild may replace the SVG innards later — keep the same behavior contract. Color key lives on the Figma page "Rive — The Timeline (storyboard)".
 - `.poster` in Work — becomes the real showreel player: `<video>` with poster, custom play, `preload="none"`. File goes to `/public/showreel.mp4` (H.264, ~15–25 MB max).
 - Each `.row` in the project index — gets a Lottie vignette: play on scroll-into-view, replay on hover. dotLottie format.
 - Contact spark — reuse the same Rive asset in idle state (later).

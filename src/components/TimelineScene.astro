@@ -1,0 +1,200 @@
+<section class="scene-section">
+  <div class="container">
+    <!-- Hero scene "The Timeline": cause below (playhead + layers), effect above (the ball).
+         Built in code (SVG + vanilla JS). A Rive rebuild can replace the innards later —
+         the mount point and behavior contract stay the same. -->
+    <div class="scene" id="timeline-scene">
+      <svg viewBox="0 0 960 600" role="img"
+        aria-label="Interactive timeline. Drag the playhead: over “simple” the ball moves in a straight line, over “light” it hops with easing, over “deep” it dives below the surface.">
+        <!-- stage -->
+        <line class="path-line" x1="200" y1="190" x2="760" y2="190" />
+        <circle class="wp wp-a" cx="200" cy="190" r="7" />
+        <circle class="wp wp-b" cx="340" cy="190" r="7" />
+        <circle class="wp wp-c" cx="620" cy="190" r="7" />
+        <circle class="wp wp-d" cx="760" cy="190" r="7" />
+        <g id="ball" transform="translate(344 190)"><circle r="34" /></g>
+
+        <!-- timeline -->
+        <rect class="track" x="110" y="449" width="740" height="6" rx="3" />
+        <g class="clip clip-simple">
+          <rect x="110" y="380" width="550" height="48" rx="14" />
+          <text x="130" y="411">simple</text>
+        </g>
+        <g class="clip clip-light">
+          <rect x="360" y="478" width="330" height="48" rx="14" />
+          <text x="380" y="509">light</text>
+        </g>
+        <g class="clip clip-deep">
+          <rect x="590" y="534" width="290" height="48" rx="14" />
+          <text x="610" y="565">deep</text>
+        </g>
+        <path class="dia" d="M120 442 L130 452 L120 462 L110 452 Z" />
+        <path class="dia" d="M390 442 L400 452 L390 462 L380 452 Z" />
+        <path class="dia" d="M640 442 L650 452 L640 462 L630 452 Z" />
+
+        <g id="playhead" transform="translate(300 0)">
+          <path d="M-18 340 L18 340 L0 366 Z" />
+          <rect x="-2.5" y="362" width="5" height="208" rx="2.5" />
+        </g>
+      </svg>
+      <p class="scene-caption">drag the playhead · simple → light → deep</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .scene-section { padding-block: 16px clamp(48px, 6vw, 80px); }
+  .scene {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    padding: clamp(8px, 2vw, 24px) clamp(8px, 2vw, 24px) 18px;
+    touch-action: pan-y;
+  }
+  .scene svg { width: 100%; height: auto; }
+  .path-line {
+    stroke: var(--muted);
+    stroke-opacity: 0.5;
+    stroke-width: 3;
+    stroke-dasharray: 8 10;
+    stroke-linecap: round;
+  }
+  .wp { fill-opacity: 0.9; }
+  .wp-a { fill: var(--scene-blue); }
+  .wp-b { fill: var(--scene-yellow); }
+  .wp-c { fill: var(--scene-pink); }
+  .wp-d { fill: var(--indigo); }
+  #ball circle { fill: var(--scene-red); }
+  .track { fill: var(--line); }
+  .clip-simple rect { fill: var(--scene-blue); }
+  .clip-light rect { fill: var(--scene-yellow); }
+  .clip-deep rect { fill: var(--indigo); }
+  .clip text {
+    fill: var(--cream);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .clip-light text { fill: var(--ink); }
+  .dia { fill: var(--ink); }
+  #playhead path, #playhead rect { fill: var(--ink); }
+  .scene-caption {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const scene = document.getElementById('timeline-scene');
+  const svg = scene?.querySelector('svg');
+  const ball = document.getElementById('ball');
+  const playhead = document.getElementById('playhead');
+
+  if (scene && svg && ball && playhead) {
+    // Geometry contract (must match the SVG above)
+    const PMIN = 110, PMAX = 850;      // playhead travel
+    const D2 = 390, D3 = 640;          // segment boundaries (keyframe diamonds)
+    const SX0 = 200, SX1 = 760, SY = 190; // stage path
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const stageX = (frac) => SX0 + frac * (SX1 - SX0);
+    const frac = (px) => (px - PMIN) / (PMAX - PMIN);
+
+    // p in [0,1] -> full pose of the scene
+    function pose(p) {
+      const px = PMIN + p * (PMAX - PMIN);
+      let bx = stageX(p), by = SY, sx = 1, sy = 1;
+
+      if (px >= D2 && px < D3) {
+        // LIGHT — eased hop above the surface, slight stretch at the apex
+        const t = (px - D2) / (D3 - D2);
+        const xs = stageX(frac(D2)), xe = stageX(frac(D3));
+        bx = xs + easeIO(t) * (xe - xs);
+        const arc = Math.sin(Math.PI * t);
+        by = SY - 80 * arc;
+        sy = 1 + 0.16 * arc;
+        sx = 1 - 0.1 * arc;
+      } else if (px >= D3) {
+        // DEEP — dives below the surface
+        const t = (px - D3) / (PMAX - D3);
+        const xs = stageX(frac(D3)), xe = SX1;
+        bx = xs + easeIO(t) * (xe - xs);
+        const arc = Math.sin(Math.PI * t);
+        by = SY + 95 * arc;
+        sy = 1 - 0.12 * arc;
+        sx = 1 + 0.08 * arc;
+      }
+      // SIMPLE — deliberately linear, glued to the line (default values)
+      return { px, bx, by, sx, sy };
+    }
+
+    function apply(p) {
+      const { px, bx, by, sx, sy } = pose(p);
+      playhead.setAttribute('transform', `translate(${px.toFixed(1)} 0)`);
+      ball.setAttribute('transform', `translate(${bx.toFixed(1)} ${by.toFixed(1)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+    }
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      apply(0.26); // calm static frame
+    } else {
+      // Idle loop: forward 8s -> hold 1s -> fast rewind 0.45s (like an editor scrubbing back)
+      const IDLE = 8000, HOLD = 1000, REWIND = 450, CYCLE = IDLE + HOLD + REWIND;
+      const idleP = (t) => {
+        const m = t % CYCLE;
+        if (m < IDLE) return m / IDLE;
+        if (m < IDLE + HOLD) return 1;
+        return 1 - (m - IDLE - HOLD) / REWIND;
+      };
+
+      let p = 0.26, target = 0.26;
+      let mode = 'idle';          // 'idle' | 'pointer' | 'cooldown'
+      let idleT = 0.26 * IDLE;
+      let cooldownLeft = 0;
+      let running = false, rafId = 0, last = 0;
+
+      const step = (now) => {
+        if (!running) return;
+        const dt = Math.min(50, now - last || 16);
+        last = now;
+
+        if (mode === 'idle') {
+          idleT += dt;
+          p = idleP(idleT);
+        } else {
+          if (mode === 'cooldown') {
+            cooldownLeft -= dt;
+            if (cooldownLeft <= 0) { mode = 'idle'; idleT = clamp(p, 0, 1) * IDLE; }
+          }
+          p += (target - p) * (1 - Math.exp(-dt / 80));
+        }
+        apply(p);
+        rafId = requestAnimationFrame(step);
+      };
+
+      const start = () => { if (!running) { running = true; last = performance.now(); rafId = requestAnimationFrame(step); } };
+      const stop = () => { running = false; cancelAnimationFrame(rafId); };
+
+      scene.addEventListener('pointermove', (e) => {
+        const r = svg.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 960;
+        target = clamp((x - PMIN) / (PMAX - PMIN), 0, 1);
+        mode = 'pointer';
+      });
+      scene.addEventListener('pointerleave', () => {
+        mode = 'cooldown';
+        cooldownLeft = 1500;
+      });
+
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((en) => (en.isIntersecting ? start() : stop())),
+        { threshold: 0.05 }
+      );
+      io.observe(scene);
+      apply(p);
+    }
+  }
+</script>
