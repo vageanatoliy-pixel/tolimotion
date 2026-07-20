@@ -117,30 +117,6 @@ button { font: inherit; border: none; background: none; cursor: pointer; padding
 
 .spark { flex: none; }
 
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  filter: blur(4px);
-  transition:
-    opacity var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms),
-    transform var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms),
-    filter var(--dur-slow) var(--ease-out) var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
-}
-.scroll-reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scroll-reveal {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-
 /* Visible keyboard focus */
 :focus-visible {
   outline: 2px solid var(--green);

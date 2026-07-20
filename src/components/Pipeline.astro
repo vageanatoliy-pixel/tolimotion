@@ -21,7 +21,20 @@ const stages = [
     <ol class="flow">
       {stages.map((st, i) => (
         <>
-          {i > 0 && <li class="arrow" aria-hidden="true">→</li>}
+          {i > 0 && (
+            <li class="arrow" aria-hidden="true">
+              <svg viewBox="0 0 32 14" width="32" height="14" fill="none">
+                <path
+                  class="arrow-path"
+                  d="M1 7 H29 M23 1.5 L29.5 7 L23 12.5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </li>
+          )}
           <li class="node">
             <p class="node-stage">{st.s}</p>
             <p class="node-tools">{st.t}</p>
@@ -66,10 +79,9 @@ const stages = [
   .node-tools { margin-top: 8px; font-size: 13.5px; line-height: 1.5; }
   .arrow {
     align-self: center;
-    font-family: var(--font-serif);
-    font-size: 22px;
     color: var(--muted);
   }
+  .arrow svg { display: block; }
   .pl-quote {
     margin-top: 30px;
     display: flex;

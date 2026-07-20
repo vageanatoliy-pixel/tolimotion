@@ -3,7 +3,7 @@ import '@fontsource-variable/inter';
 import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/newsreader/opsz-italic.css';
 import '../styles/global.css';
-import ScrollText from '../components/ScrollText.astro';
+import Motion from '../components/Motion.astro';
 
 interface Props { title?: string; description?: string; }
 const {
@@ -27,6 +27,6 @@ const {
   </head>
   <body>
     <slot />
-    <ScrollText />
+    <Motion />
   </body>
 </html>

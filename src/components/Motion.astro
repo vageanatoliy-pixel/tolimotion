@@ -1,0 +1,115 @@
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+  import { CustomEase } from 'gsap/CustomEase';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduced) {
+    gsap.registerPlugin(ScrollTrigger, SplitText, CustomEase);
+
+    CustomEase.create('reveal', '0.22, 1, 0.36, 1');
+    gsap.defaults({ ease: 'reveal', duration: 0.7 });
+
+    const once = (trigger) => ({ trigger, start: 'top 85%', once: true });
+
+    /* The one reveal move: 24px rise + fade, play once on scroll. */
+    const rise = (targets, vars = {}, trigger = null) => {
+      const els = gsap.utils.toArray(targets);
+      if (!els.length) return;
+      gsap.from(els, {
+        y: 24,
+        autoAlpha: 0,
+        scrollTrigger: once(trigger ?? els[0]),
+        ...vars,
+      });
+    };
+
+    /* ---------- Hero: kinetic type on load ---------- */
+    gsap.set(['.hero .eyebrow', '.hero-title', '.hero-lead', '.hero-ctas'], { autoAlpha: 0 });
+
+    document.fonts.ready.then(() => {
+      const split = SplitText.create('.hero-title', { type: 'words', mask: 'words' });
+      const italicWords = split.words.filter((w) => w.closest('em'));
+      const plainWords = split.words.filter((w) => !w.closest('em'));
+
+      gsap.set('.hero-title', { autoAlpha: 1 });
+
+      gsap.timeline()
+        .fromTo('.hero .eyebrow', { y: 24 }, { y: 0, autoAlpha: 1 })
+        .from(plainWords, { yPercent: 115, duration: 0.9, stagger: 0.06 }, '-=0.45')
+        .from(italicWords, { yPercent: 115, duration: 1.1, stagger: 0.08 }, '-=0.55')
+        .fromTo('.hero-lead', { y: 24 }, { y: 0, autoAlpha: 1 }, '-=0.7')
+        .fromTo('.hero-ctas', { y: 24 }, { y: 0, autoAlpha: 1 }, '-=0.55');
+    });
+
+    /* ---------- Section reveals (play once) ---------- */
+    rise('.rive-band');
+    rise('#work .eyebrow');
+    rise('.work-title');
+    rise('.player');
+    rise('.index-caption');
+    gsap.utils.toArray('.row').forEach((row) => rise(row));
+    rise('#toolbox .eyebrow');
+    rise('.tb-title');
+    rise('.tb-note');
+    rise('#pipeline .eyebrow');
+    rise('.pl-title');
+    rise('.pl-sub');
+    rise('.pl-quote');
+    rise('#about .eyebrow');
+    rise('.ab-title');
+    rise('.bio');
+    rise('.principles li', { stagger: 0.12 }, '.principles');
+    rise('.cta > *', { stagger: 0.09 }, '.cta');
+
+    /* ---------- Toolbox: odometer 1 → 8 ---------- */
+    const track = document.querySelector('.odo-track');
+    if (track) {
+      gsap.set(track, { '--odo': 0 }); /* rewind from the static "8" frame to "1" */
+      gsap.to(track, {
+        '--odo': -87.5,
+        duration: 1.4,
+        ease: 'power4.inOut',
+        scrollTrigger: once('.years'),
+      });
+      rise('.years-cap', {}, '.years');
+    }
+
+    /* ---------- Toolbox: tiles & pills staggered pop-in ---------- */
+    gsap.utils.toArray('#toolbox .group').forEach((group) => {
+      rise(group.querySelector('.group-cap'), {}, group);
+      gsap.from(group.querySelectorAll('.tile, .pill'), {
+        y: 16,
+        autoAlpha: 0,
+        scale: 0.85,
+        duration: 0.4,
+        ease: 'back.out(1.7)',
+        stagger: 0.06,
+        scrollTrigger: once(group),
+      });
+    });
+
+    /* ---------- Pipeline: nodes light up left-to-right, arrows draw ---------- */
+    const flow = document.querySelector('.flow');
+    if (flow) {
+      const tl = gsap.timeline({ scrollTrigger: once(flow) });
+      [...flow.children].forEach((el) => {
+        if (el.classList.contains('node')) {
+          tl.from(el, { y: 24, autoAlpha: 0, borderColor: '#2E5E4E', duration: 0.5 }, '-=0.15');
+        } else {
+          const path = el.querySelector('.arrow-path');
+          if (!path) return;
+          const len = path.getTotalLength();
+          tl.fromTo(
+            path,
+            { strokeDasharray: len, strokeDashoffset: len },
+            { strokeDashoffset: 0, duration: 0.35, ease: 'power2.out' },
+            '-=0.1'
+          );
+        }
+      });
+    }
+  }
+</script>
