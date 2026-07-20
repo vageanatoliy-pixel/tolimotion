@@ -60,7 +60,7 @@
 </style>
 
 <script>
-  /* Cursor trail: tiny keyframe diamonds (echoing the timeline scene) spawn
+  /* Cursor trail: tiny keyframe diamonds in the Bauhaus scene palette spawn
      along the pointer path and dissolve when it stops. Mouse/pen only;
      prefers-reduced-motion disables it entirely. */
   const hero = document.querySelector<HTMLElement>('.hero');
@@ -70,8 +70,17 @@
   if (hero && canvas && !reduced) {
     const ctx = canvas.getContext('2d')!;
     const css = getComputedStyle(document.documentElement);
-    const INK = css.getPropertyValue('--ink').trim() || '#262319';
-    const GREEN = css.getPropertyValue('--green').trim() || '#2E5E4E';
+    const token = (name: string, fallback: string) =>
+      css.getPropertyValue(name).trim() || fallback;
+    /* illustration palette only (CLAUDE.md rule 3) */
+    const COLORS = [
+      token('--scene-red', '#D9493A'),
+      token('--scene-blue', '#4E97CF'),
+      token('--scene-yellow', '#EDBE4B'),
+      token('--scene-pink', '#E38DA6'),
+      token('--indigo', '#44518F'),
+      token('--green', '#2E5E4E'),
+    ];
 
     let dpr = 1;
     const resize = () => {
@@ -159,7 +168,6 @@
       // one diamond per ~14px of pointer travel
       while (travelled >= 14 && parts.length < MAX) {
         travelled -= 14;
-        const green = Math.random() < 0.35;
         parts.push({
           x: x + (Math.random() - 0.5) * 10,
           y: y + (Math.random() - 0.5) * 10,
@@ -168,10 +176,10 @@
           t: 0,
           life: 600 + Math.random() * 500,
           s: 2.5 + Math.random() * 3.5,
-          a: green ? 0.25 + Math.random() * 0.25 : 0.12 + Math.random() * 0.18,
+          a: 0.5 + Math.random() * 0.35,
           rot: Math.random() * Math.PI,
           spin: (Math.random() - 0.5) * 0.002,
-          color: green ? GREEN : INK,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
         });
       }
       travelled = Math.min(travelled, 14);
