@@ -1,10 +1,9 @@
 ---
+/* Brand mark "Mark E1" — hourglass of two triangles, solid fill.
+   Source: Figma node 43:6 ("Mark E1 / 140"), cropped to fit. */
 interface Props { size?: number; color?: string; class?: string; }
 const { size = 20, color = 'var(--green)', class: className = '' } = Astro.props;
 ---
-<svg class={`spark ${className}`} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
-  <path
-    fill={color}
-    d="M30.2 14.8H69.8C76.7 14.8 80.4 22.8 75.9 28.1L58.2 48.8C53.9 53.8 46.1 53.8 41.8 48.8L24.1 28.1C19.6 22.8 23.3 14.8 30.2 14.8ZM30.2 85.2H69.8C76.7 85.2 80.4 77.2 75.9 71.9L58.2 51.2C53.9 46.2 46.1 46.2 41.8 51.2L24.1 71.9C19.6 77.2 23.3 85.2 30.2 85.2Z"
-  />
+<svg class={`spark ${className}`} width={size} height={size} viewBox="36 17 69 105" aria-hidden="true">
+  <path fill={color} d="M92.1904 18C98.94 18 103.288 25.1542 100.179 31.1452L80.2768 69.5L100.179 107.855C103.288 113.846 98.94 121 92.1904 121L48.8096 121C42.06 121 37.7123 113.846 40.821 107.855L60.7232 69.5L40.821 31.1452C37.7123 25.1542 42.06 18 48.8096 18L92.1904 18Z"/>
 </svg>
