@@ -4,7 +4,7 @@ import Spark from './Spark.astro';
 <header class="site-header">
   <div class="container header-inner">
     <a href="#top" class="logo">
-      <Spark size={20} />
+      <Spark size={17} />
       <span>Toli</span>
     </a>
     <nav class="nav" aria-label="Main">
@@ -28,7 +28,9 @@ import Spark from './Spark.astro';
   }
   .logo {
     display: inline-flex;
-    align-items: center;
+    /* baseline: the mark sits on the text baseline like a glyph,
+       sized to the cap height of "Toli" */
+    align-items: baseline;
     gap: 10px;
     font-family: var(--font-serif);
     font-weight: 500;
