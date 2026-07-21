@@ -1,19 +1,17 @@
 <section class="scene-section">
   <div class="container">
-    <!-- Hero scene "The Timeline": cause below (playhead + layers), effect above (the ball).
-         Built in code (SVG + vanilla JS). A Rive rebuild can replace the innards later —
+    <!-- Hero scene "The Timeline": cause below (playhead + layers), effect above (the orrery).
+         The stage is a Canvas-2D solar system drawn EDGE-ON — all orbits collapse into one
+         dashed line. Over "simple" it stays a grey line drawing; over "light" the planets
+         ignite in the scene palette and the sun glows; entering "deep" the whole system
+         snaps into a tilted 3D view revealing the full orbits (underdamped spring, sharp).
+         Everything is a pure function of playhead position + a free-running clock,
+         so scrubbing is fully bidirectional. A Rive rebuild can replace the innards later —
          the mount point and behavior contract stay the same. -->
     <div class="scene" id="timeline-scene">
-      <svg viewBox="0 0 960 600" role="img"
-        aria-label="Interactive timeline. Drag the playhead: over “simple” the ball moves in a straight line, over “light” it hops with easing, over “deep” it dives below the surface.">
-        <!-- stage -->
-        <line class="path-line" x1="200" y1="190" x2="760" y2="190" />
-        <circle class="wp wp-a" cx="200" cy="190" r="7" />
-        <circle class="wp wp-b" cx="340" cy="190" r="7" />
-        <circle class="wp wp-c" cx="620" cy="190" r="7" />
-        <circle class="wp wp-d" cx="760" cy="190" r="7" />
-        <g id="ball" transform="translate(344 190)"><circle r="34" /></g>
-
+      <canvas class="stage" aria-hidden="true"></canvas>
+      <svg viewBox="0 340 960 260" role="img"
+        aria-label="Interactive timeline. Drag the playhead: over “simple” the planets sit on a flat dashed line, over “light” they take color and the sun glows, over “deep” the system tilts into 3D and the full orbits appear.">
         <!-- timeline -->
         <rect class="track" x="110" y="449" width="740" height="6" rx="3" />
         <g class="clip clip-simple">
@@ -49,23 +47,20 @@
     border: 1px solid var(--line);
     border-radius: 32px;
     padding: clamp(8px, 2vw, 24px) clamp(8px, 2vw, 24px) 18px;
-    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
   }
-  .scene svg { width: 100%; height: auto; }
-  .path-line {
-    stroke: var(--muted);
-    stroke-opacity: 0.5;
-    stroke-width: 3;
-    stroke-dasharray: 8 10;
-    stroke-linecap: round;
+  .stage {
+    display: block;
+    width: 100%;
+    height: clamp(220px, 30vw, 340px);
   }
-  .wp { fill-opacity: 0.9; }
-  .wp-a { fill: var(--scene-blue); }
-  .wp-b { fill: var(--scene-yellow); }
-  .wp-c { fill: var(--scene-pink); }
-  .wp-d { fill: var(--indigo); }
-  #ball circle { fill: var(--scene-red); }
+  .scene svg { width: 100%; height: auto; display: block; }
   .track { fill: var(--line); }
+  .clip { opacity: 0.85; transition: opacity var(--dur-base) var(--ease-out); }
+  .clip.is-active { opacity: 1; }
   .clip-simple rect { fill: var(--scene-blue); }
   .clip-light rect { fill: var(--scene-yellow); }
   .clip-deep rect { fill: var(--indigo); }
@@ -88,113 +83,397 @@
 
 <script>
   const scene = document.getElementById('timeline-scene');
+  const canvas = scene?.querySelector('canvas');
+  const ctx = canvas?.getContext('2d');
   const svg = scene?.querySelector('svg');
-  const ball = document.getElementById('ball');
   const playhead = document.getElementById('playhead');
 
-  if (scene && svg && ball && playhead) {
-    // Geometry contract (must match the SVG above)
+  if (scene && canvas && ctx && svg && playhead) {
+    const clips = [...scene.querySelectorAll('.clip')];
+
+    /* Design tokens (single source of truth: global.css) */
+    const cs = getComputedStyle(scene);
+    const tok = (n: string, fb: string) => cs.getPropertyValue(n).trim() || fb;
+    const INK = tok('--ink', '#262319'), CREAM = tok('--cream', '#F6F3EA'),
+      MUTED = tok('--muted', '#6F6857'), RED = tok('--scene-red', '#D9493A'),
+      YEL = tok('--scene-yellow', '#EDBE4B'), BLU = tok('--scene-blue', '#4E97CF'),
+      PNK = tok('--scene-pink', '#E38DA6'), IND = tok('--indigo', '#44518F');
+
+    /* Geometry contract (must match the SVG above) */
     const PMIN = 110, PMAX = 850;      // playhead travel
-    const D2 = 390, D3 = 640;          // segment boundaries (keyframe diamonds)
-    const SX0 = 200, SX1 = 760, SY = 190; // stage path
+    const D2 = 400, D3 = 650;          // keyframe diamonds = phase boundaries
+    const B1 = (D2 - PMIN) / (PMAX - PMIN);   // ≈ .392  simple|light
+    const B2 = (D3 - PMIN) / (PMAX - PMIN);   // ≈ .730  light|deep
 
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-    const stageX = (frac) => SX0 + frac * (SX1 - SX0);
-    const frac = (px) => (px - PMIN) / (PMAX - PMIN);
+    const TAU = Math.PI * 2;
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    const sstep = (a: number, b: number, v: number) => {
+      const x = clamp((v - a) / (b - a), 0, 1);
+      return x * x * (3 - 2 * x);
+    };
 
-    // p in [0,1] -> full pose of the scene
-    function pose(p) {
-      const px = PMIN + p * (PMAX - PMIN);
-      let bx = stageX(p), by = SY, sx = 1, sy = 1;
+    /* Color mix (hex → rgb) for the grey→color ignition */
+    const rgbCache = new Map<string, number[]>();
+    const hexRgb = (h: string) => {
+      let c = rgbCache.get(h);
+      if (!c) { c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); rgbCache.set(h, c); }
+      return c;
+    };
+    const mix = (h1: string, h2: string, m: number) => {
+      const a = hexRgb(h1), b = hexRgb(h2);
+      return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * m)).join(',')})`;
+    };
 
-      if (px >= D2 && px < D3) {
-        // LIGHT — eased hop above the surface, slight stretch at the apex
-        const t = (px - D2) / (D3 - D2);
-        const xs = stageX(frac(D2)), xe = stageX(frac(D3));
-        bx = xs + easeIO(t) * (xe - xs);
-        const arc = Math.sin(Math.PI * t);
-        by = SY - 80 * arc;
-        sy = 1 + 0.16 * arc;
-        sx = 1 - 0.1 * arc;
-      } else if (px >= D3) {
-        // DEEP — dives below the surface
-        const t = (px - D3) / (PMAX - D3);
-        const xs = stageX(frac(D3)), xe = SX1;
-        bx = xs + easeIO(t) * (xe - xs);
-        const arc = Math.sin(Math.PI * t);
-        by = SY + 95 * arc;
-        sy = 1 - 0.12 * arc;
-        sx = 1 + 0.08 * arc;
+    /* Planets: r — fraction of outer radius, w — rad/s (inner ones faster).
+       The red one is the character (was the ball). Moon & ring are indigo. */
+    const PLANETS = [
+      { r: 0.34, size: 7.5, color: RED, a: 2.05, w: 0.85, moon: false, ring: false },
+      { r: 0.55, size: 9.5, color: YEL, a: 5.4, w: 0.52, moon: false, ring: false },
+      { r: 0.77, size: 7.5, color: BLU, a: 0.7, w: 0.34, moon: true, ring: false },
+      { r: 1.0, size: 11.5, color: PNK, a: 3.7, w: 0.24, moon: false, ring: true },
+    ];
+    let moonA = 1.2;
+
+    /* Deterministic stars, visible only in deep */
+    const STARS: { nx: number; ny: number; al: number; tw: number; ph: number }[] = [];
+    {
+      let sd = 7;
+      const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+      for (let i = 0; i < 60 && STARS.length < 22; i++) {
+        const nx = (rnd() - 0.5) * 1.9, ny = (rnd() - 0.5) * 1.7;
+        if (Math.abs(nx) < 0.3 && Math.abs(ny) < 0.45) continue; // keep the sun's area clean
+        STARS.push({ nx, ny, al: 0.08 + rnd() * 0.2, tw: 0.6 + rnd() * 1.6, ph: rnd() * TAU });
       }
-      // SIMPLE — deliberately linear, glued to the line (default values)
-      return { px, bx, by, sx, sy };
     }
 
-    function apply(p) {
-      const { px, bx, by, sx, sy } = pose(p);
+    /* State: t — playhead (fast), ts — scene (lags a touch, "render catching up") */
+    const st = { t: 0.26, ts: 0.26, target: 0.26, k: 0, kv: 0, clock: 0, march: 0, phase: '' };
+
+    /* Canvas geometry (layout-space, transform-safe) */
+    let sceneW = 0, sceneH = 0, R = 100, sunR = 30, kMax = 0.3, u = 1;
+    function resize() {
+      sceneW = canvas.offsetWidth || 1;
+      sceneH = canvas.offsetHeight || 1;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.max(1, Math.round(sceneW * dpr));
+      canvas.height = Math.max(1, Math.round(sceneH * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      R = Math.max(24, Math.min(sceneW * 0.42, sceneW / 2 - 36));
+      sunR = Math.max(4, Math.min(clamp(sceneH * 0.155, 18, 42), R * 0.29 - 12));
+      u = clamp(Math.min(sceneH / 340, sceneW / 1000), 0.5, 1.25);
+      kMax = Math.min(0.52, Math.max(0.12, (sceneH / 2 - 20) / (R * 0.85)));
+    }
+    new ResizeObserver(() => { resize(); if (reduced) renderStatic(); }).observe(canvas);
+    resize();
+
+    /* The scene: every parameter is a pure function of ts + the free clock */
+    function draw(k: number, kA: number, colorAvg: number, uCol: number[], glow: number, glowRamp: number) {
+      ctx.clearRect(0, 0, sceneW, sceneH);
+      if (sceneW < 40 || sceneH < 40) return;
+      const cam = 1 - 0.15 * kA;
+      const sq = kMax * k;                 // orbit squash (0 = edge-on)
+      const rot = -0.09 * kA;
+
+      ctx.save();
+      ctx.translate(sceneW / 2, sceneH * 0.55);
+      /* faint breathing of the whole line while "simple" */
+      const breathe = 1.6 * u * Math.max(0, 1 - 0.55 * colorAvg - 0.45 * kA);
+      ctx.translate(0, breathe * Math.sin(st.clock * 0.7));
+
+      /* stars (deep only) */
+      if (kA > 0.02) {
+        ctx.fillStyle = INK;
+        for (const s of STARS) {
+          const tw = 0.55 + 0.45 * Math.sin(st.clock * s.tw + s.ph);
+          ctx.globalAlpha = s.al * kA * tw;
+          ctx.fillRect(s.nx * sceneW * 0.5, s.ny * sceneH * 0.5, 2, 2);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      /* comet easter egg: once per ~34s of the free clock, deep only */
+      if (kA > 0.08) {
+        const CP = 34, CW = 2.6, cuT = st.clock % CP;
+        if (cuT < CW) {
+          const cu = cuT / CW, env = Math.sin(Math.PI * cu);
+          const cxx = (cu - 0.5) * 1.05 * sceneW;
+          const cyy = -sceneH * 0.33 - 26 * u * Math.sin(Math.PI * cu);
+          ctx.fillStyle = INK;
+          ctx.globalAlpha = 0.8 * kA * env;
+          ctx.beginPath(); ctx.arc(cxx, cyy, 2.2 * u, 0, TAU); ctx.fill();
+          for (const [off, alp, len] of [[10, 0.4, 6], [21, 0.24, 4.5], [32, 0.12, 3]]) {
+            ctx.globalAlpha = alp * kA * env;
+            ctx.fillRect(cxx - off - len, cyy + off * 0.1, len, 1.6);
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      ctx.rotate(rot);
+
+      /* orbits: dashes; edge-on — one line, in deep — concentric ellipses */
+      ctx.strokeStyle = INK;
+      ctx.lineCap = 'round';
+      ctx.lineWidth = clamp(2.4 * u, 1.6, 2.8);
+      ctx.setLineDash([11, 9]);
+      ctx.lineDashOffset = -st.march;
+      for (let i = PLANETS.length - 1; i >= 0; i--) {
+        const er = R * PLANETS[i].r * cam;
+        const ry = Math.abs(sq) * er;
+        if (i === PLANETS.length - 1) {
+          const f = sstep(1.5, 6, ry);
+          if (f < 1) {          // straight dashed line (edge-on)
+            ctx.globalAlpha = 0.34 * (1 - f);
+            ctx.beginPath(); ctx.moveTo(-er, 0); ctx.lineTo(er, 0); ctx.stroke();
+          }
+          if (f > 0) {
+            ctx.globalAlpha = 0.34 * f;
+            ctx.beginPath(); ctx.ellipse(0, 0, er, ry, 0, 0, TAU); ctx.stroke();
+          }
+        } else {
+          const a = 0.34 * sstep(0.04, 0.4, kA);
+          if (a > 0.01) {
+            ctx.globalAlpha = a;
+            ctx.beginPath(); ctx.ellipse(0, 0, er, ry, 0, 0, TAU); ctx.stroke();
+          }
+        }
+      }
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+
+      /* cream halo: the dashes never touch the sun (editorial diagram move) */
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath(); ctx.arc(0, 0, sunR + 6 * u, 0, TAU); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+
+      /* warm glow ("the lamp turns on") with a micro-bloom mid-ramp */
+      if (glow > 0.01) {
+        const [gr_, gg_, gb_] = hexRgb(YEL);
+        const bloom = 1 + 0.22 * Math.sin(Math.PI * glowRamp);
+        const gr = sunR * (2.5 + 0.18 * Math.sin(st.clock * 1.6)) * bloom;
+        const g = ctx.createRadialGradient(0, 0, sunR * 0.4, 0, 0, gr);
+        g.addColorStop(0, `rgba(${gr_},${gg_},${gb_},${0.55 * glow})`);
+        g.addColorStop(0.45, `rgba(${gr_},${gg_},${gb_},${0.24 * glow})`);
+        g.addColorStop(1, `rgba(${gr_},${gg_},${gb_},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(0, 0, gr, 0, TAU); ctx.fill();
+      }
+
+      /* planets + sun in depth order */
+      const items = PLANETS.map((p, i) => {
+        const er = R * p.r * cam;
+        return { p, i, x: Math.cos(p.a) * er, y: Math.sin(p.a) * er * sq, depth: Math.sin(p.a) };
+      }).sort((a, b) => a.depth - b.depth);
+
+      const drawSun = () => {
+        ctx.fillStyle = INK;
+        ctx.globalAlpha = 1;
+        const rr = sunR * (1 + 0.028 * glow * (0.5 + 0.5 * Math.sin(st.clock * 2.2)));
+        ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.fill();
+        if (kA > 0.03 && rr > 8) {       // rim light from the new 3D angle
+          const lw = clamp(2.4 * u, 1.8, 2.6);
+          ctx.strokeStyle = YEL;
+          ctx.lineWidth = lw;
+          ctx.globalAlpha = 0.65 * kA;
+          ctx.beginPath(); ctx.arc(0, 0, rr - lw, -2.35, -0.79); ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      };
+      const drawMoon = (x: number, y: number, sz: number, alBase: number, cAmt: number) => {
+        const mr = sz * 2.5, msq = clamp(Math.abs(sq), 0.12, 0.6);
+        const mx = x + Math.cos(moonA) * mr, my = y + Math.sin(moonA) * mr * msq;
+        ctx.fillStyle = mix(MUTED, IND, cAmt);
+        ctx.globalAlpha = alBase * kA;
+        ctx.beginPath(); ctx.arc(mx, my, Math.max(2, sz * 0.32), 0, TAU); ctx.fill();
+      };
+      const drawPlanet = (it: (typeof items)[0]) => {
+        const { p, i, x, y, depth } = it;
+        const cAmt = uCol[i];
+        const blip = 1 + 0.22 * Math.sin(Math.PI * cAmt);   // ignition pop
+        const sz = p.size * u * blip * (1 + 0.3 * depth * (0.4 + 0.6 * kA));
+        const col = mix(MUTED, p.color, cAmt);
+        const al = 1 - 0.22 * Math.max(0, -depth);
+        const ringCol = mix(MUTED, IND, cAmt);
+        const rr1 = sz * 2.15, rr2 = rr1 * clamp(Math.abs(sq), 0.1, 0.8);
+        const rlw = clamp(2 * u, 1.5, 2.4);
+        if (p.ring && kA > 0.02) {           // back half of the ring
+          ctx.strokeStyle = ringCol; ctx.lineWidth = rlw;
+          ctx.globalAlpha = al * kA * 0.9;
+          ctx.beginPath(); ctx.ellipse(x, y, rr1, rr2, 0, Math.PI, TAU); ctx.stroke();
+        }
+        if (p.moon && kA > 0.02 && Math.sin(moonA) < 0) drawMoon(x, y, sz, al, cAmt);
+        ctx.globalAlpha = al;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(x, y, sz, 0, TAU); ctx.fill();
+        if (kA > 0.05) {                     // cream keyline: planet reads as a sticker over the sun
+          ctx.strokeStyle = CREAM;
+          ctx.lineWidth = clamp(2 * u, 1.6, 2.2);
+          ctx.globalAlpha = al * kA;
+          ctx.beginPath(); ctx.arc(x, y, sz, 0, TAU); ctx.stroke();
+        }
+        if (p.ring && kA > 0.02) {           // front half of the ring
+          ctx.strokeStyle = ringCol; ctx.lineWidth = rlw;
+          ctx.globalAlpha = al * kA * 0.9;
+          ctx.beginPath(); ctx.ellipse(x, y, rr1, rr2, 0, 0, Math.PI); ctx.stroke();
+        }
+        if (p.moon && kA > 0.02 && Math.sin(moonA) >= 0) drawMoon(x, y, sz, al, cAmt);
+        ctx.globalAlpha = 1;
+      };
+
+      let sunDrawn = false;
+      for (const it of items) {
+        if (!sunDrawn && it.depth >= 0) { drawSun(); sunDrawn = true; }
+        drawPlanet(it);
+      }
+      if (!sunDrawn) drawSun();
+
+      ctx.restore();
+    }
+
+    /* Derived params + one integration step; dt in seconds (0 = static pose) */
+    function compute(dt: number) {
+      st.ts += (st.t - st.ts) * (dt ? 1 - Math.exp(-dt * 7.5) : 1);
+      if (!dt) st.ts = st.t;
+      const ts = st.ts;
+
+      /* deep flip: sharp, asymmetric spring + a tiny "inhale" before the snap */
+      const deepRaw = sstep(0.695, 0.785, ts);
+      const bell = sstep(0.63, 0.692, ts) * (1 - sstep(0.692, 0.75, ts));
+      const kTarget = deepRaw - 0.055 * bell;
+      if (!dt) { st.k = deepRaw; st.kv = 0; }
+      else {
+        const opening = kTarget > st.k;
+        const w0 = opening ? 10.5 : 13.5, z = opening ? 0.5 : 0.9;
+        st.kv += (w0 * w0 * (kTarget - st.k) - 2 * z * w0 * st.kv) * dt;
+        st.k += st.kv * dt;
+      }
+      const kA = clamp(st.k, 0, 1);
+      const colorAvg = sstep(B1, B1 + 0.18, ts);
+      const uCol = PLANETS.map((_, i) => sstep(B1 + 0.045 * i, B1 + 0.09 + 0.045 * i, ts));
+      const glowRamp = sstep(B1 + 0.02, B1 + 0.16, ts);
+      const glow = glowRamp * (1 - 0.35 * kA);
+      const flipBoost = sstep(0.685, 0.73, ts) * (1 - sstep(0.73, 0.83, ts));
+      const speed = 0.12 + 0.9 * colorAvg + 0.5 * kA + 0.9 * flipBoost;
+
+      if (dt) {
+        st.clock += dt;
+        st.march += dt * (6 + 30 * speed);
+        for (const p of PLANETS) p.a += p.w * speed * dt;
+        moonA += 2.3 * speed * dt;
+      }
+      draw(st.k, kA, colorAvg, uCol, glow, glowRamp);
+    }
+
+    function applyDom() {
+      const px = PMIN + st.t * (PMAX - PMIN);
       playhead.setAttribute('transform', `translate(${px.toFixed(1)} 0)`);
-      ball.setAttribute('transform', `translate(${bx.toFixed(1)} ${by.toFixed(1)}) scale(${sx.toFixed(3)} ${sy.toFixed(3)})`);
+      const ph = st.t < B1 ? 'simple' : st.t < B2 ? 'light' : 'deep';
+      if (ph !== st.phase) {
+        st.phase = ph;
+        clips.forEach((c) => c.classList.toggle('is-active', c.classList.contains(`clip-${ph}`)));
+      }
     }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function renderStatic() {
+      st.t = st.ts = 0.92;   // final frame: the deep 3D view
+      compute(0);
+      applyDom();
+    }
+
     if (reduced) {
-      apply(0.26); // calm static frame
+      renderStatic();
     } else {
-      // Idle loop: forward 8s -> hold 1s -> fast rewind 0.45s (like an editor scrubbing back)
-      const IDLE = 8000, HOLD = 1000, REWIND = 450, CYCLE = IDLE + HOLD + REWIND;
-      const idleP = (t) => {
+      /* Idle loop: forward 9s -> hold 2.5s on the 3D view -> fast rewind 0.6s
+         (the spring slams the orbits shut, like an editor scrubbing back) */
+      const IDLE = 9000, HOLD = 2500, REWIND = 600, CYCLE = IDLE + HOLD + REWIND;
+      const idleP = (t: number) => {
         const m = t % CYCLE;
         if (m < IDLE) return m / IDLE;
         if (m < IDLE + HOLD) return 1;
         return 1 - (m - IDLE - HOLD) / REWIND;
       };
 
-      let p = 0.26, target = 0.26;
       let mode = 'idle';          // 'idle' | 'pointer' | 'cooldown'
       let idleT = 0.26 * IDLE;
       let cooldownLeft = 0;
       let running = false, rafId = 0, last = 0;
 
-      const step = (now) => {
+      const step = (now: number) => {
         if (!running) return;
+        rafId = requestAnimationFrame(step);
         const dt = Math.min(50, now - last || 16);
         last = now;
 
         if (mode === 'idle') {
           idleT += dt;
-          p = idleP(idleT);
-        } else {
-          if (mode === 'cooldown') {
-            cooldownLeft -= dt;
-            if (cooldownLeft <= 0) { mode = 'idle'; idleT = clamp(p, 0, 1) * IDLE; }
-          }
-          p += (target - p) * (1 - Math.exp(-dt / 80));
+          st.target = idleP(idleT);
+        } else if (mode === 'cooldown') {
+          cooldownLeft -= dt;
+          if (cooldownLeft <= 0) { mode = 'idle'; idleT = clamp(st.t, 0, 1) * IDLE; }
         }
-        apply(p);
-        rafId = requestAnimationFrame(step);
+        st.t += (st.target - st.t) * (1 - Math.exp(-dt / (mode === 'pointer' ? 70 : 150)));
+        compute(dt / 1000);
+        applyDom();
       };
 
       const start = () => { if (!running) { running = true; last = performance.now(); rafId = requestAnimationFrame(step); } };
       const stop = () => { running = false; cancelAnimationFrame(rafId); };
 
-      scene.addEventListener('pointermove', (e) => {
+      /* Scrub: mouse follows the cursor; touch scrubs only after a horizontal
+         intent (8px) so vertical page scrolling never fights the scene */
+      let dragging = false, activeId = -1;
+      let touchStart: { x: number; y: number } | null = null;
+      const scrub = (e: PointerEvent) => {
         const r = svg.getBoundingClientRect();
         const x = ((e.clientX - r.left) / r.width) * 960;
-        target = clamp((x - PMIN) / (PMAX - PMIN), 0, 1);
+        st.target = clamp((x - PMIN) / (PMAX - PMIN), 0, 1);
         mode = 'pointer';
+      };
+      scene.addEventListener('pointerdown', (e) => {
+        if (activeId !== -1) return;                 // ignore a second finger
+        activeId = e.pointerId;
+        if (e.pointerType === 'mouse') {
+          dragging = true;
+          scrub(e);
+        } else {
+          touchStart = { x: e.clientX, y: e.clientY };
+        }
       });
-      scene.addEventListener('pointerleave', () => {
-        mode = 'cooldown';
-        cooldownLeft = 1500;
+      scene.addEventListener('pointermove', (e) => {
+        if (e.pointerType === 'mouse' && activeId === -1) { scrub(e); return; }
+        if (e.pointerId !== activeId) return;
+        if (touchStart) {
+          const dx = e.clientX - touchStart.x, dy = e.clientY - touchStart.y;
+          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) { activeId = -1; touchStart = null; return; }
+          if (Math.abs(dx) > 8) {
+            touchStart = null;
+            dragging = true;
+            try { scene.setPointerCapture(e.pointerId); } catch (_) { /* not supported */ }
+            scrub(e);
+          }
+          return;
+        }
+        if (dragging) scrub(e);
+      });
+      const endPointer = (e: PointerEvent) => {
+        if (e.pointerId !== activeId) return;
+        activeId = -1; touchStart = null;
+        if (dragging) { dragging = false; mode = 'cooldown'; cooldownLeft = 2000; }
+      };
+      window.addEventListener('pointerup', endPointer);
+      window.addEventListener('pointercancel', endPointer);
+      scene.addEventListener('pointerleave', (e) => {
+        if (!dragging && e.pointerType === 'mouse') { mode = 'cooldown'; cooldownLeft = 1500; }
       });
 
       const io = new IntersectionObserver(
-        (entries) => entries.forEach((en) => (en.isIntersecting ? start() : stop())),
+        (entries) => { (entries[entries.length - 1].isIntersecting ? start : stop)(); },
         { threshold: 0.05 }
       );
       io.observe(scene);
-      apply(p);
+      compute(0);
+      applyDom();
     }
   }
 </script>
