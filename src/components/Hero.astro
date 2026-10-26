@@ -23,6 +23,7 @@
     position: relative;
     padding-block: clamp(64px, 9vw, 110px) clamp(32px, 5vw, 48px);
   }
+
   .hero-canvas {
     position: absolute;
     inset: 0;
@@ -60,7 +61,8 @@
 </style>
 
 <script>
-  /* Cursor trail: tiny keyframe diamonds in the Bauhaus scene palette spawn
+  /* Cursor trail: tiny Bauhaus confetti — circles, rings, squares, triangles
+     and keyframe diamonds, filled or outlined, in the scene palette — spawn
      along the pointer path and dissolve when it stops. On touch, a tap gives
      a radial burst instead (a trail would fight with scrolling).
      prefers-reduced-motion disables it entirely. */
@@ -81,6 +83,7 @@
       token('--scene-pink', '#E38DA6'),
       token('--indigo', '#44518F'),
       token('--green', '#2E5E4E'),
+      token('--clay', '#C96F4A'),
     ];
 
     let dpr = 1;
@@ -95,9 +98,48 @@
     resize();
     window.addEventListener('resize', resize);
 
-    type P = { x: number; y: number; vx: number; vy: number; t: number; life: number; s: number; a: number; rot: number; spin: number; color: string };
+    /* shape 0 circle · 1 square · 2 triangle · 3 diamond; hollow = outline only
+       (a hollow circle is the ring). Each shape gets its own small-size bias
+       so a filled dot never shrinks to nothing while a ring stays legible. */
+    type P = { x: number; y: number; vx: number; vy: number; t: number; life: number; s: number; a: number; rot: number; spin: number; color: string; shape: number; hollow: boolean };
     const parts: P[] = [];
-    const MAX = 120;
+    const MAX = 220;
+    const SHAPES = 4;
+
+    const spawn = (x: number, y: number, vx: number, vy: number, life: number, spin: number) => {
+      const shape = (Math.random() * SHAPES) | 0;
+      const hollow = Math.random() < 0.45;
+      parts.push({
+        x, y, vx, vy, t: 0, life,
+        s: (hollow ? 3.5 : 2.5) + Math.random() * 4,
+        a: 0.55 + Math.random() * 0.35,
+        rot: Math.random() * Math.PI,
+        spin,
+        color: COLORS[(Math.random() * COLORS.length) | 0],
+        shape, hollow,
+      });
+    };
+
+    const trace = (shape: number, size: number) => {
+      ctx.beginPath();
+      if (shape === 0) {
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+      } else if (shape === 1) {
+        ctx.rect(-size, -size, size * 2, size * 2);
+      } else if (shape === 2) {
+        const h = size * 1.15;
+        ctx.moveTo(0, -h);
+        ctx.lineTo(h * 0.95, h * 0.6);
+        ctx.lineTo(-h * 0.95, h * 0.6);
+        ctx.closePath();
+      } else {
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size, 0);
+        ctx.closePath();
+      }
+    };
     let rafId = 0;
     let running = false;
     let last = 0;
@@ -119,20 +161,21 @@
 
         const k = p.t / p.life;               // 0 → 1 over the particle's life
         const fade = 1 - k * k;               // ease-out fade
-        const size = p.s * (1 - 0.5 * k) * dpr;
+        const size = p.s * (1 - 0.4 * k) * dpr;
 
         ctx.save();
         ctx.translate(p.x * dpr, p.y * dpr);
         ctx.rotate(p.rot);
         ctx.globalAlpha = p.a * fade;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size, 0);
-        ctx.closePath();
-        ctx.fill();
+        trace(p.shape, size);
+        if (p.hollow) {
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = Math.max(1, 1.4 * dpr);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
         ctx.restore();
       }
 
@@ -166,24 +209,20 @@
       travelled += dist;
       prevX = x; prevY = y;
 
-      // one diamond per ~14px of pointer travel
-      while (travelled >= 14 && parts.length < MAX) {
-        travelled -= 14;
-        parts.push({
-          x: x + (Math.random() - 0.5) * 10,
-          y: y + (Math.random() - 0.5) * 10,
-          vx: dx / 60 + (Math.random() - 0.5) * 0.04,
-          vy: dy / 60 + (Math.random() - 0.5) * 0.04 - 0.015,
-          t: 0,
-          life: 600 + Math.random() * 500,
-          s: 2.5 + Math.random() * 3.5,
-          a: 0.5 + Math.random() * 0.35,
-          rot: Math.random() * Math.PI,
-          spin: (Math.random() - 0.5) * 0.002,
-          color: COLORS[(Math.random() * COLORS.length) | 0],
-        });
+      // a shape per ~8px of pointer travel, scattered ±8px around the path
+      const STEP = 8;
+      while (travelled >= STEP && parts.length < MAX) {
+        travelled -= STEP;
+        spawn(
+          x + (Math.random() - 0.5) * 16,
+          y + (Math.random() - 0.5) * 16,
+          dx / 60 + (Math.random() - 0.5) * 0.05,
+          dy / 60 + (Math.random() - 0.5) * 0.05 - 0.015,
+          650 + Math.random() * 550,
+          (Math.random() - 0.5) * 0.003,
+        );
       }
-      travelled = Math.min(travelled, 14);
+      travelled = Math.min(travelled, STEP);
       start();
     });
     hero.addEventListener('pointerleave', () => { hasPrev = false; });
@@ -194,22 +233,17 @@
       const r = hero.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
-      const n = 20 + ((Math.random() * 7) | 0);
+      const n = 28 + ((Math.random() * 9) | 0);
       for (let i = 0; i < n && parts.length < MAX; i++) {
         const ang = (i / n) * Math.PI * 2 + Math.random() * 0.6;
         const speed = 0.06 + Math.random() * 0.12;
-        parts.push({
+        spawn(
           x, y,
-          vx: Math.cos(ang) * speed,
-          vy: Math.sin(ang) * speed,
-          t: 0,
-          life: 1000 + Math.random() * 700,
-          s: 2.5 + Math.random() * 3.5,
-          a: 0.5 + Math.random() * 0.35,
-          rot: Math.random() * Math.PI,
-          spin: (Math.random() - 0.5) * 0.003,
-          color: COLORS[(Math.random() * COLORS.length) | 0],
-        });
+          Math.cos(ang) * speed,
+          Math.sin(ang) * speed,
+          1000 + Math.random() * 700,
+          (Math.random() - 0.5) * 0.004,
+        );
       }
       start();
     });
