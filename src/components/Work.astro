@@ -1,4 +1,5 @@
 ---
+import VideoPiece from './VideoPiece.astro';
 const projects = [
   { n: '01', title: 'AAISM MasterClass Campaign', desc: 'One launch, every asset: sales video, ads, covers, typography' },
   { n: '02', title: 'Ads in the Rain', desc: 'AI environment replacement composited into live footage' },
@@ -14,19 +15,15 @@ const projects = [
     <p class="eyebrow eyebrow--green">Selected work</p>
     <h2 class="h-display h-section work-title">Work that shipped.</h2>
 
-    <!-- Showreel: the only video player on the site -->
+    <!-- Showreel player (VideoPiece: poster + preload="none", native controls after click) -->
     <div class="player">
-      <button class="poster" type="button" aria-label="Play showreel, 60 seconds, sound on">
-        <!-- Phase 4: swap for <video poster=...> + real playback -->
-        <span class="play"><span class="play-tri" aria-hidden="true"></span></span>
-        <span class="poster-note">1:00 · sound on</span>
-      </button>
+      <VideoPiece class="piece--flush" src="/showreel.mp4" poster="/showreel.jpg" label="Showreel" />
       <div class="player-bar">
         <div>
-          <p class="player-title">Showreel — 60 seconds</p>
+          <p class="player-title">Showreel</p>
           <p class="player-sub">Edit · motion · AI · sound — everything in one cut. The rest of this site moves on its own.</p>
         </div>
-        <span class="chip chip--reel">The only video here</span>
+        <span class="chip chip--reel">0:26 · sound on</span>
       </div>
     </div>
 
@@ -58,33 +55,6 @@ const projects = [
     border-radius: 28px;
     overflow: hidden;
   }
-  .poster {
-    width: 100%;
-    min-height: clamp(260px, 40vw, 620px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    background: linear-gradient(135deg, var(--band) 0%, color-mix(in srgb, var(--green) 38%, var(--band)) 100%);
-  }
-  .play {
-    width: clamp(72px, 8vw, 104px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--green);
-    display: grid;
-    place-items: center;
-    transition: transform var(--dur-fast) var(--ease-out);
-  }
-  .poster:hover .play { transform: scale(1.06); }
-  .play-tri {
-    width: 0; height: 0;
-    border-block: 12px solid transparent;
-    border-left: 20px solid var(--cream);
-    margin-left: 5px;
-  }
-  .poster-note { font-size: 13px; font-weight: 500; color: var(--ink); }
   .player-bar {
     display: flex;
     align-items: center;

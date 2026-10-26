@@ -1,0 +1,106 @@
+---
+/* One video player: poster + preload="none" (nothing downloads until the first click),
+   custom play button, native controls once playing. Used by RecentWork (with a caption)
+   and by the showreel in Work (flush inside its card). */
+interface Props {
+  src: string;
+  poster: string;
+  label: string;      // for aria: "Play {label}"
+  title?: string;     // caption, optional
+  note?: string;
+  aspect?: string;    // '16 / 9' (default) or '9 / 16'
+  class?: string;
+}
+const { src, poster, label, title, note, aspect = '16 / 9', class: className = '' } = Astro.props;
+---
+<figure class={`piece ${className}`} style={`aspect-ratio: ${aspect}`}>
+  <video
+    class="piece-video"
+    src={src}
+    poster={poster}
+    preload="none"
+    playsinline
+    aria-label={`${label} — video`}
+  ></video>
+  <button class="piece-play" type="button" aria-label={`Play ${label}`}>
+    <span class="play"><span class="play-tri" aria-hidden="true"></span></span>
+  </button>
+  {title && (
+    <figcaption class="piece-cap">
+      <span class="piece-title">{title}</span>
+      {note && <span class="piece-sub">{note}</span>}
+    </figcaption>
+  )}
+</figure>
+
+<style>
+  .piece {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    max-height: 78vh;
+    margin-inline: auto;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .piece--flush { border-radius: 0; border: 0; max-height: none; }
+  .piece-video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .piece-play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+  .piece.is-playing .piece-play { opacity: 0; pointer-events: none; }
+  .piece-play:hover .play { transform: scale(1.06); }
+  .play {
+    width: clamp(64px, 7vw, 96px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--green);
+    display: grid;
+    place-items: center;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .play-tri {
+    width: 0; height: 0;
+    border-block: 11px solid transparent;
+    border-left: 18px solid var(--cream);
+    margin-left: 5px;
+  }
+  .piece-cap {
+    position: absolute;
+    left: 18px; right: 18px; bottom: 16px;
+    display: flex; flex-direction: column; gap: 2px;
+    color: var(--cream);
+    pointer-events: none;
+    text-shadow: 0 1px 10px color-mix(in srgb, var(--ink) 60%, transparent);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+  .piece.is-playing .piece-cap { opacity: 0; }
+  .piece-title { font-family: var(--font-serif); font-weight: 500; font-size: clamp(18px, 1.8vw, 24px); }
+  .piece-sub { font-size: 13px; opacity: 0.8; }
+</style>
+
+<script>
+  /* Click the overlay → play with native controls; pausing brings the overlay back. */
+  document.querySelectorAll<HTMLElement>('.piece').forEach((piece) => {
+    const video = piece.querySelector<HTMLVideoElement>('.piece-video');
+    const btn = piece.querySelector<HTMLButtonElement>('.piece-play');
+    if (!video || !btn) return;
+    btn.addEventListener('click', () => {
+      video.controls = true;
+      video.play();
+    });
+    video.addEventListener('play', () => piece.classList.add('is-playing'));
+    video.addEventListener('pause', () => piece.classList.remove('is-playing'));
+    video.addEventListener('ended', () => {
+      piece.classList.remove('is-playing');
+      video.controls = false;
+    });
+  });
+</script>
