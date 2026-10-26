@@ -1,6 +1,6 @@
 # tolimotion.com — portfolio of Toli (Anatolii), motion designer
 
-Static one-pager built with Astro. Deployed on Vercel, auto-deploy on push to `main`.
+Static one-pager built with Astro. Hosted on **Cloudflare Workers** (Workers Builds, account vageanatoliy@gmail.com): every push to `main` runs `npm run build` → `npx wrangler deploy` (build settings live in the Cloudflare dashboard, no wrangler config in the repo). Older commits in the queue show as “Skipped” when a newer one lands — that is normal. Builds can sit in “Queued” during a Cloudflare Workers Builds incident (check cloudflarestatus.com); do not push extra commits to “nudge” it.
 Source of truth for design: Figma file `jEyOe03C9NdZC0plKxLOu9`, page **"v3 — AI-Integrated"**.
 Storyboard for the hero Rive scene: page **"Rive — The Timeline (storyboard)"** in the same file.
 
