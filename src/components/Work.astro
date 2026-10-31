@@ -1,6 +1,7 @@
 ---
 import VideoPiece from './VideoPiece.astro';
-const projects = [
+type Project = { n: string; title: string; desc: string; href?: string; chip?: string };
+const projects: Project[] = [
   { n: '01', title: 'AAISM MasterClass Campaign', desc: 'One launch, every asset: sales video, ads, covers, typography' },
   { n: '02', title: 'Ads in the Rain', desc: 'AI environment replacement composited into live footage' },
   { n: '03', title: 'CISSP Video Ad Series', desc: 'Nine performance ads for certification training' },
@@ -8,6 +9,7 @@ const projects = [
   { n: '05', title: 'AAISM Book Cover Series', desc: 'Covers and a custom-illustrated workbook, concept to print' },
   { n: '06', title: 'AI B-roll Pipeline', desc: 'Stills turned into usable b-roll at campaign scale, fully automated' },
   { n: '07', title: 'MCP Workflow — Figma ↔ Claude ↔ Resolve', desc: 'My integration layer: design and edit talk to each other without me in the middle' },
+  { n: '08', title: 'Fitrise Stadium Intro', desc: 'A 15-second logo intro for a 1440 × 270 stadium LED ribbon — two cuts to download', href: '/work/fitrise-stadium-intro/', chip: 'Case' },
 ];
 ---
 <section class="section section--ruled" id="work">
@@ -30,11 +32,12 @@ const projects = [
     <p class="eyebrow index-caption">Project index — every row moves</p>
     <ul class="index">
       {projects.map((p) => (
-        <li class="row">
+        <li class={p.href ? 'row row--link' : 'row'}>
+          {p.href && <a class="row-cover" href={p.href} aria-label={`Open the ${p.title} case`}></a>}
           <div class="row-left">
             <span class="row-n">{p.n}</span>
             <h3 class="row-title">{p.title}</h3>
-            <span class="chip">Lottie</span>
+            <span class="chip">{p.chip ?? 'Lottie'}</span>
           </div>
           <div class="row-right">
             <p class="row-desc">{p.desc}</p>
@@ -93,6 +96,10 @@ const projects = [
     transition: transform var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   }
   .row:hover .row-arrow { transform: translateX(6px); color: var(--green); }
+  /* rows with a case page: the whole row is the link */
+  .row--link { position: relative; }
+  .row-cover { position: absolute; inset: 0; border-radius: 4px; }
+  .row--link:hover .row-title { color: var(--green); }
   @media (max-width: 860px) {
     .row { flex-direction: column; align-items: flex-start; gap: 10px; }
     .row-desc { text-align: left; }

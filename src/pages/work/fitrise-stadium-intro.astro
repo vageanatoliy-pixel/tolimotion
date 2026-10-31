@@ -1,0 +1,171 @@
+---
+/* Case page: Fitrise stadium LED intro (two cuts, downloadable).
+   Files live in /public/work/fitrise/. The GIFs are heavy (7.5 + 11.7 MB), so the page first shows a light
+   still (the final frame) and swaps in the GIF once a board is on screen after the visitor scrolls or moves —
+   the page stays light on first load. prefers-reduced-motion keeps the still. No <video> here (site rule 2). */
+import Base from '../../layouts/Base.astro';
+import Spark from '../../components/Spark.astro';
+import Footer from '../../components/Footer.astro';
+
+type Cut = {
+  id: string; n: string; name: string; text: string; gif: string; still: string; mp4: string;
+  gifSize: string; mp4Size: string; file: string; note: string; alt: string;
+};
+const cuts: Cut[] = [
+  {
+    id: 'clean', n: '01', name: 'Clean',
+    text: 'The calm version. Each screen lands, holds long enough to read from the stands, and hands over to the next through the same yellow bar.',
+    gif: '/work/fitrise/clean.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean.mp4',
+    gifSize: '7.5 MB', mp4Size: '5.9 MB', file: 'Fitrise_LED_Intro_Clean_1440x270', note: '1 px = 1 LED',
+    alt: 'Fitrise LED intro, clean cut: yellow text on navy — Excuses scoren niet, Actie wel, Kom in beweging — ending on the Fitrise logo with Personal training, Leefstijlcoaching, Bedrijfsfitness.',
+  },
+  {
+    id: 'flashy', n: '02', name: 'Flashy',
+    text: 'Same story, louder. The first line is typed with the bar as a blinking cursor, every hit flashes, the letters jump in a stadium wave and the background pulses with light.',
+    gif: '/work/fitrise/flashy.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy.mp4',
+    gifSize: '11.7 MB', mp4Size: '9.3 MB', file: 'Fitrise_LED_Intro_Flashy_1440x270', note: 'Flashes kept under 3 per second',
+    alt: 'Fitrise LED intro, flashy cut: the first line is typed letter by letter behind a blinking yellow cursor, words flash on every hit, ending on the Fitrise logo with its three services.',
+  },
+];
+const facts = [
+  ['Client', 'Fitrise'],
+  ['Canvas', '1440 × 270 px'],
+  ['Screen', 'P6 LED, 9.6 × 1.8 m'],
+  ['Length', '15 s · 25 fps'],
+  ['Role', 'Storyboard, motion'],
+  ['Year', '2026'],
+];
+---
+<Base
+  title="Fitrise stadium intro — Toli"
+  description="A 15-second logo intro for Fitrise on a 1440 × 270 stadium LED ribbon. Two cuts — clean and flashy — free to download."
+>
+  <header class="case-header">
+    <div class="container case-header-inner">
+      <a href="/" class="case-logo"><Spark size={17} /><span>Toli</span></a>
+      <a class="pill case-back" href="/#work">← All work</a>
+    </div>
+  </header>
+
+  <main class="case">
+    <section class="container case-hero">
+      <p class="eyebrow eyebrow--green">Case · Stadium LED</p>
+      <h1 class="h-display case-title">A 15-second intro for a <em>stadium</em> ribbon.</h1>
+      <p class="case-lead">
+        Logo intro for Fitrise — personal training, lifestyle coaching and corporate fitness — made for a
+        9.6 × 1.8 m LED board. One yellow bar carries all four screens: it writes the line, floods the wall,
+        fires across and lands as the slash in the logo.
+      </p>
+      <dl class="facts">
+        {facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+      </dl>
+    </section>
+
+    <section class="container cuts" aria-label="Two cuts">
+      {cuts.map((c) => (
+        <article class="cut" aria-labelledby={`${c.id}-title`}>
+          <div class="cut-head">
+            <span class="cut-n">{c.n}</span>
+            <h2 id={`${c.id}-title`} class="h-display cut-title"><em>{c.name}</em> cut</h2>
+            <p class="cut-text">{c.text}</p>
+          </div>
+          <figure class="board">
+            <img class="board-img" src={c.still} data-gif={c.gif} width="1440" height="270" alt={c.alt} decoding="async" />
+            <figcaption><b>Loop · 15 s</b><span>{`1440 × 270 · ${c.note}`}</span></figcaption>
+          </figure>
+          <div class="actions">
+            <a class="btn" href={c.gif} download={`${c.file}.gif`}>
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0 3.5-3.5M8 10 4.5 6.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Download GIF <small>{c.gifSize}</small>
+            </a>
+            <a class="pill" href={c.mp4} download={`${c.file}_25fps.mp4`}>MP4 <small>{c.mp4Size}</small></a>
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <section class="container notes" aria-label="Built for the wall">
+      <div class="note"><h3>Pixel-true</h3><p>Rendered at exactly 1440 × 270, so the player maps one pixel to one LED. No scaling, no soft edges.</p></div>
+      <div class="note"><h3>Flat brand colours</h3><p>Navy, yellow and white straight from the brand. No gradients or fine lines that shimmer on camera.</p></div>
+      <div class="note"><h3>Safe to flash</h3><p>Full-screen flashes only at the big transitions, checked frame by frame against the broadcast limit of three per second.</p></div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  /* Swap the still for the GIF once a board is on screen — armed by the first scroll / pointer / key,
+     so the heavy GIFs never load before the visitor engages. Reduced motion keeps the still. */
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img[data-gif]'));
+  if (!reduced && imgs.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const img = e.target as HTMLImageElement;
+        io.unobserve(img);
+        const pre = new Image();
+        pre.onload = () => { img.src = pre.src; img.closest('.board')?.classList.add('is-live'); };
+        pre.src = img.dataset.gif ?? '';
+      }
+    }, { threshold: 0.25 });
+    const arm = () => {
+      ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.removeEventListener(ev, arm));
+      imgs.forEach((img) => io.observe(img));
+    };
+    ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.addEventListener(ev, arm, { passive: true }));
+  }
+</script>
+
+<style>
+  .case-header { border-bottom: 1px solid var(--line); }
+  .case-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
+  .case-logo { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--font-serif); font-weight: 500; font-size: 24px; }
+  .case-back { font-size: 14px; padding: 9px 16px; color: var(--soft); transition: border-color var(--dur-fast) var(--ease-out); }
+  .case-back:hover { border-color: var(--ink); color: var(--ink); }
+
+  .case-hero { padding-block: clamp(48px, 7vw, 88px) clamp(36px, 4vw, 48px); }
+  .case-title { font-size: clamp(40px, 6.4vw, 82px); line-height: 1.02; letter-spacing: -0.02em; margin-top: 22px; max-width: 15ch; }
+  .case-title em { font-style: italic; color: var(--green); }
+  .case-lead { font-family: var(--font-serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.5; color: var(--soft); max-width: 46ch; margin-top: 26px; }
+  .facts { display: grid; grid-template-columns: repeat(6, auto); gap: 16px 40px; margin: 44px 0 0; padding-top: 28px; border-top: 1px solid var(--line); }
+  .facts dt { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .facts dd { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.35; }
+
+  .cuts { display: grid; gap: clamp(64px, 8vw, 96px); padding-block: clamp(32px, 4vw, 48px) clamp(48px, 6vw, 72px); }
+  .cut-head { display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: baseline; margin-bottom: 24px; }
+  .cut-n { grid-row: span 2; font-size: 14px; font-weight: 600; color: var(--green); }
+  .cut-title { font-size: clamp(28px, 3.4vw, 40px); letter-spacing: -0.015em; }
+  .cut-title em { font-style: italic; color: var(--green); }
+  .cut-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.5; color: var(--soft); max-width: 60ch; }
+
+  /* the GIF sits in a dark LED-board frame */
+  .board { margin: 0; padding: clamp(8px, 1.2vw, 14px); background: var(--ink); border-radius: clamp(12px, 1.6vw, 22px); }
+  .board-img { width: 100%; height: auto; aspect-ratio: 1440 / 270; border-radius: 3px; background: #0A1C3D; }
+  .board figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 12px 4px 2px; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 55%, var(--ink)); }
+  .board figcaption b { font-weight: 500; color: var(--cream); }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px; }
+  .actions .btn { font-size: 15px; padding: 14px 24px; gap: 10px; }
+  .actions small { font-size: 12px; font-weight: 500; opacity: 0.7; margin-left: 2px; }
+  .actions .pill { gap: 8px; padding: 13px 20px; transition: border-color var(--dur-fast) var(--ease-out); }
+  .actions .pill:hover { border-color: var(--ink); }
+
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-block: 0 clamp(56px, 8vw, 96px); }
+  .note { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
+  .note h3 { font-family: var(--font-serif); font-weight: 500; font-size: 21px; line-height: 1.2; margin-bottom: 8px; }
+  .note p { font-size: 15px; color: var(--soft); }
+
+  @media (max-width: 900px) {
+    .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .notes { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+    .cut-head { grid-template-columns: 1fr; }
+    .cut-n { grid-row: auto; }
+    .board figcaption span { display: none; }
+    .actions .btn, .actions .pill { flex: 1 1 auto; justify-content: center; }
+  }
+</style>
