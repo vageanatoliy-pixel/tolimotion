@@ -54,6 +54,25 @@ const reels: Reel[] = [
     alt: 'Caption style 04: condensed capitals on a navy panel with a yellow edge bar; the spoken word turns yellow with a yellow cursor under it.',
   },
 ];
+type Title = { id: string; n: string; name: string; badge?: string; text: string; img: string; alt: string };
+const titles: Title[] = [
+  { id: 't1', n: '01', name: 'Brand quote', badge: 'Closest to brand',
+    text: 'His words as a quote in IBM Plex Serif, his name in yellow caps, the logo mark as a tonal pattern.',
+    img: '/work/fitrise/reels/t1-brand-quote.jpg',
+    alt: 'Title design 01: quote “Wat je bent afgevallen, ben je ook weer heel snel aangekomen.” in white serif with the last words in yellow, name Ulrich Heidstra in yellow caps, on a navy fade.' },
+  { id: 't2', n: '02', name: 'Site hero',
+    text: 'The fitrise.nl hero: yellow Inter Italic over a darkened photo, with the yellow button.',
+    img: '/work/fitrise/reels/t2-site-hero.jpg',
+    alt: 'Title design 02: “Afgevallen… en weer snel aangekomen?” in large yellow italic, a yellow Jojo-effect button below.' },
+  { id: 't3', n: '03', name: 'Stripes',
+    text: 'Bold italic caps on slanted bars; the stripes of the logo rise into the yellow arrow.',
+    img: '/work/fitrise/reels/t3-stripes.jpg',
+    alt: 'Title design 03: white italic caps on slanted navy bars, Jojo-effect in navy on a yellow arrow bar, four yellow stripes rising from the corner.' },
+  { id: 't4', n: '04', name: 'LED campaign',
+    text: 'The stadium intro on a phone: Oswald on navy, the yellow bar, the slash and the 30° stripes.',
+    img: '/work/fitrise/reels/t4-led-campaign.jpg',
+    alt: 'Title design 04: condensed white and yellow capitals on a navy panel with a yellow bar and slash, Jojo-effect large.' },
+];
 const facts = [
   ['Client', 'Fitrise'],
   ['Canvas', '1440 × 270 px'],
@@ -123,26 +142,68 @@ const facts = [
           <p class="eyebrow eyebrow--green">Next · Instagram Reels</p>
           <h2 id="reels-title" class="h-display reels-title">From the stadium <em>to the phone</em>.</h2>
           <p class="reels-lead">
-            Fitrise founder Ulrich Heidstra films short talks about training and lifestyle. Most reels are watched with the
-            sound off, so the words have to be on screen — and they should look like Fitrise, not like an app preset.
-            Four caption styles, built on an 11-second clip about the yo-yo effect. Every word appears on the frame he says it.
+            Fitrise founder Ulrich Heidstra films short talks about training and lifestyle. Three layers make a reel stop
+            the scroll and still look like Fitrise: a hook for the first second, a title in the brand look and captions that
+            follow his voice. All built on one 11-second clip about the yo-yo effect.
           </p>
         </div>
-        <div class="phones">
-          {reels.map((r) => (
-            <article class="phone-card" aria-labelledby={`${r.id}-title`}>
-              <figure class="phone">
-                <img class="phone-img" src={r.still} data-gif={r.gif} width="360" height="640" alt={r.alt} loading="lazy" decoding="async" />
-              </figure>
-              <div class="phone-meta">
-                <p class="phone-n">{r.n}{r.badge && <span class="phone-badge">{r.badge}</span>}</p>
-                <h3 id={`${r.id}-title`} class="h-display phone-title"><em>{r.name}</em></h3>
-                <p class="phone-text">{r.text}</p>
-                <a class="pill phone-dl" href={r.gif} download={`${r.file}.gif`}>GIF <small>{r.gifSize}</small></a>
-              </div>
-            </article>
-          ))}
+
+        <article class="hook" aria-labelledby="hook-title">
+          <figure class="phone phone--hero">
+            <img class="phone-img" src="/work/fitrise/reels/hook.jpg" data-gif="/work/fitrise/reels/hook.gif" width="432" height="768" loading="lazy" decoding="async"
+              alt="Animated hook: a yellow pill with “Afgevallen…” blurs in, “en weer snel aangekomen?” appears word by word, a white comet streaks under it and JOJO-EFFECT pops letter by letter in glowing yellow, with floating question marks." />
+          </figure>
+          <div class="hook-text">
+            <p class="reels-step">01 · The hook</p>
+            <h3 id="hook-title" class="h-display reels-sub">One line, <em>landed in a second</em>.</h3>
+            <p class="reels-copy">
+              The opener lifts the strongest line of the talk into a glowing lockup in Fitrise yellow and navy: a flash,
+              the pill, the line word by word, a comet underneath and JOJO-EFFECT popping letter by letter. Everything is
+              on screen before he finishes the first sentence — then it keeps breathing, so the frame never freezes.
+            </p>
+            <a class="pill phone-dl" href="/work/fitrise/reels/hook.gif" download="Fitrise_Reel_Hook.gif">GIF <small>7.2 MB</small></a>
+          </div>
+        </article>
+
+        <div class="reels-block">
+          <p class="reels-step">02 · Titles</p>
+          <h3 class="h-display reels-sub">The same moment, <em>four ways</em>.</h3>
+          <div class="phones">
+            {titles.map((t) => (
+              <article class="phone-card" aria-labelledby={`${t.id}-title`}>
+                <figure class="phone">
+                  <img class="phone-img" src={t.img} width="540" height="960" alt={t.alt} loading="lazy" decoding="async" />
+                </figure>
+                <div class="phone-meta">
+                  <p class="phone-n">{t.n}{t.badge && <span class="phone-badge">{t.badge}</span>}</p>
+                  <h4 id={`${t.id}-title`} class="h-display phone-title"><em>{t.name}</em></h4>
+                  <p class="phone-text">{t.text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
+
+        <div class="reels-block">
+          <p class="reels-step">03 · Captions</p>
+          <h3 class="h-display reels-sub">Every word <em>on the frame he says it</em>.</h3>
+          <div class="phones">
+            {reels.map((r) => (
+              <article class="phone-card" aria-labelledby={`${r.id}-title`}>
+                <figure class="phone">
+                  <img class="phone-img" src={r.still} data-gif={r.gif} width="360" height="640" alt={r.alt} loading="lazy" decoding="async" />
+                </figure>
+                <div class="phone-meta">
+                  <p class="phone-n">{r.n}{r.badge && <span class="phone-badge">{r.badge}</span>}</p>
+                  <h4 id={`${r.id}-title`} class="h-display phone-title"><em>{r.name}</em></h4>
+                  <p class="phone-text">{r.text}</p>
+                  <a class="pill phone-dl" href={r.gif} download={`${r.file}.gif`}>GIF <small>{r.gifSize}</small></a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
         <div class="notes notes--reels">
           <div class="note"><h3>Sound off, still clear</h3><p>Words are timed to his voice from a word-level transcript of the Dutch audio. Nothing is paraphrased.</p></div>
           <div class="note"><h3>Brand, not preset</h3><p>Navy, yellow, Inter and IBM Plex Serif straight from the Fitrise style sheet, and the stripes of the logo mark.</p></div>
@@ -224,6 +285,17 @@ const facts = [
   .reels-title { font-size: clamp(32px, 4.2vw, 52px); letter-spacing: -0.015em; margin-top: 18px; }
   .reels-title em { font-style: italic; color: var(--green); }
   .reels-lead { font-family: var(--font-serif); font-size: clamp(18px, 1.8vw, 20px); line-height: 1.5; color: var(--soft); margin-top: 20px; }
+  .reels-step { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+  .reels-sub { font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.012em; margin: 10px 0 clamp(22px, 2.6vw, 30px); }
+  .reels-sub em { font-style: italic; color: var(--green); }
+  .reels-copy { font-family: var(--font-serif); font-size: 18px; line-height: 1.55; color: var(--soft); max-width: 46ch; }
+  .reels-block { margin-top: clamp(64px, 8vw, 104px); }
+  .hook { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .hook-text { display: flex; flex-direction: column; align-items: flex-start; }
+  .hook-text .reels-sub { margin-bottom: 18px; }
+  .hook-text .phone-dl { margin-top: 26px; }
+  .phone--hero { border-radius: clamp(26px, 3vw, 38px); padding: clamp(7px, 0.9vw, 11px); }
+  .phone--hero .phone-img { border-radius: clamp(20px, 2.3vw, 28px); }
   .phones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 32px); }
   .phone-card { display: flex; flex-direction: column; }
   .phone { margin: 0; padding: clamp(6px, 0.7vw, 9px); background: var(--ink); border-radius: clamp(22px, 2.4vw, 30px); }
@@ -231,7 +303,7 @@ const facts = [
   .phone-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 18px; flex: 1; }
   .phone-n { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; font-weight: 600; color: var(--green); }
   .phone-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 4px 9px; }
-  .phone-title { font-size: clamp(22px, 2vw, 26px); letter-spacing: -0.01em; }
+  .phone-title { font-size: clamp(22px, 2vw, 26px); letter-spacing: -0.01em; margin: 0; }
   .phone-title em { font-style: italic; }
   .phone-text { font-size: 15px; line-height: 1.5; color: var(--soft); }
   .phone-dl { margin-top: auto; gap: 6px; padding: 9px 16px; font-size: 14px; transition: border-color var(--dur-fast) var(--ease-out); }
@@ -241,6 +313,10 @@ const facts = [
 
   @media (max-width: 1080px) {
     .phones { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 48px; }
+  }
+  @media (max-width: 720px) {
+    .hook { grid-template-columns: 1fr; }
+    .phone--hero { max-width: 340px; }
   }
   @media (max-width: 900px) {
     .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
