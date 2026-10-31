@@ -1,6 +1,6 @@
 ---
 /* Case page: Fitrise stadium LED intro (two cuts, downloadable).
-   Files live in /public/work/fitrise/. The GIFs are heavy (7.5 + 11.7 MB), so the page first shows a light
+   Files live in /public/work/fitrise/. The GIFs are heavy (7.7 + 11.2 MB), so the page first shows a light
    still (the final frame) and swaps in the GIF once a board is on screen after the visitor scrolls or moves —
    the page stays light on first load. prefers-reduced-motion keeps the still. No <video> here (site rule 2). */
 import Base from '../../layouts/Base.astro';
@@ -15,15 +15,15 @@ const cuts: Cut[] = [
   {
     id: 'clean', n: '01', name: 'Clean',
     text: 'The calm version. Each screen lands, holds long enough to read from the stands, and hands over to the next through the same yellow bar.',
-    gif: '/work/fitrise/clean.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean.mp4',
-    gifSize: '7.5 MB', mp4Size: '5.9 MB', file: 'Fitrise_LED_Intro_Clean_1440x270', note: '1 px = 1 LED',
+    gif: '/work/fitrise/clean-r1.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean-r1.mp4',
+    gifSize: '7.7 MB', mp4Size: '6.0 MB', file: 'Fitrise_LED_Intro_Clean_1440x270_r1', note: '1 px = 1 LED',
     alt: 'Fitrise LED intro, clean cut: yellow text on navy — Excuses scoren niet, Actie wel, Kom in beweging — ending on the Fitrise logo with Personal training, Leefstijlcoaching, Bedrijfsfitness.',
   },
   {
     id: 'flashy', n: '02', name: 'Flashy',
     text: 'Same story, louder. The first line is typed with the bar as a blinking cursor, every hit flashes, the letters jump in a stadium wave and the background pulses with light.',
-    gif: '/work/fitrise/flashy.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy.mp4',
-    gifSize: '11.7 MB', mp4Size: '9.3 MB', file: 'Fitrise_LED_Intro_Flashy_1440x270', note: 'Flashes kept under 3 per second',
+    gif: '/work/fitrise/flashy-r1.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy-r1.mp4',
+    gifSize: '11.2 MB', mp4Size: '10.0 MB', file: 'Fitrise_LED_Intro_Flashy_1440x270_r1', note: 'Flashes kept under 3 per second',
     alt: 'Fitrise LED intro, flashy cut: the first line is typed letter by letter behind a blinking yellow cursor, words flash on every hit, ending on the Fitrise logo with its three services.',
   },
 ];
