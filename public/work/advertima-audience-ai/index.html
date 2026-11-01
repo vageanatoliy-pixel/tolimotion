@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Private review page: keep it out of search engines.
+       No Open Graph image on purpose: a link preview must not expose the client's reference stills. -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <title>Creative test</title>
+  <!-- Empty favicon: stops a pointless request for /favicon.ico. -->
+  <link rel="icon" href="data:,">
+  <!-- Brand font (Aspekta, 30 KB): preloaded so headlines don't flash in the fallback font. -->
+  <link rel="preload" href="assets/fonts/aspekta-variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="content.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <!-- ANALYTICS (optional). Uncomment ONE of the two options below.
+       With neither, script.js sends events to CONTENT.analytics.endpoint with navigator.sendBeacon.
+       Keep this block AFTER script.js so a slow analytics server never delays the page.
+
+  Option 1, Plausible: set data-domain to the domain you deploy to. The second line queues
+  events fired before Plausible has loaded. If Plausible gives you a newer snippet, paste that instead.
+  <script defer data-domain="your-site.vercel.app" src="https://plausible.io/js/script.js"></script>
+  <script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };</script>
+
+  Option 2, Umami: paste your website ID (Umami > Websites > Edit > Tracking code).
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="YOUR-WEBSITE-ID"></script>
+  -->
+</head>
+<body>
+  <noscript><p class="wrap noscript">This page needs JavaScript to show its videos and images.</p></noscript>
+
+  <main>
+    <!-- ================================================================
+         0. INTRO: logo animation (CONTENT.intro)
+         Full-width first screen. The video plays once on load (muted, no
+         controls) and holds on the logo; then the scroll cue fades in.
+         Its height is set in CSS, so the page doesn't jump while it loads.
+         Hidden when intro.video is empty or the file is missing.
+         ================================================================ -->
+    <section id="intro" class="intro" data-item>
+      <a class="intro-cue" href="#hero" data-aria="labels.scrollDown"></a>
+    </section>
+
+    <!-- ================================================================
+         1. HERO (always on)
+         Label, title, one-line summary, main 16:9 video (click to play,
+         preload="metadata"), then duration + tools as chips.
+         Every part hides itself when its CONTENT.hero field is empty.
+         ================================================================ -->
+    <section id="hero" class="hero">
+      <div class="wrap">
+        <p class="eyebrow" data-text="hero.label"></p>
+        <h1 data-rich="hero.title"></h1>
+        <p class="lead" data-text="hero.summary"></p>
+        <div class="slot" data-slot="hero-video"></div>
+        <ul class="chips" data-slot="hero-chips"></ul>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         2. WHAT I CHANGED
+         Three cards (visual consistency, data/UI layer, story), each with
+         a heading, 2-3 sentences and a Reference / My version still pair.
+         Hidden until at least one card has a heading and text.
+         ================================================================ -->
+    <section id="changes" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="changes.title"></h2>
+        <p class="lead" data-text="changes.intro"></p>
+        <div class="slot cards" data-slot="changes"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         3. WALKTHROUGH
+         1-2 sentences, then a Loom/Vimeo embed or, if no embed URL is set,
+         a self-hosted MP4. Hidden when neither is set.
+         ================================================================ -->
+    <section id="walkthrough" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="walkthrough.title"></h2>
+        <p class="lead" data-text="walkthrough.text"></p>
+        <div class="slot" data-slot="walkthrough"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         4. CHARACTER & WORLD
+         Paragraph on consistency, a wide character sheet and a grid of
+         3-4 location stills. Hidden until at least one image is set.
+         ================================================================ -->
+    <section id="world" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="world.title"></h2>
+        <p class="lead" data-text="world.text"></p>
+        <div class="slot" data-slot="world"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         5. BRAND APPLICATION
+         Palette swatches (read from the CSS variables), a typography sample
+         and 2-4 UI/data cards with captions.
+         Hidden until the intro or at least one UI card is set.
+         ================================================================ -->
+    <section id="brand" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="brand.title"></h2>
+        <p class="lead" data-text="brand.intro" data-item></p>
+        <div class="slot" data-slot="brand"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         6. FORMATS
+         The same clip in 16:9, 1:1 and 9:16, side by side at equal height
+         on desktop, stacked on mobile. Each video loads only when it is
+         near the screen. Hidden until at least one video is set.
+         ================================================================ -->
+    <section id="formats" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="formats.title"></h2>
+        <p class="lead" data-text="formats.intro"></p>
+        <div class="slot formats" data-slot="formats"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         7. PROCESS & TOOLS
+         Horizontal pipeline (brief > ... > review) and a two-column
+         tool / what-I-used-it-for table. Hidden until the table has a row.
+         ================================================================ -->
+    <section id="process" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="process.title"></h2>
+        <p class="lead" data-text="process.intro"></p>
+        <div class="slot" data-slot="process"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         8. ONGOING COLLABORATION
+         Three short blocks: weekly workflow, recommended tools, what more
+         time would add. Hidden until at least one block has text.
+         ================================================================ -->
+    <section id="collab" class="section" data-group hidden>
+      <div class="wrap">
+        <h2 class="section-title" data-text="collab.title"></h2>
+        <p class="lead" data-text="collab.intro"></p>
+        <div class="slot blocks" data-slot="collab"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================================================================
+       9. FOOTER (always on)
+       Name and a link to tolimotion.com. No email, phone or messenger
+       links anywhere on the page, by design.
+       ================================================================== -->
+  <footer id="footer" class="footer">
+    <div class="wrap">
+      <span class="footer-name" data-text="footer.name"></span>
+      <a data-text="footer.linkText" data-href="footer.linkUrl" target="_blank" rel="noopener"></a>
+      <p class="footer-note" data-text="footer.note"></p>
+    </div>
+  </footer>
+
+  <!-- Lightbox: script.js opens it when a still is clicked. Esc or a click closes it. -->
+  <dialog id="lightbox" class="lightbox">
+    <img alt="">
+    <button type="button" class="lightbox-close" data-aria="labels.close">&times;</button>
+  </dialog>
+</body>
+</html>
