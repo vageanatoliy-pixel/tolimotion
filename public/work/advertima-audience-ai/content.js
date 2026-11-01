@@ -147,6 +147,7 @@ window.CONTENT = {
       { tool: "After Effects", use: "Compositing, the tracked UI, the sweeps between store and sensor view, the ending and the logo" },
       { tool: "ElevenLabs", use: "Voice-over, read from the original script" },
       { tool: "Sound effects", use: "Scan, identification and transition sounds" },
+      { tool: "Artlist", use: "Music: The Shoulder Tap by Tamuz Dekel & Palm Blue, under the voice-over" },
     ],
   },
 
