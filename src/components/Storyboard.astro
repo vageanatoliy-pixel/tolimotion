@@ -1,0 +1,117 @@
+---
+/* Lo-fi storyboard sheet: grey-white boards in reading order, laid out as a snake —
+   left → right, down, right → left, down … — with a small arrow from every board to the next.
+   The snake is computed for 4 columns (desktop), 3 (tablet) and 2 (phone); each board carries
+   its grid slot for every layout, and only that layout's arrows are shown. */
+import type { Board } from '../data/cissp-storyboard';
+interface Props { boards: Board[]; label: string }
+const { boards, label } = Astro.props;
+const total = boards.length;
+const LAYOUTS = [4, 3, 2];
+
+type Dir = 'right' | 'left' | 'down';
+const place = (i: number, cols: number) => {
+  const r = Math.floor(i / cols), k = i % cols;
+  return { r: r + 1, c: r % 2 === 0 ? k + 1 : cols - k };
+};
+const dir = (i: number, cols: number): Dir | null => {
+  if (i >= total - 1) return null;
+  const a = place(i, cols), b = place(i + 1, cols);
+  if (b.r > a.r) return 'down';
+  return b.c > a.c ? 'right' : 'left';
+};
+const cells = boards.map((b, i) => {
+  const arrows = LAYOUTS.map((k) => [k, dir(i, k)] as [number, Dir | null]).filter(([, d]) => d !== null) as [number, Dir][];
+  return {
+    ...b,
+    num: String(i + 1).padStart(2, '0'),
+    style: LAYOUTS.map((k) => { const p = place(i, k); return `--c${k}:${p.c};--r${k}:${p.r}`; }).join(';'),
+    side: arrows.filter(([, d]) => d !== 'down'),
+    down: arrows.filter(([, d]) => d === 'down'),
+  };
+});
+const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M27 1 38 6l-11 5z" fill="currentColor"/></svg>';
+---
+<ol class="sb" aria-label={label}>
+  {cells.map((c) => (
+    <li class="sb-cell" style={c.style}>
+      <div class="sb-frame">
+        <Fragment set:html={c.svg} />
+        {c.side.map(([k, d]) => <span class={`sb-arrow sb-a${k} to-${d}`} set:html={ARROW} />)}
+      </div>
+      <p class="sb-head"><span class="sb-num">{c.num}</span><span class="sb-t">{c.t}</span><span class="sb-title">{c.title}</span></p>
+      <p class="sb-action">{c.action}</p>
+      {c.vo && <p class="sb-vo">“{c.vo}”</p>}
+      {c.down.map(([k]) => <span class={`sb-arrow sb-a${k} to-down`} set:html={ARROW} />)}
+    </li>
+  ))}
+</ol>
+
+<style>
+  .sb {
+    --gx: 30px;
+    --gy: 34px;
+    --aw: 18px;
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--gx); row-gap: var(--gy);
+  }
+  .sb-cell { position: relative; grid-column: var(--c4); grid-row: var(--r4); }
+  .sb-frame { position: relative; aspect-ratio: 16 / 9; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .sb-frame :global(svg) { display: block; width: 100%; height: 100%; border-radius: 7px; }
+
+  /* board drawing — grey and white only */
+  .sb-frame :global(.bg) { fill: var(--card); }
+  .sb-frame :global(.bg-tint) { fill: var(--band); }
+  .sb-frame :global(.ui) { fill: var(--band); stroke: var(--line); stroke-width: 1; }
+  .sb-frame :global(.bg-tint ~ .ui), .sb-frame :global(.bg-tint ~ g .ui) { fill: color-mix(in srgb, var(--line) 55%, var(--band)); }
+  .sb-frame :global(.card) { fill: var(--card); stroke: var(--line); stroke-width: 1; }
+  .sb-frame :global(.mid) { fill: var(--line); }
+  .sb-frame :global(.dark) { fill: var(--muted); }
+  .sb-frame :global(.ghost) { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .sb-frame :global(.badge) { fill: none; stroke: var(--line); stroke-width: 6; stroke-linecap: round; }
+  .sb-frame :global(.wave), .sb-frame :global(.ridge) { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; }
+  .sb-frame :global(.t) { font-family: var(--font-sans); }
+  .sb-frame :global(.ink) { fill: var(--soft); }
+  .sb-frame :global(.mute) { fill: var(--muted); }
+  .sb-frame :global(.note) { fill: var(--muted); font-style: italic; font-weight: 500; }
+  /* motion marks */
+  .sb-frame :global(.mv) { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 3 2.5; stroke-linecap: round; }
+  .sb-frame :global(.mvh) { fill: var(--muted); }
+  .sb-frame :global(.frame) { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+  .sb-frame :global(.ring) { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+  .sb-frame :global(.brk) { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-linecap: round; }
+  .sb-frame :global(.cur) { fill: var(--card); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
+
+  /* arrows between boards: centred in the gap */
+  .sb-arrow { position: absolute; display: none; width: var(--aw); color: var(--muted); line-height: 0; }
+  .sb-arrow :global(svg) { width: 100%; height: auto; }
+  .sb-a4 { display: block; }
+  .to-right { left: calc(100% + var(--gx) / 2); top: 50%; transform: translate(-50%, -50%); }
+  .to-left { left: calc(var(--gx) / -2); top: 50%; transform: translate(-50%, -50%) scaleX(-1); }
+  .to-down { left: 50%; top: calc(100% + var(--gy) / 2); transform: translate(-50%, -50%) rotate(90deg); }
+
+  .sb-head { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; }
+  .sb-num { font-size: 12px; font-weight: 600; color: var(--green); }
+  .sb-t { font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .sb-title { font-family: var(--font-serif); font-weight: 500; font-size: 16.5px; line-height: 1.2; }
+  .sb-action { font-size: 13px; line-height: 1.45; color: var(--soft); margin-top: 4px; }
+  .sb-vo { font-family: var(--font-serif); font-style: italic; font-size: 13.5px; line-height: 1.4; color: var(--muted); margin-top: 4px; }
+
+  @media (max-width: 1000px) {
+    .sb { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sb-cell { grid-column: var(--c3); grid-row: var(--r3); }
+    .sb-a4 { display: none; }
+    .sb-a3 { display: block; }
+  }
+  @media (max-width: 640px) {
+    .sb { grid-template-columns: repeat(2, minmax(0, 1fr)); --gx: 22px; --gy: 30px; --aw: 14px; }
+    .sb-cell { grid-column: var(--c2); grid-row: var(--r2); }
+    .sb-a3 { display: none; }
+    .sb-a2 { display: block; }
+    .sb-head { flex-wrap: wrap; gap: 2px 6px; }
+    .sb-title { flex-basis: 100%; font-size: 15px; }
+    .sb-action { font-size: 12px; }
+    .sb-vo { font-size: 12.5px; }
+  }
+</style>

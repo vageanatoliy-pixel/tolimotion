@@ -1,0 +1,229 @@
+---
+/* Case page: two CISSP MasterClass ads for Destination Certification, each in 16:9, 1:1 and 9:16.
+   Files live in /public/work/cissp/. The 16:9 films are the two VideoPiece players on this page
+   (owner decision 2026-11-06, see CLAUDE.md rule 2). The square and vertical cuts are GIFs: a light still
+   first, the GIF swaps in once it is on screen after the visitor scrolls or moves; reduced motion keeps the still.
+   The storyboards are drawn in code (src/data/cissp-storyboard.ts) — grey blocks, no images. */
+import Base from '../../layouts/Base.astro';
+import Spark from '../../components/Spark.astro';
+import Footer from '../../components/Footer.astro';
+import VideoPiece from '../../components/VideoPiece.astro';
+import Storyboard from '../../components/Storyboard.astro';
+import { ad1, ad2, type Board } from '../../data/cissp-storyboard';
+
+type Fmt = { ratio: string; use: string; gif: string; still: string; size: string; file: string; w: number; h: number; alt: string };
+type Ad = {
+  id: string; n: string; name: string; len: string; text: string;
+  film: { src: string; poster: string; note: string };
+  formats: Fmt[]; boards: Board[];
+};
+const ads: Ad[] = [
+  {
+    id: 'ad1', n: '01', name: 'A mile wide', len: '37 s',
+    text: 'CISSP covers a huge syllabus, so people over-study what they already know and miss the rest. The ad drops from that line straight into the course: a lesson ends, a quick check follows, and the answers build a review guide that pulls the weak domains to the top.',
+    film: { src: '/work/cissp/ad1-16x9.mp4', poster: '/work/cissp/ad1-16x9.jpg', note: '37 s · sound on' },
+    formats: [
+      { ratio: '1:1', use: 'Feed', gif: '/work/cissp/ad1-1x1.gif', still: '/work/cissp/ad1-1x1.jpg', size: '12.3 MB', file: 'CISSP-MasterClass_AD1_1x1', w: 400, h: 400,
+        alt: 'Ad 1 in square format: topic pills float over the line “An inch deep”, then the course player, quick check questions, the review guide and the pass rate.' },
+      { ratio: '9:16', use: 'Stories · Reels', gif: '/work/cissp/ad1-9x16.gif', still: '/work/cissp/ad1-9x16.jpg', size: '8.3 MB', file: 'CISSP-MasterClass_AD1_9x16', w: 270, h: 480,
+        alt: 'Ad 1 in vertical format, re-framed for a phone: the same scenes stacked for a tall screen.' },
+    ],
+    boards: ad1,
+  },
+  {
+    id: 'ad2', n: '02', name: 'The exam adapts', len: '21 s',
+    text: 'The real CISSP exam adapts to every answer. This ad puts the viewer inside the CAT exam simulator — start the exam, answer against the clock, read the score report — so “it already feels familiar” is shown, not claimed.',
+    film: { src: '/work/cissp/ad2-16x9.mp4', poster: '/work/cissp/ad2-16x9.jpg', note: '21 s · sound on' },
+    formats: [
+      { ratio: '1:1', use: 'Feed', gif: '/work/cissp/ad2-1x1.gif', still: '/work/cissp/ad2-1x1.jpg', size: '9.6 MB', file: 'CISSP-MasterClass_AD2_1x1', w: 400, h: 400,
+        alt: 'Ad 2 in square format: “Works just like the real exam” above a timed exam question with an answer being picked.' },
+      { ratio: '9:16', use: 'Stories · Reels', gif: '/work/cissp/ad2-9x16.gif', still: '/work/cissp/ad2-9x16.jpg', size: '7.9 MB', file: 'CISSP-MasterClass_AD2_9x16', w: 270, h: 480,
+        alt: 'Ad 2 in vertical format: the simulator dashboard, an exam question on the clock, the score report and the pass rate, stacked for a phone.' },
+    ],
+    boards: ad2,
+  },
+];
+const facts = [
+  ['Client', 'Destination Certification'],
+  ['Product', 'CISSP MasterClass'],
+  ['Formats', '16:9 · 1:1 · 9:16'],
+  ['Length', '37 s + 21 s'],
+  ['Role', 'Storyboard, design, motion, sound'],
+  ['Year', '2026'],
+];
+---
+<Base
+  title="CISSP MasterClass ads — Toli"
+  description="Two performance ads for Destination Certification’s CISSP MasterClass — storyboard, design, motion and sound — each cut for 16:9, 1:1 and 9:16."
+>
+  <header class="case-header">
+    <div class="container case-header-inner">
+      <a href="/" class="case-logo"><Spark size={17} /><span>Toli</span></a>
+      <a class="pill case-back" href="/#work">← All work</a>
+    </div>
+  </header>
+
+  <main class="case">
+    <section class="container case-hero">
+      <p class="eyebrow eyebrow--green">Case · Performance ads</p>
+      <h1 class="h-display case-title">Two ads that show the course <em>working</em>.</h1>
+      <p class="case-lead">
+        Ads for the CISSP MasterClass by Destination Certification. Instead of listing features, each one walks
+        through the product the way a student meets it, then lands on the pass rate. Both are cut three ways:
+        16:9 for YouTube and the web, 1:1 for the feed, 9:16 for stories and reels.
+      </p>
+      <dl class="facts">
+        {facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+      </dl>
+    </section>
+
+    {ads.map((ad) => (
+      <section class="ad" id={ad.id} aria-labelledby={`${ad.id}-title`}>
+        <div class="container">
+          <div class="ad-head">
+            <span class="ad-n">{ad.n}</span>
+            <h2 id={`${ad.id}-title`} class="h-display ad-title"><em>{ad.name}</em> <span class="ad-len">{ad.len}</span></h2>
+            <p class="ad-text">{ad.text}</p>
+          </div>
+
+          <div class="film">
+            <VideoPiece src={ad.film.src} poster={ad.film.poster} label={`Ad ${ad.n} — ${ad.name}`} />
+            <p class="fmt-label"><b>16:9</b><span>YouTube · Web</span><span class="fmt-sound">{ad.film.note}</span></p>
+          </div>
+
+          <div class="formats">
+            <div class="fmt-pair">
+            {ad.formats.map((f) => (
+              <figure class={`fmt fmt--${f.ratio === '1:1' ? 'square' : 'tall'}`}>
+                <div class="fmt-frame">
+                  <img class="fmt-img" src={f.still} data-gif={f.gif} width={f.w} height={f.h} alt={f.alt} loading="lazy" decoding="async" />
+                </div>
+                <figcaption class="fmt-cap">
+                  <p class="fmt-label"><b>{f.ratio}</b><span>{f.use}</span></p>
+                  <a class="pill fmt-dl" href={f.gif} download={`${f.file}.gif`}>GIF <small>{f.size}</small></a>
+                </figcaption>
+              </figure>
+            ))}
+            </div>
+            <p class="fmt-note">
+              Re-framed, not cropped: for each shape the camera, the captions and the UI are laid out again in After Effects,
+              so nothing important sits under a crop line.
+            </p>
+          </div>
+
+          <div class="board-block">
+            <p class="eyebrow eyebrow--green">Storyboard · Ad {ad.n}</p>
+            <h3 class="h-display board-title">Every beat, <em>in order</em>.</h3>
+            <p class="board-lead">Grey blocks for what is on screen, dashed marks for where the camera and the UI move, and the line each beat lands on.</p>
+            <Storyboard boards={ad.boards} label={`Storyboard of ad ${ad.n}, ${ad.name}`} />
+          </div>
+        </div>
+      </section>
+    ))}
+
+    <section class="container notes" aria-label="How they were made">
+      <div class="note"><h3>Product first</h3><p>Every screen is the real course UI rebuilt as clean layers, so each claim in the voice-over has a click on screen to back it.</p></div>
+      <div class="note"><h3>One camera</h3><p>Each ad is a single 3D camera moving over flat boards. Pushes land on the button a student would press next, so the cuts read as one session.</p></div>
+      <div class="note"><h3>One mix</h3><p>Voice-over, music and effects are mixed once on the master and carried into all three formats, frame for frame.</p></div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  /* Swap the still for the GIF once a format is on screen — armed by the first scroll / pointer / key,
+     so the GIFs never load before the visitor engages. Reduced motion keeps the still. */
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img[data-gif]'));
+  if (!reduced && imgs.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const img = e.target as HTMLImageElement;
+        io.unobserve(img);
+        const pre = new Image();
+        pre.onload = () => { img.src = pre.src; };
+        pre.src = img.dataset.gif ?? '';
+      }
+    }, { threshold: 0.25 });
+    const arm = () => {
+      ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.removeEventListener(ev, arm));
+      imgs.forEach((img) => io.observe(img));
+    };
+    ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.addEventListener(ev, arm, { passive: true }));
+  }
+</script>
+
+<style>
+  .case-header { border-bottom: 1px solid var(--line); }
+  .case-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
+  .case-logo { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--font-serif); font-weight: 500; font-size: 24px; }
+  .case-back { font-size: 14px; padding: 9px 16px; color: var(--soft); transition: border-color var(--dur-fast) var(--ease-out); }
+  .case-back:hover { border-color: var(--ink); color: var(--ink); }
+
+  .case-hero { padding-block: clamp(48px, 7vw, 88px) clamp(36px, 4vw, 48px); }
+  .case-title { font-size: clamp(40px, 6.4vw, 82px); line-height: 1.02; letter-spacing: -0.02em; margin-top: 22px; max-width: 15ch; }
+  .case-title em { font-style: italic; color: var(--green); }
+  .case-lead { font-family: var(--font-serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.5; color: var(--soft); max-width: 48ch; margin-top: 26px; }
+  .facts { display: grid; grid-template-columns: repeat(6, auto); gap: 16px 40px; margin: 44px 0 0; padding-top: 28px; border-top: 1px solid var(--line); }
+  .facts dt { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .facts dd { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.35; }
+
+  .ad { border-top: 1px solid var(--line); padding-block: clamp(56px, 8vw, 96px); }
+  .ad-head { display: grid; grid-template-columns: auto 1fr; gap: 8px 22px; align-items: baseline; margin-bottom: clamp(28px, 3.4vw, 40px); }
+  .ad-n { grid-row: span 2; font-size: 14px; font-weight: 600; color: var(--green); }
+  .ad-title { font-size: clamp(32px, 4.2vw, 52px); letter-spacing: -0.015em; }
+  .ad-title em { font-style: italic; color: var(--green); }
+  .ad-len { font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.1em; color: var(--muted); vertical-align: middle; margin-left: 8px; }
+  .ad-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.55; color: var(--soft); max-width: 60ch; }
+
+  .film :global(.piece) { max-height: none; }
+  .fmt-label { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .fmt-label b { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; color: var(--ink); }
+
+  /* square + vertical share one exact height (--fh); the pair shrinks with the page */
+  .formats {
+    --b: clamp(6px, 0.7vw, 9px);
+    --g: clamp(14px, 2vw, 28px);
+    --fh: min(440px, calc((min(100vw, var(--container)) - 2 * var(--pad-x) - var(--g) - 4 * var(--b)) / 1.5625));
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: clamp(24px, 3vw, 40px); margin-top: clamp(32px, 4vw, 48px);
+  }
+  .fmt-pair { display: flex; gap: var(--g); align-items: flex-start; }
+  .fmt { margin: 0; }
+  .fmt-frame { padding: var(--b); background: var(--ink); border-radius: clamp(16px, 1.8vw, 24px); }
+  .fmt--tall .fmt-frame { border-radius: clamp(20px, 2.2vw, 28px); }
+  .fmt-img { display: block; height: var(--fh); width: auto; border-radius: clamp(10px, 1.2vw, 16px); background: #0d0521; }
+  .fmt-sound { margin-left: auto; }
+  .fmt--square .fmt-img { aspect-ratio: 1; }
+  .fmt--tall .fmt-img { aspect-ratio: 9 / 16; border-radius: clamp(14px, 1.6vw, 20px); }
+  .fmt-cap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .fmt-dl { gap: 6px; padding: 7px 14px; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--ink); transition: border-color var(--dur-fast) var(--ease-out); }
+  .fmt-dl:hover { border-color: var(--ink); }
+  .fmt-dl small { font-size: 12px; font-weight: 500; opacity: 0.7; }
+  .fmt-note { flex: 1 1 240px; max-width: 40ch; font-family: var(--font-serif); font-size: 17px; line-height: 1.55; color: var(--soft); padding-bottom: 92px; }
+
+  .board-block { margin-top: clamp(56px, 6vw, 80px); }
+  .board-title { font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.012em; margin: 10px 0 8px; }
+  .board-title em { font-style: italic; color: var(--green); }
+  .board-lead { font-size: 15px; line-height: 1.5; color: var(--muted); max-width: 60ch; margin-bottom: 24px; }
+
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-block: clamp(40px, 5vw, 56px) clamp(56px, 8vw, 96px); border-top: 1px solid var(--line); }
+  .note { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
+  .note h3 { font-family: var(--font-serif); font-weight: 500; font-size: 21px; line-height: 1.2; margin-bottom: 8px; }
+  .note p { font-size: 15px; color: var(--soft); }
+
+  @media (max-width: 900px) {
+    .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .notes { grid-template-columns: 1fr; }
+    .fmt-note { padding-bottom: 0; }
+  }
+  @media (max-width: 560px) {
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+    .ad-head { grid-template-columns: 1fr; }
+    .ad-n { grid-row: auto; }
+    .fmt-label { gap: 4px 8px; }
+    .fmt figcaption .fmt-label span { display: none; }
+    .fmt-dl { padding: 6px 11px; font-size: 12px; }
+  }
+</style>
