@@ -1,0 +1,44 @@
+---
+/* Phones only: a slim bar with the one action, shown once the hero has scrolled away and hidden
+   again while the contact form is on screen. */
+import { availability } from '../data/site';
+---
+<div class="mcta" data-mcta aria-hidden="true">
+  <span class="mcta-txt"><span class="mcta-dot"></span>{availability.label || 'Available'}</span>
+  <a class="mcta-btn" href="#contact" tabindex="-1">Start a project →</a>
+</div>
+
+<style>
+  .mcta { display: none; }
+  @media (max-width: 760px) {
+    .mcta {
+      position: fixed; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 8px 8px 8px 16px; border-radius: 999px;
+      background: var(--ink); color: var(--cream);
+      box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 30%, transparent);
+      transform: translateY(140%); transition: transform var(--dur-base) var(--ease-out);
+    }
+    .mcta.is-on { transform: none; }
+  }
+  .mcta-txt { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+  .mcta-dot { width: 7px; height: 7px; border-radius: 50%; background: color-mix(in srgb, var(--green) 55%, var(--cream)); }
+  .mcta-btn { padding: 10px 16px; border-radius: 999px; background: var(--cream); color: var(--ink); font-size: 14px; font-weight: 600; }
+</style>
+
+<script>
+  const bar = document.querySelector<HTMLElement>('[data-mcta]');
+  const hero = document.querySelector('#top');
+  const contact = document.querySelector('#contact');
+  if (bar && hero && 'IntersectionObserver' in window) {
+    let pastHero = false, atContact = false;
+    const sync = () => {
+      const on = pastHero && !atContact;
+      bar.classList.toggle('is-on', on);
+      bar.setAttribute('aria-hidden', String(!on));
+      bar.querySelector('a')?.setAttribute('tabindex', on ? '0' : '-1');
+    };
+    new IntersectionObserver(([e]) => { pastHero = !e.isIntersecting; sync(); }).observe(hero);
+    if (contact) new IntersectionObserver(([e]) => { atContact = e.isIntersecting; sync(); }, { threshold: 0.1 }).observe(contact);
+  }
+</script>

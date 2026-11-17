@@ -1,0 +1,106 @@
+---
+/* What I make: five services as rows — loop, promise, what is included, starting price and time.
+   Prices and turnaround are Toli's own (services prototype, 2026-11-07); every row links to the brief
+   with the service preselected. */
+import LoopVideo from './LoopVideo.astro';
+import Marker from './Marker.astro';
+import { services } from '../data/site';
+---
+<section class="section services" id="services" aria-labelledby="services-title">
+  <div class="container">
+    <div class="sv-head">
+      <div>
+        <Marker tc="00:47" label="Services and prices" />
+        <h2 class="h-display h-section sv-title" id="services-title">What I make and what it costs.</h2>
+      </div>
+      <p class="sv-note">Fixed prices after a short call. Starting points below — the quote depends on length, formats and how much is new design.</p>
+    </div>
+
+    <ul class="sv-list">
+      {services.map((s, i) => (
+        <li class={s.draft ? "sv sv--draft" : "sv"} data-loop-host>
+          <div class="sv-media">
+            {s.loop ? (
+              <LoopVideo name={s.loop} alt={`${s.name} example`} ratio="16 / 10" fit={s.ratio === '16 / 3' ? 'contain' : 'cover'} />
+            ) : (
+              <div class="sv-ph" aria-hidden="true"><span>Edit reel on request</span></div>
+            )}
+          </div>
+          <div class="sv-body">
+            <h3 class="sv-name">{s.name}</h3>
+            <p class="sv-line">{s.line}</p>
+            <ul class="sv-items">{s.items.map((it) => <li>{it}</li>)}</ul>
+          </div>
+          <div class="sv-price">
+            <p class="sv-from"><span>From</span> {s.from}</p>
+            <p class="sv-time">{s.time}</p>
+            <a class="sv-cta" href={`#contact`} data-service={s.name}>Ask about this <span aria-hidden="true">→</span></a>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <p class="sv-foot"><b>Agencies:</b> white-label under NDA, your specs and naming — <a href="#agencies">how it works</a>. <b>Ongoing work:</b> an hourly contract with a weekly limit you set — ask for the rate.</p>
+  </div>
+</section>
+
+<style>
+  .sv-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 56px; }
+  .sv-title { margin-top: 14px; max-width: 15ch; }
+  .sv-title em { font-style: italic; color: var(--green); }
+  .sv-note { max-width: 42ch; font-size: 15px; line-height: 1.6; color: var(--muted); }
+
+  .sv-list { list-style: none; margin: clamp(32px, 4vw, 52px) 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .sv {
+    display: grid; grid-template-columns: minmax(180px, 260px) 1fr auto; gap: 20px clamp(20px, 3vw, 44px);
+    align-items: start;
+    padding-block: clamp(20px, 2.4vw, 30px);
+    border-bottom: 1px solid var(--line);
+  }
+  .sv-media :global(.loop), .sv-ph { border-radius: 12px; }
+  .sv-ph {
+    aspect-ratio: 16 / 10; display: grid; place-items: center;
+    background: repeating-linear-gradient(135deg, var(--band) 0 10px, var(--paper) 10px 20px);
+    font-size: 12px; font-weight: 600; color: var(--muted);
+  }
+  .sv-n { font-size: 12px; font-weight: 700; color: var(--green); font-feature-settings: 'tnum'; letter-spacing: 0.06em; }
+  .sv-name { margin-top: 4px; font-family: var(--font-serif); font-weight: 500; font-size: clamp(24px, 2.2vw, 32px); line-height: 1.1; letter-spacing: -0.01em; }
+  .sv-line { margin-top: 8px; max-width: 56ch; font-size: 16px; line-height: 1.55; color: var(--soft); }
+  .sv-items { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 0; font-size: 14px; color: var(--muted); }
+  .sv-items li + li::before { content: '·'; margin-inline: 8px; color: var(--line); }
+  .sv-price { text-align: right; min-width: 170px; }
+  .sv-from { font-family: var(--font-serif); font-size: clamp(22px, 1.9vw, 28px); line-height: 1.15; }
+  .sv-from span { display: block; font-family: var(--font-sans); font-size: 11.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .sv-time { margin-top: 4px; font-size: 13.5px; color: var(--muted); }
+  .sv-cta {
+    display: inline-flex; gap: 6px; margin-top: 14px; padding: 8px 14px; border-radius: 999px;
+    border: 1px solid var(--ink); font-size: 13.5px; font-weight: 600;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .sv-cta:hover { background: var(--ink); color: var(--cream); }
+  .sv--draft { display: none; }
+  :global(html[data-draft]) .sv--draft { display: grid; border-bottom-style: dashed; }
+  :global(html[data-draft]) .sv--draft .sv-from { color: var(--clay); font-size: 16px; }
+  .sv-foot { margin-top: 22px; font-size: 15px; color: var(--soft); }
+  .sv-foot b { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .sv { grid-template-columns: 96px 1fr; }
+    .sv-media { grid-row: span 2; }
+    .sv-media :global(.loop) { aspect-ratio: 1 !important; border-radius: 10px; }
+    .sv-price { grid-column: 2; }
+    .sv-name { font-size: 22px; }
+    .sv-price { text-align: left; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+    .sv-from span { display: inline; margin-right: 6px; }
+    .sv-cta { margin-top: 0; }
+  }
+</style>
+
+<script>
+  /* "Ask about this" fills the brief form's service field. */
+  document.querySelectorAll<HTMLAnchorElement>('[data-service]').forEach((a) => {
+    a.addEventListener('click', () => {
+      const sel = document.querySelector<HTMLSelectElement>('#brief-service');
+      if (sel) sel.value = a.dataset.service ?? '';
+    });
+  });
+</script>

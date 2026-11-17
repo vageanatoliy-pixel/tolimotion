@@ -1,46 +1,153 @@
 ---
+/* Contact: a short brief that opens the visitor's mail app with everything filled in (no server,
+   nothing stored), plus the plain address with a copy button, a call link and Upwork when Toli adds them. */
 import Spark from './Spark.astro';
+import { person, services } from '../data/site';
+const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not sure yet'];
 ---
-<section class="contact-section">
+<section class="contact" id="contact" aria-labelledby="contact-title">
   <div class="container">
     <div class="cta">
-      <Spark size={36} color="var(--cream)" />
-      <h2 class="h-display cta-title">Let's make something worth watching.</h2>
-      <p class="cta-sub">One clear brief is enough to start. I reply within a day.</p>
-      <a class="cta-btn" href="mailto:hello@tolimotion.com">hello@tolimotion.com</a>
-      <div class="socials">
-        <a href="#" aria-disabled="true">Behance</a>
-        <a href="#" aria-disabled="true">LinkedIn</a>
-        <a href="#" aria-disabled="true">Telegram</a>
+      <div class="cta-copy">
+        <Spark size={34} color="var(--cream)" />
+        <h2 class="h-display cta-title" id="contact-title">Tell me about <em>your project.</em></h2>
+        <p class="cta-sub">A few lines are enough.</p>
+        <div class="cta-direct">
+          <a class="cta-mail" href={`mailto:${person.email}`}>{person.email}</a>
+          <button class="cta-copy-btn" type="button" data-copy={person.email}>Copy</button>
+        </div>
+        <ul class="cta-alt">
+          {person.bookingUrl && <li><a href={person.bookingUrl} target="_blank" rel="noopener">Book a 20-minute call →</a></li>}
+          {person.upworkUrl && <li><a href={person.upworkUrl} target="_blank" rel="noopener">Hire me on Upwork →</a></li>}
+        </ul>
+        <ol class="cta-next">
+          <li>I reply within one working day — questions or a quote.</li>
+          <li>If it fits, a 20-minute call about goals, audience and formats.</li>
+          <li>A fixed price and a schedule before any work starts.</li>
+        </ol>
+        <p class="draft-only">Missing: Cal.com booking link · Upwork profile URL</p>
       </div>
+
+      <form class="brief" data-brief novalidate>
+        <label><span>Your name <span class="opt">optional</span></span><input name="name" autocomplete="name" /></label>
+        <label><span>Company or website <span class="opt">optional</span></span><input name="company" autocomplete="organization" /></label>
+        <div class="row2">
+          <label>What do you need?
+            <select name="service" id="brief-service">
+              <option value="">Choose…</option>
+              {services.map((s) => <option>{s.name}</option>)}
+              <option>Something else</option>
+            </select>
+          </label>
+          <label>Budget
+            <select name="budget">
+              <option value="">Choose…</option>
+              {budgets.map((b) => <option>{b}</option>)}
+            </select>
+          </label>
+        </div>
+        <label><span>Deadline <span class="opt">optional</span></span><input name="deadline" placeholder="e.g. mid-January" /></label>
+        <label>A few lines about it<textarea name="message" rows="4" required placeholder="Product, audience, length, formats, links to references…"></textarea></label>
+        <button class="btn btn--light btn--lg" type="submit">Send the brief <span aria-hidden="true">→</span></button>
+        <p class="brief-note" data-brief-note>Your email app opens with the brief filled in. Nothing is stored on this site.</p>
+        <div class="brief-done" data-brief-done hidden>
+          <p><b>Email app didn’t open?</b> Copy the brief and send it to <a href={`mailto:${person.email}`}>{person.email}</a> from any mailbox.</p>
+          <textarea readonly rows="6" data-brief-text aria-label="Your brief"></textarea>
+          <button class="btn btn--light" type="button" data-brief-copy>Copy the brief</button>
+        </div>
+      </form>
     </div>
   </div>
 </section>
 
 <style>
-  .contact-section { padding-block: 16px clamp(56px, 7vw, 88px); }
+  .contact { padding-block: clamp(24px, 4vw, 48px) clamp(56px, 7vw, 96px); }
   .cta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    text-align: center;
-    background: var(--green);
-    border-radius: 32px;
-    padding: clamp(56px, 7vw, 84px) clamp(24px, 6vw, 80px);
+    display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(28px, 5vw, 72px);
+    background: var(--green); color: var(--cream);
+    border-radius: clamp(24px, 3vw, 40px);
+    padding: clamp(28px, 5vw, 72px);
   }
-  .cta-title { color: var(--cream); font-size: clamp(32px, 4.5vw, 54px); }
-  .cta-sub { color: var(--cream); opacity: 0.8; font-size: 16px; }
-  .cta-btn {
-    padding: 16px 32px;
-    border-radius: 999px;
-    background: var(--cream);
-    color: var(--ink);
-    font-weight: 600;
-    font-size: 16px;
+  .cta-title { margin-top: 22px; color: var(--cream); font-size: clamp(38px, 5vw, 68px); line-height: 1; letter-spacing: -0.025em; }
+  .cta-title em { font-style: italic; }
+  .cta-sub { margin-top: 16px; max-width: 40ch; font-size: 16px; line-height: 1.6; opacity: 0.85; }
+  .cta-direct { margin-top: 28px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .cta-mail { font-family: var(--font-serif); font-size: clamp(20px, 2vw, 26px); border-bottom: 1px solid color-mix(in srgb, var(--cream) 45%, transparent); }
+  .cta-copy-btn { padding: 6px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--cream) 45%, transparent); color: var(--cream); font-size: 13px; font-weight: 600; }
+  .cta-copy-btn:hover { background: var(--cream); color: var(--green); }
+  .cta-alt { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 8px; font-weight: 600; }
+  .cta-next { margin: 26px 0 0; padding: 18px 0 0 18px; border-top: 1px solid color-mix(in srgb, var(--cream) 22%, transparent); display: grid; gap: 6px; font-size: 14.5px; line-height: 1.5; opacity: 0.9; }
+  .cta-next li::marker { font-weight: 700; }
+  .draft-only { display: none; margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--scene-yellow); }
+  :global(html[data-draft]) .draft-only { display: block; }
+
+  .brief { display: grid; gap: 14px; align-content: start; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .brief label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: color-mix(in srgb, var(--cream) 85%, transparent); }
+  .opt { font-weight: 500; opacity: 0.65; }
+  .brief input, .brief select, .brief textarea {
+    width: 100%; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--cream) 28%, transparent);
+    background: color-mix(in srgb, var(--ink) 22%, transparent);
+    color: var(--cream); font: inherit; font-size: 15px; font-weight: 500;
   }
-  .cta-btn:hover { filter: brightness(1.04); }
-  .socials { display: flex; gap: 24px; }
-  .socials a { color: var(--cream); opacity: 0.85; font-size: 14px; font-weight: 500; }
-  .socials a:hover { opacity: 1; }
+  .brief select option { color: var(--ink); }
+  .brief input::placeholder, .brief textarea::placeholder { color: color-mix(in srgb, var(--cream) 50%, transparent); }
+  .brief input:focus-visible, .brief select:focus-visible, .brief textarea:focus-visible { outline: 2px solid var(--cream); outline-offset: 1px; }
+  .brief [aria-invalid="true"] { border-color: var(--scene-yellow); }
+  .brief .btn { justify-self: start; margin-top: 4px; }
+  .brief-done { display: grid; gap: 10px; padding: 16px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 25%, transparent); font-size: 14px; line-height: 1.5; }
+  .brief-done[hidden] { display: none; }
+  .brief-done a { text-decoration: underline; }
+  .brief-note { font-size: 12.5px; opacity: 0.75; }
+  @media (max-width: 900px) { .cta { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+  import { person } from '../data/site';
+  /* Copy the address */
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy ?? ''); b.textContent = 'Copied'; }
+      catch { b.textContent = 'Select & copy'; }
+      setTimeout(() => (b.textContent = 'Copy'), 1800);
+    });
+  });
+
+  /* Brief → a ready email in the visitor's own mail app. */
+  const form = document.querySelector<HTMLFormElement>('[data-brief]');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    let ok = true;
+    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]').forEach((el) => {
+      const bad = !el.value.trim() || (el.type === 'email' && !/^\S+@\S+\.\S+$/.test(el.value));
+      el.setAttribute('aria-invalid', String(bad));
+      if (bad && ok) { el.focus(); ok = false; }
+    });
+    if (!ok) return;
+    const get = (k: string) => String(data.get(k) ?? '').trim();
+    const subject = `Project brief — ${get('service') || 'new project'}${get('company') ? ` · ${get('company')}` : ''}`;
+    const head = [
+      get('name') ? `Name: ${get('name')}` : '',
+      get('company') ? `Company: ${get('company')}` : '',
+      get('service') ? `Need: ${get('service')}` : '',
+      get('budget') ? `Budget: ${get('budget')}` : '',
+      get('deadline') ? `Deadline: ${get('deadline')}` : '',
+    ].filter(Boolean).join('\n');
+    const body = `${head}\n\n${get('message')}`;
+    window.location.href = `mailto:${person.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    /* Webmail users often get no mail app: keep the typed brief on screen, ready to copy. */
+    const done = form.querySelector<HTMLElement>('[data-brief-done]');
+    const text = form.querySelector<HTMLTextAreaElement>('[data-brief-text]');
+    if (done && text) { text.value = `Subject: ${subject}\n\n${body}`; done.hidden = false; }
+  });
+  form?.querySelector<HTMLButtonElement>('[data-brief-copy]')?.addEventListener('click', async (e) => {
+    const b = e.currentTarget as HTMLButtonElement;
+    const text = form.querySelector<HTMLTextAreaElement>('[data-brief-text]');
+    if (!text) return;
+    try { await navigator.clipboard.writeText(text.value); b.textContent = 'Copied — paste it into an email'; }
+    catch { text.select(); b.textContent = 'Selected — press Cmd/Ctrl + C'; }
+  });
+</script>

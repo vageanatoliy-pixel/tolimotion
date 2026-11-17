@@ -1,0 +1,241 @@
+---
+/* Selected work on a dark "screening room" band, so the client footage carries the colour.
+   Every tile is a silent loop + client · title · one line · role. Tiles with a case page link to it;
+   the others say what was done and offer the same kind of project. Nothing leads nowhere.
+   Items with status 'ask' are client work Toli still has to clear (marked in ?draft mode). */
+import LoopVideo from './LoopVideo.astro';
+import Marker from './Marker.astro';
+import { works as allWorks } from '../data/work';
+import { person, media, showPendingClientWork } from '../data/site';
+interface Props { page?: boolean }
+const { page = false } = Astro.props;
+const works = allWorks.filter((w) => showPendingClientWork || w.status !== 'ask');
+---
+<section class="work" id="work" aria-labelledby="work-title">
+  <div class="container">
+    <div class="work-head">
+      <div>
+        {page ? (
+          <h1 class="h-display h-section work-title" id="work-title">Selected <em>work.</em></h1>
+        ) : (
+          <>
+            <Marker tc="00:08" label="Selected work" light />
+            <h2 class="h-display h-section work-title" id="work-title">Work that shipped.</h2>
+          </>
+        )}
+      </div>
+      <p class="work-note">
+        Ads, an explainer, product UI and brand motion from the last year. Much of my work sits under NDA
+        or white-label — <a href="#contact">ask for a private reel</a>.
+      </p>
+    </div>
+
+    <ul class="grid">
+      {works.map((w, i) => (
+        <li class={`tile tile--${w.span}`} id={w.id} data-status={w.status}>
+          {w.href ? (
+            <a class="tile-link" href={w.href} data-loop-host aria-label={`${w.title}, ${w.client} — ${w.cta ?? "open"}`}>
+              <div class="tile-media"><LoopVideo name={w.loop} alt={w.alt} ratio={w.ratio} fit={w.fit ?? 'cover'} pos={w.pos ?? '50% 50%'} /></div>
+              <div class="tile-cap">
+                <p class="tile-client">{w.client}</p>
+                <h3 class="tile-title">{w.title} <span class="tile-arrow" aria-hidden="true">→</span></h3>
+                <p class="tile-line">{w.line}</p>
+                <p class="tile-meta"><span>{w.role}</span><span>{w.meta}</span></p>
+                {w.cta && <span class="tile-cta">{w.cta}</span>}
+              </div>
+            </a>
+          ) : w.trio ? (
+            <div class="tile-link">
+              <div class="tile-media tile-media--trio">
+                {w.trio.map((t) => (
+                  <figure class="trio-item" data-loop-host>
+                    <LoopVideo name={t.loop} alt={t.alt} ratio="9 / 16" />
+                    <figcaption>{t.label}</figcaption>
+                  </figure>
+                ))}
+              </div>
+              <div class="tile-cap">
+                <p class="tile-client">{w.client}</p>
+                <h3 class="tile-title">{w.title}</h3>
+                <p class="tile-line">{w.line}</p>
+                <p class="tile-meta"><span>{w.role}</span><span>{w.meta}</span></p>
+              </div>
+            </div>
+          ) : (
+            <div class="tile-link" data-loop-host>
+              <div class="tile-media"><LoopVideo name={w.loop} alt={w.alt} ratio={w.ratio} fit={w.fit ?? 'cover'} pos={w.pos ?? '50% 50%'} /></div>
+              <div class="tile-cap">
+                <p class="tile-client">{w.client}</p>
+                <h3 class="tile-title">{w.title}</h3>
+                <p class="tile-line">{w.line}</p>
+                <p class="tile-meta"><span>{w.role}</span><span>{w.meta}</span></p>
+              </div>
+            </div>
+          )}
+          {w.film && (
+            <button class="tile-film" type="button" data-film={media(w.film.src)} data-poster={w.film.poster}
+              data-title={`<b>${w.client}</b> · ${w.title}`} aria-label={`${w.film.label}: ${w.title}, with sound`}>
+              <span class="tile-film-icon" aria-hidden="true"></span>{w.film.label}
+            </button>
+          )}
+          {w.status === 'ask' && <span class="draft-flag" aria-hidden="true">Needs client OK</span>}
+        </li>
+      ))}
+      <li class="tile tile--full private">
+        {[
+          { t: 'More for Destination Certification', l: 'Nine CISSP performance ads, the AAISM launch campaign, kinetic type, book covers and sound. Most of it is not on this site.' },
+          { t: 'White-label for agencies', l: 'Animation and edits delivered under NDA, with the agency’s name on them.' },
+        ].map((p) => (
+          <a class="private-item" href={`mailto:${person.email}?subject=${encodeURIComponent('Private reel request')}`}>
+            <span class="lock" aria-hidden="true"><svg viewBox="0 0 16 18" width="14" height="16"><rect x="1.5" y="8" width="13" height="9" rx="2" fill="currentColor"/><path d="M4.5 8V5.5a3.5 3.5 0 0 1 7 0V8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span>
+            <span class="private-copy"><b>{p.t}</b><span>{p.l}</span></span>
+            <span class="private-cta">Ask for the private reel <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .work {
+    background: var(--ink);
+    color: var(--cream);
+    padding-block: clamp(72px, 9vw, 128px);
+    border-radius: clamp(24px, 3vw, 40px) clamp(24px, 3vw, 40px) 0 0;
+    margin-top: clamp(56px, 7vw, 96px);
+  }
+  .eyebrow--light { color: color-mix(in srgb, var(--cream) 62%, transparent); }
+  .work-head {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 56px;
+  }
+  .work-title { color: var(--cream); margin-top: 14px; max-width: 16ch; }
+  .work-title em { font-style: italic; color: color-mix(in srgb, var(--cream) 70%, var(--green)); }
+  .work-note { max-width: 44ch; font-size: 15px; line-height: 1.6; color: color-mix(in srgb, var(--cream) 66%, transparent); }
+  .work-note a { color: var(--cream); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  .grid {
+    list-style: none; margin: clamp(40px, 5vw, 64px) 0 0; padding: 0;
+    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(28px, 3vw, 40px) clamp(14px, 1.6vw, 22px);
+  }
+  .tile { position: relative; min-width: 0; }
+  .tile--xl { grid-column: span 8; }
+  .tile--tall { grid-column: span 4; }
+  .tile--full { grid-column: 1 / -1; }
+  .tile--lg { grid-column: span 7; }
+  .tile--md { grid-column: span 6; }
+  .tile--sm { grid-column: span 5; }
+  /* row 1: the tall tile matches the xl tile's media height */
+  .tile--tall .tile-media :global(.loop) { aspect-ratio: auto !important; height: var(--row1-h, auto); }
+
+  .tile-link { display: flex; flex-direction: column; gap: 16px; height: 100%; color: inherit; outline: none; }
+  .tile-media {
+    border-radius: clamp(14px, 1.4vw, 20px);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--cream) 6%, var(--ink));
+    transform: translateZ(0);
+  }
+  .tile-media :global(.loop) { transition: transform 900ms var(--ease-out); }
+  .tile-link:hover .tile-media :global(.loop),
+  .tile-link:focus-visible .tile-media :global(.loop) { transform: scale(1.025); }
+  .tile-link:focus-visible .tile-media { outline: 2px solid var(--cream); outline-offset: 3px; }
+
+  /* three vertical loops side by side ≈ one 16:9 tile */
+  .tile-media--trio {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+    padding: 0; background: transparent; border-radius: 0; overflow: visible;
+  }
+  .trio-item { margin: 0; position: relative; }
+  .trio-item :global(.loop) { border-radius: 12px; }
+  .trio-item figcaption {
+    position: absolute; left: 8px; bottom: 8px;
+    padding: 3px 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 72%, transparent);
+    font-size: 11px; font-weight: 600; color: var(--cream);
+  }
+  .tile-cap { display: grid; gap: 6px; }
+  .tile-client {
+    font-size: 13.5px; font-weight: 600;
+    color: color-mix(in srgb, var(--cream) 58%, transparent);
+  }
+  .tile-title {
+    font-family: var(--font-serif); font-weight: 500;
+    font-size: clamp(24px, 2.3vw, 34px); line-height: 1.1; letter-spacing: -0.015em;
+  }
+  .tile-arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-out); }
+  .tile-link:hover .tile-arrow { transform: translateX(6px); }
+  .tile-line { max-width: 58ch; font-size: 16px; line-height: 1.55; color: color-mix(in srgb, var(--cream) 80%, transparent); }
+  .tile-meta {
+    display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 2px;
+    font-size: 13px; color: color-mix(in srgb, var(--cream) 55%, transparent);
+  }
+  .tile-cta {
+    justify-self: start; margin-top: 6px;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--cream) 30%, transparent);
+    font-size: 13px; font-weight: 600;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .tile-link:hover .tile-cta { background: var(--cream); color: var(--ink); }
+
+  /* Quick view: the full film with sound in a dialog, without leaving the page */
+  .tile-film {
+    position: absolute; top: 12px; right: 12px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 13px 8px 11px; border-radius: 999px;
+    background: color-mix(in srgb, var(--ink) 72%, transparent);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    color: var(--cream); font-size: 13px; font-weight: 600;
+    border: 1px solid color-mix(in srgb, var(--cream) 22%, transparent);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .tile-film:hover, .tile-film:focus-visible { background: var(--cream); color: var(--ink); }
+  .tile-film-icon { width: 0; height: 0; border-block: 5px solid transparent; border-left: 8px solid currentColor; }
+
+  /* work that can't be public: shown as locked rows, not hidden (volume + honesty) */
+  .private { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .private-item {
+    display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; gap: 4px 14px; align-items: start;
+    padding: 20px 22px; border-radius: 16px;
+    border: 1px dashed color-mix(in srgb, var(--cream) 26%, transparent);
+    color: var(--cream);
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .private-item:hover { border-style: solid; border-color: color-mix(in srgb, var(--cream) 50%, transparent); background: color-mix(in srgb, var(--cream) 4%, transparent); }
+  .lock { grid-row: span 2; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: color-mix(in srgb, var(--cream) 10%, transparent); color: var(--cream); }
+  .private-copy { display: grid; gap: 3px; }
+  .private-copy b { font-family: var(--font-serif); font-weight: 500; font-size: 21px; }
+  .private-copy span { font-size: 14.5px; line-height: 1.5; color: color-mix(in srgb, var(--cream) 70%, transparent); }
+  .private-cta { grid-column: 2; margin-top: 6px; font-size: 13.5px; font-weight: 600; }
+  @media (max-width: 760px) { .private { grid-template-columns: 1fr; } }
+
+  .draft-flag { display: none; }
+  :global(html[data-draft]) .draft-flag {
+    display: block; position: absolute; top: 10px; left: 10px;
+    padding: 4px 9px; border-radius: 999px; background: var(--clay); color: var(--cream);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 980px) {
+    .tile--xl, .tile--lg { grid-column: 1 / -1; }
+    .tile--tall, .tile--md, .tile--sm { grid-column: span 6; }
+    .tile--tall .tile-media :global(.loop) { height: auto; aspect-ratio: 4 / 5 !important; }
+  }
+  @media (max-width: 640px) {
+    .tile--tall, .tile--md, .tile--sm { grid-column: 1 / -1; }
+    .tile--sm .tile-media { max-width: 340px; }
+  }
+</style>
+
+<script>
+  /* Keep the tall tile's media exactly as tall as its row neighbour's media. */
+  const sync = () => {
+    const xl = document.querySelector<HTMLElement>('.tile--xl .tile-media');
+    const tall = document.querySelector<HTMLElement>('.tile--tall');
+    if (!xl || !tall) return;
+    tall.style.setProperty('--row1-h', window.innerWidth > 980 ? `${xl.offsetHeight}px` : 'auto');
+  };
+  sync();
+  window.addEventListener('resize', sync);
+</script>

@@ -1,251 +1,440 @@
-<section class="hero" id="top">
-  <canvas class="hero-canvas" aria-hidden="true"></canvas>
-  <div class="container">
-    <p class="eyebrow">Motion design × AI-integrated production</p>
-    <h1 class="h-display hero-title">
-      Motion that feels simple, light — <em>and runs deep.</em>
-    </h1>
-    <p class="hero-lead">
-      I'm Anatolii — motion designer and video editor. For eight years I've turned
-      complex, expert-heavy products into video people actually watch. And because
-      I direct AI models like a crew — wired straight into my tools — you get
-      campaign-scale output at solo-operator speed.
-    </p>
-    <div class="hero-ctas">
-      <a class="btn" href="#work">See the work</a>
-      <a class="hero-mail" href="mailto:hello@tolimotion.com">hello@tolimotion.com →</a>
+---
+/* First screen: the promise in one line, two actions, and real work straight away — laid out like an
+   edit suite. The PROGRAM MONITOR (right on desktop, under the copy on phones) plays the clip under the
+   playhead at its true aspect. The TIMELINE below holds the recent pieces as filmstrip clips; the
+   playhead runs across them, hover scrubs through the clip under the pointer, click opens the case.
+   Phones: the playhead stays in the middle and the clips scroll under it, like a mobile editor.
+   Reduced motion / motion switch off: no playback, stills only. Sizes are bound to the screen height
+   as well, so the monitor sits in the first screen on 1366 × 768 laptops. */
+import LoopVideo from './LoopVideo.astro';
+import { person, clients, media, showPendingClientWork } from '../data/site';
+import { timeline as allClips } from '../data/work';
+
+const timeline = allClips.filter((c) => showPendingClientWork || c.status !== 'ask');
+const total = timeline.reduce((s, c) => s + c.w, 0);
+const totalSec = 30; // the ruler reads 00:00 → 00:30
+const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
+---
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="hero-eyebrow">
+        <span>{person.role}</span><span class="sep" aria-hidden="true">·</span><span>{person.years} years full-time</span><span class="sep" aria-hidden="true">·</span><span>{person.city}</span>
+      </p>
+      <h1 class="hero-title" id="hero-title">
+        Motion design that makes complex products <em>simple to watch.</em>
+      </h1>
+      <p class="hero-lead">
+        I storyboard, design, animate and edit ads, explainers and product walkthroughs for SaaS,
+        EdTech and tech brands. One senior designer, from the brief to final files in every format you run.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn--lg" href="#contact">Start a project <span class="arr" aria-hidden="true">→</span></a>
+        <button class="btn btn--ghost btn--lg" type="button" data-film={media('/showreel.mp4')} data-poster="/showreel.jpg"
+          data-title="<b>Showreel</b> · 0:26 · ads, UI animation, kinetic type, explainers">
+          <span class="play-mini" aria-hidden="true"></span>Watch the reel <span class="btn-note">0:26</span>
+        </button>
+      </div>
+    </div>
+
+    <figure class="monitor" data-monitor aria-label="Program monitor: the piece under the playhead">
+      <div class="mon-screen">
+        {timeline.map((c, i) => (
+          <div class={`mon-item${i === 0 ? ' is-on' : ''}`} data-mon-item={i}>
+            <LoopVideo name={c.loop} alt="" ratio="auto" fit={c.fit ?? 'cover'} pos={c.pos ?? '50% 50%'} manual eager={i === 0} />
+          </div>
+        ))}
+        <span class="mon-tag" aria-hidden="true">Program</span>
+        <span class="mon-tc" aria-hidden="true" data-tl-tc>00:00:00:00</span>
+      </div>
+      <figcaption class="mon-bar">
+        <span class="mon-name"><b data-mon-title>{timeline[0].title}</b><span data-mon-client>{timeline[0].client}</span></span>
+        <a class="mon-open" href={timeline[0].href} data-mon-link>Open <span aria-hidden="true">→</span></a>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="tl" data-tl style={`--total:${total}`}>
+    <div class="tl-shell">
+      <div class="tl-head">
+        <p class="tl-label"><span class="tl-v">V1</span> Recent work</p>
+        <div class="tl-right">
+          <p class="tl-hint">Hover to scrub · click to open</p>
+          <button class="tl-transport" type="button" data-motion-switch data-on="Pause" data-off="Play" aria-pressed="true" aria-label="Pause or play all motion on the page">
+            <span class="tl-transport-icon" aria-hidden="true"></span><span data-motion-label>Pause</span>
+          </button>
+        </div>
+      </div>
+      <div class="tl-stage" data-tl-stage>
+        <div class="tl-ruler" aria-hidden="true">
+          {ticks.map((t) => (
+            <span class="tl-tick" style={`--at:${t / totalSec}`}>00:{String(t).padStart(2, '0')}</span>
+          ))}
+        </div>
+        <ol class="tl-track" aria-label="Recent work">
+          {timeline.map((c, i) => (
+            <li class={`tl-clip${i === 0 ? ' is-on' : ''}`} style={`--w:${c.w}`} data-tl-clip={i}
+                data-title={c.title} data-client={c.client} data-href={c.href}>
+              <a href={c.href} class="tl-link" aria-label={`${c.title}, ${c.client}`}
+                 style={`background-image:url(/loops/${c.loop}.jpg)`}>
+                <span class="tl-name"><b>{c.title}</b><span>{c.client}</span></span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <div class="tl-audio" aria-hidden="true">
+          <span class="tl-v">A1</span>
+          <svg class="tl-wave" viewBox="0 0 1000 40" preserveAspectRatio="none"><path data-tl-wave d=""></path></svg>
+        </div>
+        <div class="tl-playhead" data-tl-ph aria-hidden="true"><span class="tl-diamond"></span></div>
+      </div>
     </div>
   </div>
+
+  {clients.length > 0 && (
+    <div class="container hero-clients">
+      <p class="hc-label">Clients</p>
+      <ul class="hc-list">
+        {clients.map((c) => <li>{c.name} <span class="hc-what">{c.what}</span></li>)}
+      </ul>
+      <p class="hc-upwork draft-only-hero">Upwork record goes here: rating · Job Success · jobs · link (missing)</p>
+    </div>
+  )}
 </section>
 
 <style>
-  .hero {
-    position: relative;
-    padding-block: clamp(64px, 9vw, 110px) clamp(32px, 5vw, 48px);
+  .hero { padding-top: clamp(16px, 3.4svh, 48px); overflow: clip; }
+  .hero-grid {
+    display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: clamp(24px, 3.4vw, 56px); align-items: center;
   }
-
-  .hero-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  .hero .container { position: relative; }
+  .hero-eyebrow { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .hero-eyebrow .sep { color: var(--line); }
   .hero-title {
-    font-size: clamp(44px, 6.5vw, 84px);
-    max-width: 13ch;
-    margin-top: 26px;
-  }
-  .hero-title em {
-    font-style: italic;
-    color: var(--green);
-  }
-  .hero-lead {
-    margin-top: 28px;
-    max-width: 62ch;
+    margin-top: clamp(10px, 1.6svh, 18px);
     font-family: var(--font-serif);
-    font-size: clamp(17px, 1.6vw, 21px);
-    line-height: 1.65;
+    font-weight: 450;
+    font-size: clamp(40px, min(5.2vw, 9.4svh), 92px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    font-variation-settings: 'opsz' 72;
+    text-wrap: balance;
+  }
+  .hero-title em { font-style: italic; color: var(--green); letter-spacing: -0.03em; }
+  .hero-lead {
+    margin-top: clamp(14px, 2.2svh, 26px);
+    max-width: 50ch;
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 1.35vw, 21px);
+    line-height: 1.55;
     color: var(--soft);
   }
-  .hero-ctas {
-    margin-top: 32px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
+  .hero-ctas { margin-top: clamp(16px, 2.6svh, 30px); display: flex; flex-wrap: wrap; gap: 12px; }
+  .play-mini { width: 0; height: 0; border-block: 5.5px solid transparent; border-left: 9px solid currentColor; }
+  .btn-note { font-weight: 500; opacity: 0.6; font-feature-settings: 'tnum'; }
+
+  /* ---------- Program monitor ---------- */
+  .monitor { margin: 0; border-radius: 18px; background: var(--ink); padding: 8px; color: var(--cream); }
+  .mon-screen { position: relative; aspect-ratio: 16 / 9; border-radius: 11px; overflow: hidden; background: #000; }
+  .mon-item { position: absolute; inset: 0; opacity: 0; transition: opacity 260ms var(--ease-out); }
+  .mon-item.is-on { opacity: 1; }
+  .mon-item :global(.loop) { position: absolute; inset: 0; height: 100%; background: #000; }
+  .mon-tag, .mon-tc {
+    position: absolute; top: 10px; padding: 3px 8px; border-radius: 6px;
+    background: color-mix(in srgb, var(--ink) 70%, transparent);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; font-feature-settings: 'tnum';
   }
-  .hero-mail { font-weight: 500; font-size: 16px; }
-  .hero-mail:hover { color: var(--green); }
+  .mon-tag { left: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .mon-tc { right: 10px; }
+  .mon-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 8px 4px 6px; }
+  .mon-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; min-width: 0; font-size: 13px; color: color-mix(in srgb, var(--cream) 70%, transparent); }
+  .mon-name b { font-size: 14.5px; font-weight: 600; color: var(--cream); }
+  .mon-open {
+    flex: none; padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    border: 1px solid color-mix(in srgb, var(--cream) 30%, transparent);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .mon-open:hover, .mon-open:focus-visible { background: var(--cream); color: var(--ink); }
+
+  /* ---------- Timeline ---------- */
+  .tl { margin-top: clamp(18px, 3svh, 40px); }
+  .tl-shell { max-width: calc(var(--container) + 220px); margin-inline: auto; padding-inline: var(--pad-x); }
+  .tl-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 0 14px 10px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .tl-label { display: flex; align-items: center; gap: 10px; }
+  .tl-v {
+    display: inline-grid; place-items: center; min-width: 26px; height: 20px; padding-inline: 5px;
+    border-radius: 5px; background: var(--ink); color: var(--cream);
+    font-size: 10.5px; letter-spacing: 0.04em;
+  }
+  .tl-right { display: flex; align-items: center; gap: 14px; }
+  .tl-hint { letter-spacing: 0.02em; text-transform: none; font-weight: 500; font-size: 13px; }
+  .tl-transport {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 5px 12px 5px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card);
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: var(--ink);
+  }
+  .tl-transport:hover { border-color: var(--ink); }
+  .tl-transport-icon { width: 9px; height: 10px; border-inline: 3px solid var(--ink); }
+  .tl-transport[aria-pressed="false"] .tl-transport-icon {
+    width: 0; height: 0; border-inline: 0; border-block: 5px solid transparent; border-left: 8px solid var(--ink);
+  }
+
+  .tl-stage {
+    position: relative;
+    padding: 30px 14px 12px;
+    border-radius: 18px;
+    background: var(--ink);
+    color: var(--cream);
+    --clip-h: clamp(64px, min(7vw, 10svh), 104px);
+  }
+  .tl-ruler {
+    position: absolute; left: 14px; right: 14px; top: 0; height: 26px;
+    background:
+      repeating-linear-gradient(90deg, color-mix(in srgb, var(--cream) 28%, transparent) 0 1px, transparent 1px calc(100% / 30)) bottom / 100% 6px no-repeat,
+      repeating-linear-gradient(90deg, color-mix(in srgb, var(--cream) 50%, transparent) 0 1px, transparent 1px calc(100% / 6)) bottom / 100% 11px no-repeat;
+  }
+  .tl-tick {
+    position: absolute; left: calc(var(--at) * 100%); top: 5px; transform: translateX(4px);
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em; font-feature-settings: 'tnum';
+    color: color-mix(in srgb, var(--cream) 62%, transparent);
+  }
+  .tl-tick:last-child { transform: translateX(calc(-100% - 4px)); }
+  .tl-track { list-style: none; margin: 0; padding: 0; display: flex; gap: 3px; height: var(--clip-h); }
+  .tl-clip { flex: var(--w) 1 0; min-width: 0; position: relative; }
+  /* filmstrip: the clip's still repeated at its true aspect, like thumbnails on an editing track */
+  .tl-link {
+    position: relative; display: block; height: 100%;
+    border-radius: 7px; overflow: hidden;
+    background-color: #000; background-size: auto 100%; background-repeat: repeat-x; background-position: left center;
+    outline: 2px solid transparent; outline-offset: -2px;
+    transition: outline-color var(--dur-fast) var(--ease-out), filter var(--dur-fast) var(--ease-out);
+    filter: saturate(0.65) brightness(0.8);
+  }
+  .tl-clip.is-on .tl-link { outline-color: var(--cream); filter: none; }
+  .tl-link:hover { filter: none; }
+  .tl-name {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column; gap: 0;
+    padding: 14px 8px 5px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--ink) 92%, transparent), transparent);
+    font-size: 11px; line-height: 1.25; color: color-mix(in srgb, var(--cream) 75%, transparent);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tl-name b { font-size: 12px; font-weight: 600; color: var(--cream); overflow: hidden; text-overflow: ellipsis; }
+  .tl-audio { display: flex; align-items: center; gap: 10px; margin-top: 5px; height: 26px; }
+  .tl-audio .tl-v { background: color-mix(in srgb, var(--cream) 14%, transparent); }
+  .tl-wave { flex: 1; height: 100%; }
+  .tl-wave path { fill: color-mix(in srgb, var(--green) 70%, var(--cream)); opacity: 0.55; }
+  .tl-playhead {
+    position: absolute; top: 4px; bottom: 6px; left: 14px; width: 2px;
+    background: var(--cream);
+    transform: translateX(calc(var(--ph, 0) * 1px));
+    pointer-events: none; will-change: transform;
+  }
+  .tl-diamond {
+    position: absolute; top: -2px; left: 50%;
+    width: 13px; height: 13px; margin-left: -6.5px;
+    background: var(--cream); transform: rotate(45deg); border-radius: 2px;
+  }
+
+  .hero-clients { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 26px; margin-top: 20px; }
+  .hc-label { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .hc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 26px; }
+  .hc-list li { font-family: var(--font-serif); font-size: clamp(17px, 1.5vw, 20px); color: var(--soft); }
+  .hc-what { font-family: var(--font-sans); font-size: 12.5px; color: var(--muted); margin-left: 4px; }
+  .draft-only-hero { display: none; }
+  :global(html[data-draft]) .draft-only-hero { display: block; padding: 4px 10px; border: 1px dashed var(--clay); border-radius: 8px; font-size: 13px; color: var(--clay); }
+
+  @media (max-width: 980px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .monitor { max-width: 720px; }
+  }
+  @media (max-width: 560px) {
+    .hero-eyebrow .sep { display: none; }
+    .hero-eyebrow { gap: 2px 14px; }
+    .hero-ctas { flex-wrap: nowrap; gap: 8px; width: 100%; }
+    .hero-ctas .btn--lg { padding: 14px 16px; font-size: 15px; flex: 1 1 auto; justify-content: center; }
+    .hero-ctas .btn-note { display: none; }
+    .monitor { border-radius: 14px; padding: 6px; }
+  }
+  /* phones: the clips scroll under a playhead fixed in the middle */
+  @media (max-width: 760px) {
+    .tl-hint { display: none; }
+    .tl-tick { display: none; }
+    .tl-shell { padding-inline: 0; }
+    .tl-head { padding-inline: var(--pad-x); }
+    .tl-stage { border-radius: 0; padding-inline: 0; --clip-h: 76px; }
+    .tl-ruler { left: 0; right: 0; }
+    .tl-track {
+      overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+      padding-inline: 50vw; scrollbar-width: none;
+    }
+    .tl-track::-webkit-scrollbar { display: none; }
+    .tl-clip { flex: 0 0 calc(var(--w) * 9vw); scroll-snap-align: center; }
+    .tl-audio { padding-inline: 14px; }
+    .tl-playhead { left: 50%; transform: translateX(-1px); }
+  }
 </style>
 
 <script>
-  /* Cursor trail: tiny Bauhaus confetti — circles, rings, squares, triangles
-     and keyframe diamonds, filled or outlined, in the scene palette — spawn
-     along the pointer path and dissolve when it stops. On touch, a tap gives
-     a radial burst instead (a trail would fight with scrolling).
-     prefers-reduced-motion disables it entirely. */
-  const hero = document.querySelector<HTMLElement>('.hero');
-  const canvas = document.querySelector<HTMLCanvasElement>('.hero-canvas');
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  type LoopApi = { play: (f: HTMLElement) => void; pause: (f: HTMLElement) => void; load: (f: HTMLElement) => HTMLVideoElement | null; motionOff: () => boolean; saveData: boolean };
+  const tl = document.querySelector<HTMLElement>('[data-tl]');
+  const stage = tl?.querySelector<HTMLElement>('[data-tl-stage]');
+  const track = tl?.querySelector<HTMLElement>('.tl-track');
+  const ph = tl?.querySelector<HTMLElement>('[data-tl-ph]');
+  const monitor = document.querySelector<HTMLElement>('[data-monitor]');
+  const tcEl = monitor?.querySelector<HTMLElement>('[data-tl-tc]');
+  const monTitle = monitor?.querySelector<HTMLElement>('[data-mon-title]');
+  const monClient = monitor?.querySelector<HTMLElement>('[data-mon-client]');
+  const monLink = monitor?.querySelector<HTMLAnchorElement>('[data-mon-link]');
+  const items = Array.from(monitor?.querySelectorAll<HTMLElement>('[data-mon-item]') ?? []);
+  const clips = Array.from(tl?.querySelectorAll<HTMLElement>('[data-tl-clip]') ?? []);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const phone = window.matchMedia('(max-width: 760px)');
+  const FPS = 25, TOTAL = 30;              // the ruler reads 00:00 → 00:30
+  const PERIOD = TOTAL * 1000;             // real time: the timecode runs at 1×
 
-  if (hero && canvas && !reduced) {
-    const ctx = canvas.getContext('2d')!;
-    const css = getComputedStyle(document.documentElement);
-    const token = (name: string, fallback: string) =>
-      css.getPropertyValue(name).trim() || fallback;
-    /* illustration palette only (CLAUDE.md rule 3) */
-    const COLORS = [
-      token('--scene-red', '#D9493A'),
-      token('--scene-blue', '#4E97CF'),
-      token('--scene-yellow', '#EDBE4B'),
-      token('--scene-pink', '#E38DA6'),
-      token('--indigo', '#44518F'),
-      token('--green', '#2E5E4E'),
-      token('--clay', '#C96F4A'),
-    ];
-
-    let dpr = 1;
-    const resize = () => {
-      /* a backgrounded tab can report 0×0 at load — keep the old size and
-         retry on the next resize/spawn instead of collapsing the canvas */
-      if (!hero.clientWidth || !hero.clientHeight) return;
-      dpr = Math.min(2, window.devicePixelRatio || 1);
-      canvas.width = hero.clientWidth * dpr;
-      canvas.height = hero.clientHeight * dpr;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    /* shape 0 circle · 1 square · 2 triangle · 3 diamond; hollow = outline only
-       (a hollow circle is the ring). Each shape gets its own small-size bias
-       so a filled dot never shrinks to nothing while a ring stays legible. */
-    type P = { x: number; y: number; vx: number; vy: number; t: number; life: number; s: number; a: number; rot: number; spin: number; color: string; shape: number; hollow: boolean };
-    const parts: P[] = [];
-    const MAX = 220;
-    const SHAPES = 4;
-
-    const spawn = (x: number, y: number, vx: number, vy: number, life: number, spin: number) => {
-      const shape = (Math.random() * SHAPES) | 0;
-      const hollow = Math.random() < 0.45;
-      parts.push({
-        x, y, vx, vy, t: 0, life,
-        s: (hollow ? 3.5 : 2.5) + Math.random() * 4,
-        a: 0.55 + Math.random() * 0.35,
-        rot: Math.random() * Math.PI,
-        spin,
-        color: COLORS[(Math.random() * COLORS.length) | 0],
-        shape, hollow,
-      });
-    };
-
-    const trace = (shape: number, size: number) => {
-      ctx.beginPath();
-      if (shape === 0) {
-        ctx.arc(0, 0, size, 0, Math.PI * 2);
-      } else if (shape === 1) {
-        ctx.rect(-size, -size, size * 2, size * 2);
-      } else if (shape === 2) {
-        const h = size * 1.15;
-        ctx.moveTo(0, -h);
-        ctx.lineTo(h * 0.95, h * 0.6);
-        ctx.lineTo(-h * 0.95, h * 0.6);
-        ctx.closePath();
-      } else {
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size, 0);
-        ctx.closePath();
-      }
-    };
-    let rafId = 0;
-    let running = false;
+  if (tl && stage && track && ph && monitor && clips.length && items.length === clips.length) {
+    const api = (): LoopApi | undefined => (window as any).__loop;
+    const off = () => reduced.matches || document.documentElement.dataset.motion === 'off';
+    const fig = (i: number) => items[i]?.querySelector<HTMLElement>('[data-loop]') ?? null;
+    let pos = 0.02;          // playhead 0..1 along the track
+    let active = -1;
+    let hovering = false;
+    let scrubbing = false;
+    let resumeAt = 0;
+    let inView = true;
     let last = 0;
 
+    const tc = (p: number) => {
+      const f = Math.round(p * TOTAL * FPS);
+      const s = Math.floor(f / FPS), fr = f % FPS;
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `00:00:${pad(s)}:${pad(fr)}`;
+    };
+
+    const setActive = (i: number) => {
+      if (i === active) return;
+      const a = api();
+      if (active >= 0) {
+        clips[active].classList.remove('is-on');
+        items[active].classList.remove('is-on');
+        const f = fig(active);
+        if (f && a) a.pause(f);
+      }
+      active = i;
+      if (i < 0) return;
+      clips[i].classList.add('is-on');
+      items[i].classList.add('is-on');
+      if (monTitle) monTitle.textContent = clips[i].dataset.title ?? '';
+      if (monClient) monClient.textContent = clips[i].dataset.client ?? '';
+      if (monLink) monLink.href = clips[i].dataset.href ?? '#work';
+      const f = fig(i);
+      if (f && a && inView && !off() && !a.saveData && !scrubbing) a.play(f);
+      else if (f && a && !off()) a.load(f);   // ready for scrubbing
+    };
+
+    /* desktop: playhead x from pos; phone: the clip nearest the centre line is active */
+    const clipAt = (px: number) => {
+      for (let i = 0; i < clips.length; i++) {
+        const c = clips[i];
+        if (px >= c.offsetLeft && px < c.offsetLeft + c.offsetWidth + 3) return i;
+      }
+      return clips.length - 1;
+    };
+    const layoutDesktop = () => {
+      const left = track.offsetLeft, width = track.offsetWidth;
+      ph.style.setProperty('--ph', String(pos * width + (left - 14)));
+      if (tcEl) tcEl.textContent = tc(pos);
+      setActive(clipAt(left + pos * width));
+    };
+    const layoutPhone = () => {
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      let idx = 0, best = Infinity;
+      clips.forEach((c, i) => {
+        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+        if (d < best) { best = d; idx = i; }
+      });
+      const span = track.scrollWidth - track.clientWidth || 1;
+      if (tcEl) tcEl.textContent = tc(Math.min(1, Math.max(0, track.scrollLeft / span)));
+      setActive(idx);
+    };
+    const layout = () => (phone.matches ? layoutPhone() : layoutDesktop());
+
     const tick = (now: number) => {
-      const dt = Math.min(50, now - last || 16);
+      const dt = Math.min(64, now - (last || now));
       last = now;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (let i = parts.length - 1; i >= 0; i--) {
-        const p = parts[i];
-        p.t += dt;
-        if (p.t >= p.life) { parts.splice(i, 1); continue; }
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.vx *= 0.985;
-        p.vy *= 0.985;
-        p.rot += p.spin * dt;
-
-        const k = p.t / p.life;               // 0 → 1 over the particle's life
-        const fade = 1 - k * k;               // ease-out fade
-        const size = p.s * (1 - 0.4 * k) * dpr;
-
-        ctx.save();
-        ctx.translate(p.x * dpr, p.y * dpr);
-        ctx.rotate(p.rot);
-        ctx.globalAlpha = p.a * fade;
-        trace(p.shape, size);
-        if (p.hollow) {
-          ctx.strokeStyle = p.color;
-          ctx.lineWidth = Math.max(1, 1.4 * dpr);
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = p.color;
-          ctx.fill();
-        }
-        ctx.restore();
+      if (!phone.matches && inView && !off() && !hovering && now > resumeAt) {
+        pos += dt / PERIOD;
+        if (pos > 1) pos = 0;
+        layoutDesktop();
       }
-
-      if (parts.length) {
-        rafId = requestAnimationFrame(tick);
-      } else {
-        running = false;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
+      requestAnimationFrame(tick);
     };
 
-    const start = () => {
-      if (!canvas.width) resize();
-      if (!running) {
-        running = true;
-        last = performance.now();
-        rafId = requestAnimationFrame(tick);
-      }
-    };
-
-    let prevX = 0, prevY = 0, travelled = 0, hasPrev = false;
-    hero.addEventListener('pointermove', (e) => {
-      if (e.pointerType === 'touch') return;
-      const r = hero.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      if (!hasPrev) { prevX = x; prevY = y; hasPrev = true; return; }
-
-      const dx = x - prevX, dy = y - prevY;
-      const dist = Math.hypot(dx, dy);
-      travelled += dist;
-      prevX = x; prevY = y;
-
-      // a shape per ~8px of pointer travel, scattered ±8px around the path
-      const STEP = 8;
-      while (travelled >= STEP && parts.length < MAX) {
-        travelled -= STEP;
-        spawn(
-          x + (Math.random() - 0.5) * 16,
-          y + (Math.random() - 0.5) * 16,
-          dx / 60 + (Math.random() - 0.5) * 0.05,
-          dy / 60 + (Math.random() - 0.5) * 0.05 - 0.015,
-          650 + Math.random() * 550,
-          (Math.random() - 0.5) * 0.003,
-        );
-      }
-      travelled = Math.min(travelled, STEP);
-      start();
+    /* hover = scrub: the playhead follows the pointer and the monitor shows that exact frame */
+    let seekRaf = 0;
+    stage.addEventListener('pointermove', (e) => {
+      if (phone.matches || e.pointerType === 'touch') return;
+      const r = track.getBoundingClientRect();
+      pos = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      hovering = true;
+      scrubbing = !off();
+      layoutDesktop();
+      if (off()) return;
+      const c = clips[active], f = fig(active), v = f?.querySelector('video');
+      if (!c || !f || !v) return;
+      const frac = Math.min(1, Math.max(0, (e.clientX - r.left - (c.offsetLeft - track.offsetLeft)) / c.offsetWidth));
+      cancelAnimationFrame(seekRaf);
+      seekRaf = requestAnimationFrame(() => {
+        if (!v.src && v.dataset.src) v.src = v.dataset.src;
+        if (!v.paused) v.pause();
+        if (v.duration) { v.currentTime = frac * v.duration; f.classList.add('is-playing'); }
+      });
     });
-    hero.addEventListener('pointerleave', () => { hasPrev = false; });
-
-    /* tap burst on touch — echoes the tap_burst trigger from the Rive spec */
-    hero.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'touch') return;
-      const r = hero.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      const n = 28 + ((Math.random() * 9) | 0);
-      for (let i = 0; i < n && parts.length < MAX; i++) {
-        const ang = (i / n) * Math.PI * 2 + Math.random() * 0.6;
-        const speed = 0.06 + Math.random() * 0.12;
-        spawn(
-          x, y,
-          Math.cos(ang) * speed,
-          Math.sin(ang) * speed,
-          1000 + Math.random() * 700,
-          (Math.random() - 0.5) * 0.004,
-        );
-      }
-      start();
+    stage.addEventListener('pointerleave', () => {
+      hovering = false; scrubbing = false;
+      resumeAt = performance.now() + 1200;
+      const f = fig(active), a = api();
+      if (f && a && inView && !off() && !a.saveData) a.play(f);
     });
+    track.addEventListener('scroll', () => { if (phone.matches) layoutPhone(); }, { passive: true });
+
+    new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      const a = api(), f = fig(active);
+      if (!a || !f) return;
+      if (!inView) a.pause(f);
+      else if (!off() && !a.saveData) a.play(f);
+    }, { threshold: 0.15 }).observe(monitor);
+
+    window.addEventListener('resize', layout);
+    phone.addEventListener('change', () => { if (phone.matches) track.scrollLeft = 0; layout(); });
+    window.addEventListener('motionchange', () => {
+      const a = api(), f = fig(active);
+      if (!a || !f) return;
+      if (off()) a.pause(f); else if (inView) a.play(f);
+    });
+    layout();
+    requestAnimationFrame(tick);
+  }
+
+  /* A1 lane: the reel's real loudness envelope, drawn once from /loops/reel-wave.json. */
+  const wave = document.querySelector<SVGPathElement>('[data-tl-wave]');
+  if (wave) {
+    fetch('/loops/reel-wave.json').then((r) => (r.ok ? r.json() : null)).then((peaks: number[] | null) => {
+      if (!peaks || !peaks.length) return;
+      const n = peaks.length, w = 1000 / n;
+      let d = '';
+      peaks.forEach((p, i) => {
+        const h = Math.max(1, p * 36);
+        d += `M${(i * w).toFixed(1)} ${(20 - h / 2).toFixed(1)}h${(w * 0.62).toFixed(2)}v${h.toFixed(1)}h${(-w * 0.62).toFixed(2)}z`;
+      });
+      wave.setAttribute('d', d);
+    }).catch(() => {});
   }
 </script>

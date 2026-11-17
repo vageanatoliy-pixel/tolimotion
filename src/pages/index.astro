@@ -2,24 +2,33 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
-import RecentWork from '../components/RecentWork.astro';
-import Work from '../components/Work.astro';
-import Toolbox from '../components/Toolbox.astro';
-import Pipeline from '../components/Pipeline.astro';
+import WorkGrid from '../components/WorkGrid.astro';
+import Process from '../components/Process.astro';
+import Services from '../components/Services.astro';
+import AiNote from '../components/AiNote.astro';
+import Agencies from '../components/Agencies.astro';
 import About from '../components/About.astro';
+import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import ReelDialog from '../components/ReelDialog.astro';
+import MobileCta from '../components/MobileCta.astro';
 ---
-<Base>
+<Base preloadImage="/loops/cissp-ad2-adapts.jpg" motion>
+  <a class="skip" href="#work">Skip to the work</a>
   <Header />
   <main>
     <Hero />
-    <RecentWork />
-    <Work />
-    <Toolbox />
-    <Pipeline />
+    <WorkGrid />
+    <Process />
+    <Services />
+    <Agencies />
+    <AiNote />
     <About />
+    <Faq />
     <Contact />
   </main>
   <Footer />
+  <ReelDialog />
+  <MobileCta />
 </Base>

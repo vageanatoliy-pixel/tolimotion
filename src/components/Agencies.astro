@@ -1,0 +1,39 @@
+---
+/* For agencies: how white-label overflow work runs. Producers asked for capacity, rate and terms —
+   those three need Toli's real numbers, so they render only in ?draft mode until filled in site.ts. */
+import Marker from './Marker.astro';
+import { agencies } from '../data/site';
+---
+<section class="section agencies" id="agencies" aria-labelledby="agencies-title">
+  <div class="container ag-grid">
+    <div>
+      <Marker tc="00:58" label="For agencies" />
+      <h2 class="h-display h-section ag-title" id="agencies-title">Overflow work, under your name.</h2>
+      <p class="ag-lead">I animate and edit inside your pipeline: your boards and style frames, your naming, your review tool. Nothing is shown publicly without your written OK.</p>
+    </div>
+    <ul class="ag-list">
+      {agencies.points.map((p) => (
+        <li><h3>{p.t}</h3><p>{p.d}</p></li>
+      ))}
+      {agencies.terms.map((p) => (
+        <li class={p.d ? '' : 'ag-draft'}><h3>{p.t}</h3><p>{p.d || p.missing}</p></li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ag-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .ag-title { margin-top: 14px; max-width: 14ch; }
+  .ag-title em { font-style: italic; color: var(--green); }
+  .ag-lead { margin-top: 16px; max-width: 46ch; font-family: var(--font-serif); font-size: clamp(17px, 1.4vw, 20px); line-height: 1.6; color: var(--soft); }
+  .ag-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  .ag-list li { padding-block: 16px; border-top: 1px solid var(--line); }
+  .ag-list h3 { font-size: 15px; font-weight: 650; color: var(--ink); }
+  .ag-list p { margin-top: 4px; font-size: 14.5px; line-height: 1.55; color: var(--soft); }
+  .ag-draft { display: none; }
+  :global(html[data-draft]) .ag-draft { display: block; border-top-style: dashed; }
+  :global(html[data-draft]) .ag-draft p { color: var(--clay); }
+  @media (max-width: 900px) { .ag-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .ag-list { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,111 @@
+---
+import { media } from '../data/site';
+/* Silent preview loop — the site's "GIF". An MP4 (H.264, no audio, 3–6 s, ~150–650 KB) instead of a GIF:
+   10–40× lighter at the same size and sharper. A still JPG shows first; the video only downloads once
+   the tile is near the screen, plays while visible and pauses when it leaves.
+   Never autoplays with prefers-reduced-motion, with the site's motion switch off, or with Save-Data on
+   (then it plays on hover / focus only). Files: /public/loops/<name>.mp4 + .jpg (see loops/README.md). */
+interface Props {
+  name: string;            // file stem in /public/loops/
+  alt: string;             // what the loop shows (read by screen readers)
+  ratio?: string;          // CSS aspect-ratio, default 16 / 9
+  eager?: boolean;         // first-screen tiles: load the still eagerly
+  fit?: 'cover' | 'contain';
+  pos?: string;            // object-position, e.g. "50% 30%"
+  manual?: boolean;        // a parent script decides when it plays (the hero timeline)
+  class?: string;
+}
+const { name, alt, ratio = '16 / 9', eager = false, fit = 'cover', pos = '50% 50%', manual = false, class: cls = '' } = Astro.props;
+const src = media(`/loops/${name}.mp4`);
+const poster = `/loops/${name}.jpg`;
+---
+<figure class={`loop ${cls}`} style={`${ratio === 'auto' ? '' : `aspect-ratio: ${ratio}; `}--fit: ${fit}; --pos: ${pos}`} data-loop={manual ? 'manual' : ''}>
+  <img class="loop-still" src={poster} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async"
+       fetchpriority={eager ? 'high' : 'auto'} />
+  <video class="loop-video" data-src={src} muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+</figure>
+
+<style>
+  .loop {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    background: var(--ink);
+    isolation: isolate;
+  }
+  .loop-still, .loop-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--fit, cover);
+    object-position: var(--pos, 50% 50%);
+  }
+  .loop-video { opacity: 0; transition: opacity 300ms var(--ease-out); }
+  .loop.is-playing .loop-video { opacity: 1; }
+</style>
+
+<script>
+  /* One observer for every loop on the page. */
+  const html = document.documentElement;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const conn = (navigator as any).connection;
+  const saveData = !!(conn && conn.saveData);
+  const motionOff = () => reduced.matches || html.dataset.motion === 'off';
+
+  /* "manual" loops (the hero timeline) are played by their own script, not by this observer. */
+  const loops = Array.from(document.querySelectorAll<HTMLElement>('[data-loop]:not([data-loop="manual"])'));
+  const visible = new Set<HTMLElement>();
+
+  const load = (fig: HTMLElement) => {
+    const v = fig.querySelector('video');
+    if (v && !v.src && v.dataset.src) { v.src = v.dataset.src; }
+    return v;
+  };
+  const play = (fig: HTMLElement) => {
+    const v = load(fig);
+    if (!v) return;
+    v.addEventListener('playing', () => fig.classList.add('is-playing'), { once: true });
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { /* autoplay refused: the still stays */ });
+  };
+  const pause = (fig: HTMLElement) => {
+    const v = fig.querySelector('video');
+    if (v && !v.paused) v.pause();
+  };
+  /* shared with other scripts (the hero timeline drives its own clips through these) */
+  (window as any).__loop = { play, pause, load, motionOff, saveData };
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        const fig = e.target as HTMLElement;
+        if (e.isIntersecting) {
+          visible.add(fig);
+          if (!motionOff() && !saveData) play(fig);
+        } else {
+          visible.delete(fig);
+          pause(fig);
+        }
+      }
+    }, { rootMargin: '120px 0px', threshold: 0.15 });
+    loops.forEach((fig) => io.observe(fig));
+  }
+
+  /* Hover / focus plays a single loop even when autoplay is off (Save-Data, motion switch) —
+     but never under prefers-reduced-motion. */
+  loops.forEach((fig) => {
+    const host = fig.closest<HTMLElement>('[data-loop-host]') ?? fig;
+    host.addEventListener('pointerenter', () => { if (!reduced.matches) play(fig); });
+    host.addEventListener('focusin', () => { if (!reduced.matches) play(fig); });
+    host.addEventListener('pointerleave', () => { if (motionOff() || saveData) pause(fig); });
+  });
+
+  /* The motion switch in the footer flips data-motion on <html>. */
+  window.addEventListener('motionchange', () => {
+    visible.forEach((fig) => (motionOff() || saveData ? pause(fig) : play(fig)));
+  });
+  document.addEventListener('visibilitychange', () => {
+    visible.forEach((fig) => (document.hidden || motionOff() || saveData ? pause(fig) : play(fig)));
+  });
+</script>

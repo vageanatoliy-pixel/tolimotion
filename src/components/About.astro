@@ -1,86 +1,119 @@
-<section class="section section--ruled" id="about">
-  <div class="container">
-    <p class="eyebrow">About</p>
-    <h2 class="h-display h-section ab-title">Simple to watch. Light to feel. Deep underneath.</h2>
-
-    <div class="bio">
-      <div class="photo" role="img" aria-label="Portrait placeholder">
-        <span>Photo</span>
-      </div>
-      <div class="bio-copy">
-        <p>
-          Eight years in production — from quick social cuts to long-form launches.
-          My main client is Destination Certification, a North American EdTech
-          company, where I run the full video pipeline: sales videos, ad campaigns,
-          kinetic typography, book covers and sound design. The calendar has room
-          for a few outside projects at a time.
-        </p>
-        <p>
-          The part I care about most is the system underneath: generative video
-          (Veo, Kling, Seedance, Luma Ray 3, Flow) directed inside real edits, and
-          AI copilots (Claude, Gemini, ChatGPT) wired into the tools themselves.
-          Craft where it matters, automation where it scales.
-        </p>
-      </div>
+---
+/* About: a face, a short first-person bio, the three principles, and the facts a buyer checks
+   (where, which hours, how fast, which tools). The portrait slot stays empty until Toli adds a photo —
+   without one the block shows the mark instead of a grey "Photo" circle. */
+import Spark from './Spark.astro';
+import Marker from './Marker.astro';
+import { person, facts, quotes } from '../data/site';
+---
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="container about-grid">
+    <div class="about-photo">
+      {person.photo ? (
+        <img src={person.photo} alt={`${person.name}, portrait`} width="960" height="1200" loading="lazy" decoding="async" />
+      ) : (
+        <div class="photo-empty" aria-hidden="true">
+          <Spark size={64} color="var(--cream)" />
+          <span class="draft-note">Portrait 4:5 goes here</span>
+        </div>
+      )}
     </div>
 
-    <ul class="principles">
-      <li><h3>Simple</h3><p>Nothing on screen without a job to do.</p></li>
-      <li><h3>Light</h3><p>Pacing that never makes the viewer work.</p></li>
-      <li><h3>Deep</h3><p>Systems, sound and detail underneath.</p></li>
-    </ul>
+    <div class="about-copy">
+      <Marker tc="01:10" label="About" />
+      <h2 class="h-display h-section about-title" id="about-title">One person, the whole pipeline.</h2>
+      <div class="bio">
+        <p>
+          I’m Toli — Anatolii Herasymenko — a motion designer and video editor from Ukraine. I have worked in
+          production full-time for eight years, from quick social cuts to long launch campaigns. Along the way
+          I have cut commercials, event films, music videos and YouTube shows for clients in Ukraine.
+        </p>
+        <p>
+          My main client is Destination Certification, a Canadian cybersecurity-training company. I run their
+          video work end to end: ads, product animation, kinetic type and sound, even the book covers. I keep
+          room for a few other projects at a time and do every one myself — no hand-offs, no account managers.
+        </p>
+      </div>
+
+      <ul class="principles">
+        <li><h3>Simple</h3><p>Nothing on screen without a job to do.</p></li>
+        <li><h3>Light</h3><p>Pacing that never makes the viewer work.</p></li>
+        <li><h3>Deep</h3><p>Sound, systems and detail underneath.</p></li>
+      </ul>
+
+      <dl class="facts">
+        {facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+      </dl>
+    </div>
   </div>
+
+  {quotes.length > 0 ? (
+    <div class="container quotes">
+      {quotes.map((q) => (
+        <figure class="quote">
+          <blockquote>“{q.quote}”</blockquote>
+          <figcaption>
+            {q.photo && <img src={q.photo} alt="" width="56" height="56" loading="lazy" />}
+            <span><b>{q.name}</b>{q.role}, {q.company}</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  ) : (
+    <div class="container quotes quotes--draft" aria-hidden="true">
+      {['DestCert — marketing lead', 'Fitrise — owner', 'Liveshops — founder'].map((who) => (
+        <figure class="quote quote--slot">
+          <blockquote>“Two or three sentences about the result: what changed, how fast, how it was to work together.”</blockquote>
+          <figcaption><span><b>Waiting for a quote</b>{who}</span></figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
 </section>
 
 <style>
-  .ab-title { margin-top: 16px; max-width: 20ch; }
-  .bio {
-    margin-top: 40px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: clamp(32px, 5vw, 56px);
-    align-items: start;
+  .about-grid { display: grid; grid-template-columns: minmax(220px, 0.8fr) 2fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .about-photo img, .photo-empty { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: clamp(18px, 2vw, 28px); }
+  .photo-empty {
+    display: grid; place-items: center; align-content: center; gap: 14px;
+    background: var(--green);
   }
-  .photo {
-    width: 150px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--band);
-    border: 1px solid var(--line);
-    display: grid;
-    place-items: center;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .bio-copy { display: flex; flex-direction: column; gap: 18px; }
-  .bio-copy p {
-    font-family: var(--font-serif);
-    font-size: clamp(16px, 1.5vw, 19px);
-    line-height: 1.72;
-    color: var(--soft);
-    max-width: 70ch;
-  }
+  .draft-note { display: none; font-size: 12px; font-weight: 600; color: var(--cream); opacity: 0.8; }
+  :global(html[data-draft]) .draft-note { display: block; }
+  .about-title { margin-top: 14px; max-width: 16ch; }
+  .about-title em { font-style: italic; color: var(--green); }
+  .bio { margin-top: 22px; display: grid; gap: 16px; max-width: 64ch; }
+  .bio p { font-family: var(--font-serif); font-size: clamp(17px, 1.45vw, 20px); line-height: 1.65; color: var(--soft); }
   .principles {
-    list-style: none;
-    margin: 44px 0 0;
-    padding: 28px 0 0;
-    border-top: 1px solid var(--line);
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
+    list-style: none; margin: 30px 0 0; padding: 22px 0 0; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;
   }
-  .principles h3 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: 24px;
-    color: var(--green);
+  .principles h3 { font-family: var(--font-serif); font-weight: 500; font-size: 22px; color: var(--green); font-style: italic; }
+  .principles p { margin-top: 6px; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+  .facts { margin: 30px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .facts div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding-block: 11px; border-top: 1px solid var(--line); }
+  .facts dt { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .facts dd { margin: 0; font-size: 14.5px; color: var(--ink); }
+
+  .quotes { margin-top: clamp(48px, 6vw, 80px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .quote { margin: 0; padding: 24px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; gap: 20px; }
+  .quote blockquote { margin: 0; font-family: var(--font-serif); font-size: 19px; line-height: 1.5; }
+  .quote figcaption { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+  .quote figcaption img { border-radius: 50%; }
+  .quote figcaption b { display: block; font-size: 14px; color: var(--ink); }
+  .quotes--draft { display: none; }
+  :global(html[data-draft]) .quotes--draft { display: grid; }
+  .quote--slot { border-style: dashed; border-color: var(--clay); background: transparent; }
+  .quote--slot blockquote { color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .about-photo { max-width: 360px; }
+    .facts { grid-template-columns: 1fr; }
+    .quotes { grid-template-columns: 1fr; }
   }
-  .principles p { margin-top: 8px; font-size: 15px; line-height: 1.6; color: var(--muted); }
-  @media (max-width: 720px) {
-    .bio { grid-template-columns: 1fr; }
-    .principles { grid-template-columns: 1fr; gap: 24px; }
+  @media (max-width: 560px) {
+    .principles { grid-template-columns: 1fr; gap: 16px; }
+    .facts div { grid-template-columns: 110px 1fr; }
   }
 </style>

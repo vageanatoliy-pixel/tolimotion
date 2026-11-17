@@ -1,0 +1,22 @@
+---
+/* /work/ — the same selected work as the home page, on its own URL (it used to be a 404). */
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import WorkGrid from '../../components/WorkGrid.astro';
+import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
+import ReelDialog from '../../components/ReelDialog.astro';
+---
+<Base title="Work — Toli Herasymenko, motion designer & video editor" description="Selected work: product ads for Destination Certification, an AI explainer for Advertima, a stadium LED intro for Fitrise, an app splash for Liveshops — loops, roles, formats and case studies.">
+  <Header home={false} />
+  <main class="work-page">
+    <WorkGrid page />
+    <Contact />
+  </main>
+  <Footer />
+  <ReelDialog />
+</Base>
+
+<style>
+  .work-page :global(.work) { margin-top: 0; border-radius: 0; }
+</style>

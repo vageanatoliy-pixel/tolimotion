@@ -128,3 +128,48 @@ button { font: inherit; border: none; background: none; cursor: pointer; padding
   outline-offset: 3px;
   border-radius: 4px;
 }
+
+/* ---------- Redesign 2026-11 additions ---------- */
+:root { --container: 1280px; }
+html { scroll-padding-top: calc(var(--header-h, 64px) + 12px); }
+body { text-rendering: optimizeLegibility; }
+
+/* paper grain: a faint static noise in the page background only — never over the footage */
+body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.13 0 0 0 0 0.1 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.section { padding-block: clamp(72px, 9vw, 128px); }
+.h-section { font-size: clamp(36px, 5vw, 70px); line-height: 1.02; letter-spacing: -0.025em; }
+
+.btn { transition: transform var(--dur-fast) var(--ease-out), filter var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
+.btn:active { transform: translateY(1px); }
+.btn .arr { transition: transform var(--dur-base) var(--ease-out); }
+.btn:hover .arr { transform: translateX(4px); }
+.btn--lg { padding: 17px 30px; font-size: 16.5px; }
+.btn--sm { padding: 10px 18px; font-size: 14.5px; }
+.btn--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn--ghost:hover { background: var(--ink); color: var(--cream); filter: none; }
+.btn--light { background: var(--cream); color: var(--green); }
+
+.skip { position: absolute; left: 12px; top: -60px; z-index: 200; padding: 10px 16px; border-radius: 999px; background: var(--ink); color: var(--cream); font-weight: 600; }
+.skip:focus { top: 12px; }
+
+/* motion switch / reduced motion: freeze CSS animation everywhere */
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { animation: none !important; transition: none !important; }
+
+/* Sentence-case labels (the tracked ALL-CAPS eyebrow read as template chrome) */
+.eyebrow { text-transform: none; letter-spacing: 0; font-size: 14.5px; font-weight: 600; }
+
+/* Display type: a touch lighter, optical size on, tighter tracking */
+.h-display { font-weight: 450; font-variation-settings: 'opsz' 72; }
+
+/* Page-to-page cross-fade (native View Transitions; no JS, skipped under reduced motion) */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: var(--ease-out); }
+}
+html[data-motion="off"] ::view-transition-old(root), html[data-motion="off"] ::view-transition-new(root) { animation: none; }
+
+/* Focus rings that stay visible on the dark work band, the timeline and the green contact card */
+.work :focus-visible, .tl :focus-visible, .cta :focus-visible, .reel :focus-visible, .mcta :focus-visible { outline-color: var(--cream); }

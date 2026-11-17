@@ -1,0 +1,58 @@
+---
+/* AI, said plainly: where it is used, where it is not, what the client controls.
+   Replaces the old "Pipeline" section (MCP servers, raw APIs) — clients buy the outcome, not the plumbing. */
+import LoopVideo from './LoopVideo.astro';
+import Marker from './Marker.astro';
+---
+<section class="section ai" id="ai" aria-labelledby="ai-title">
+  <div class="container ai-grid">
+    <div class="ai-media" data-loop-host>
+      <LoopVideo name="adv-family" alt="Advertima explainer: an AI-generated family walks a supermarket aisle while hand-built data cards track them, anonymously." ratio="4 / 5" pos="58% 50%" />
+      <p class="ai-cap">AI-generated store, hand-built sensor UI and data cards — Advertima.</p>
+    </div>
+    <div class="ai-copy">
+      <Marker tc="01:02" label="AI in the pipeline" />
+      <h2 class="h-display h-section ai-title" id="ai-title">AI where it saves you time. <em>Craft where it shows.</em></h2>
+      <div class="ai-cols">
+        <div>
+          <h3>What AI does</h3>
+          <ul>
+            <li>Environments and b-roll that would otherwise need a shoot</li>
+            <li>Fast concept options before anything is animated</li>
+            <li>Rough timing, transcripts and caption drafts</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What it never does</h3>
+          <ul>
+            <li>Your logo, type or brand graphics</li>
+            <li>Motion design, layout and the edit — all hand-built</li>
+            <li>Final decisions on taste</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What you can count on</h3>
+          <ul>
+            <li>You approve any generation cost first</li>
+            <li>AI-free on request, for brands with a policy</li>
+            <li>Every AI shot is directed, composited and graded</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ai-grid { display: grid; grid-template-columns: minmax(240px, 0.85fr) 2fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .ai-media :global(.loop) { border-radius: clamp(18px, 2vw, 28px); }
+  .ai-cap { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .ai-title { margin-top: 14px; max-width: 18ch; }
+  .ai-title em { font-style: italic; color: var(--green); }
+  .ai-cols { margin-top: 30px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .ai-cols h3 { font-size: 15px; font-weight: 650; color: var(--green); padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .ai-cols ul { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+  .ai-cols li { font-size: 15px; line-height: 1.5; color: var(--soft); }
+  @media (max-width: 960px) { .ai-grid { grid-template-columns: 1fr; } .ai-media { max-width: 380px; } }
+  @media (max-width: 640px) { .ai-cols { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LoopVideo from '../components/LoopVideo.astro';
+---
+<Base title="Page not found — Toli Herasymenko" noindex>
+  <Header home={false} />
+  <main class="container nf">
+    <div>
+      <p class="eyebrow eyebrow--green">404 · 00:00:00:00</p>
+      <h1 class="h-display nf-title">This frame was <em>cut.</em></h1>
+      <p class="nf-sub">The page you asked for is not in the edit. The work and the brief form are one click away.</p>
+      <div class="nf-actions">
+        <a class="btn btn--lg" href="/#work">See the work</a>
+        <a class="btn btn--ghost btn--lg" href="/#contact">Start a project</a>
+      </div>
+    </div>
+    <div class="nf-media" data-loop-host><LoopVideo name="bf-kinetic" alt="Kinetic type loop: big black and red words fill a tall frame." ratio="9 / 16" /></div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .nf { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; min-height: 70vh; padding-block: 64px; }
+  .nf-title { margin-top: 14px; font-size: clamp(44px, 7vw, 96px); line-height: 1; letter-spacing: -0.03em; }
+  .nf-title em { font-style: italic; color: var(--green); }
+  .nf-sub { margin-top: 16px; max-width: 44ch; font-size: 17px; line-height: 1.6; color: var(--soft); }
+  .nf-actions { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .nf-media { max-width: 300px; justify-self: center; }
+  .nf-media :global(.loop) { border-radius: 18px; }
+  @media (max-width: 760px) { .nf { grid-template-columns: 1fr; } .nf-media { max-width: 200px; justify-self: start; } }
+</style>

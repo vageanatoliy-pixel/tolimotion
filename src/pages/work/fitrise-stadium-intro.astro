@@ -6,6 +6,9 @@
 import Base from '../../layouts/Base.astro';
 import Spark from '../../components/Spark.astro';
 import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import CaseCta from '../../components/CaseCta.astro';
+import LoopVideo from '../../components/LoopVideo.astro';
 
 type Cut = {
   id: string; n: string; name: string; text: string; gif: string; still: string; mp4: string;
@@ -83,15 +86,11 @@ const facts = [
 ];
 ---
 <Base
-  title="Fitrise stadium intro — Toli"
+  title="Fitrise stadium intro — Toli Herasymenko"
   description="A 15-second logo intro for Fitrise on a 1440 × 270 stadium LED ribbon — two cuts, clean and flashy — plus four caption styles for the coach’s Instagram reels."
 >
-  <header class="case-header">
-    <div class="container case-header-inner">
-      <a href="/" class="case-logo"><Spark size={17} /><span>Toli</span></a>
-      <a class="pill case-back" href="/#work">← All work</a>
-    </div>
-  </header>
+  <Header home={false} />
+  <div class="container case-back-row"><a class="case-back-link" href="/#work">← All work</a></div>
 
   <main class="case">
     <section class="container case-hero">
@@ -102,6 +101,9 @@ const facts = [
         9.6 × 1.8 m LED board. One yellow bar carries all four screens: it writes the line, floods the wall,
         fires across and lands as the slash in the logo.
       </p>
+      <div class="hero-strip" data-loop-host>
+        <LoopVideo name="fitrise-led-flashy" alt="The flashy cut playing: bold words punch across the navy LED strip, the yellow bar sweeps and the Fitrise logo resolves." ratio="16 / 3" eager />
+      </div>
       <dl class="facts">
         {facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
       </dl>
@@ -211,6 +213,7 @@ const facts = [
         </div>
       </div>
     </section>
+    <CaseCta ask="Need a screen intro, a logo animation or a reel system?" subject="Project like the Fitrise intro" next={{ href: '/work/cissp-masterclass-ads/', client: 'Destination Certification', title: 'CISSP MasterClass ads', loop: 'cissp-ad1-sort', alt: 'CISSP ad: a personal review guide re-sorts itself, pulling the weakest exam domains to the top.' }} />
   </main>
 
   <Footer />
@@ -241,13 +244,17 @@ const facts = [
 </script>
 
 <style>
+  .case-back-row { padding-top: 18px; }
+  .case-back-link { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .case-back-link:hover { color: var(--green); }
   .case-header { border-bottom: 1px solid var(--line); }
   .case-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
   .case-logo { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--font-serif); font-weight: 500; font-size: 24px; }
   .case-back { font-size: 14px; padding: 9px 16px; color: var(--soft); transition: border-color var(--dur-fast) var(--ease-out); }
   .case-back:hover { border-color: var(--ink); color: var(--ink); }
 
-  .case-hero { padding-block: clamp(48px, 7vw, 88px) clamp(36px, 4vw, 48px); }
+  .case-hero { padding-block: clamp(28px, 4vw, 56px) clamp(36px, 4vw, 48px); }
+  .hero-strip { margin-top: 28px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 10px var(--ink); }
   .case-title { font-size: clamp(40px, 6.4vw, 82px); line-height: 1.02; letter-spacing: -0.02em; margin-top: 22px; max-width: 15ch; }
   .case-title em { font-style: italic; color: var(--green); }
   .case-lead { font-family: var(--font-serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.5; color: var(--soft); max-width: 46ch; margin-top: 26px; }

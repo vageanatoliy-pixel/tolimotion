@@ -91,7 +91,7 @@ const question = (x: number, y: number, w: number, sel = 1) =>
 export const ad1: Board[] = [
   { t: '0:00', title: 'The badge opens',
     action: 'The CISSP badge scales up and its ring opens to let the line in.',
-    vo: 'CISSP is a mile wide…',
+    vo: 'CISSP is…',
     svg: svg('CISSP badge opening',
       `<path class="badge" d="M188 70V64A12 12 0 0 0 176 52H144A12 12 0 0 0 132 64V96A12 12 0 0 0 144 108H176A12 12 0 0 0 188 96V90"/>` +
       txt(160, 84, 'CISSP', 12, { c: 'mute', w: 700 }) + `<rect class="frame" x="106" y="26" width="108" height="108" rx="20"/>` +

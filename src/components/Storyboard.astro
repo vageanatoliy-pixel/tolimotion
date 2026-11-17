@@ -104,11 +104,15 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
     .sb-a4 { display: none; }
     .sb-a3 { display: block; }
   }
+  /* phones: the snake would read every second row backwards, so the boards become a filmstrip in
+     plain order that you swipe through like frames */
   @media (max-width: 640px) {
-    .sb { grid-template-columns: repeat(2, minmax(0, 1fr)); --gx: 22px; --gy: 30px; --aw: 14px; }
-    .sb-cell { grid-column: var(--c2); grid-row: var(--r2); }
-    .sb-a3 { display: none; }
-    .sb-a2 { display: block; }
+    .sb {
+      grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78vw; --gx: 14px; --aw: 14px;
+      overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 8px;
+    }
+    .sb-cell { grid-column: auto; grid-row: 1; scroll-snap-align: start; }
+    .sb-arrow { display: none !important; }
     .sb-head { flex-wrap: wrap; gap: 2px 6px; }
     .sb-title { flex-basis: 100%; font-size: 15px; }
     .sb-action { font-size: 12px; }

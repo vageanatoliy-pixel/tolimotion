@@ -1,0 +1,58 @@
+---
+/* End of every case page: one line tied to the case, the brief button, then the next case. */
+import LoopVideo from './LoopVideo.astro';
+import Marker from './Marker.astro';
+import { person } from '../data/site';
+
+interface Props {
+  ask: string;                      // e.g. 'Need product-walkthrough ads in 16:9, 1:1 and 9:16?'
+  subject: string;                  // mail subject, e.g. 'Project like the CISSP ads'
+  next: { href: string; client: string; title: string; loop: string; alt: string };
+}
+const { ask, subject, next } = Astro.props;
+---
+<section class="case-cta" aria-label="Next steps">
+  <div class="container cc-grid">
+    <div class="cc-ask">
+      <Marker tc="END" label="Your project" />
+      <h2 class="h-display cc-title">{ask}</h2>
+      <p class="cc-sub">Send a few lines. I reply within one working day with questions or a fixed quote.</p>
+      <div class="cc-actions">
+        <a class="btn btn--lg" href={`/#contact`}>Send a brief <span class="arr" aria-hidden="true">→</span></a>
+        <a class="cc-mail" href={`mailto:${person.email}?subject=${encodeURIComponent(subject)}`}>{person.email}</a>
+      </div>
+    </div>
+    <a class="cc-next" href={next.href} data-loop-host>
+      <LoopVideo name={next.loop} alt={next.alt} />
+      <span class="cc-next-cap">
+        <span class="cc-next-label">Next case</span>
+        <b>{next.title} <span aria-hidden="true">→</span></b>
+        <span>{next.client}</span>
+      </span>
+    </a>
+  </div>
+  <div class="container cc-all"><a href="/work/">All work</a> · <a href="/#services">Services & prices</a></div>
+</section>
+
+<style>
+  .case-cta { padding-block: clamp(64px, 8vw, 112px) clamp(40px, 5vw, 64px); border-top: 1px solid var(--line); }
+  .cc-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .cc-title { margin-top: 12px; font-size: clamp(32px, 3.8vw, 54px); line-height: 1.05; letter-spacing: -0.02em; max-width: 18ch; }
+  .cc-sub { margin-top: 14px; max-width: 46ch; font-size: 16px; line-height: 1.6; color: var(--soft); }
+  .cc-actions { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; }
+  .cc-mail { font-weight: 600; border-bottom: 1px solid var(--line); }
+  .cc-mail:hover { color: var(--green); border-color: var(--green); }
+  .cc-next { display: block; position: relative; border-radius: 22px; overflow: hidden; background: var(--ink); color: var(--cream); }
+  .cc-next :global(.loop) { transition: transform 900ms var(--ease-out); }
+  .cc-next:hover :global(.loop) { transform: scale(1.03); }
+  .cc-next-cap {
+    position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 2px;
+    padding: 40px 20px 18px; background: linear-gradient(to top, color-mix(in srgb, var(--ink) 92%, transparent), transparent);
+    font-size: 13px; color: color-mix(in srgb, var(--cream) 75%, transparent);
+  }
+  .cc-next-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .cc-next-cap b { font-family: var(--font-serif); font-weight: 500; font-size: clamp(22px, 2vw, 28px); color: var(--cream); }
+  .cc-all { margin-top: 28px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .cc-all a:hover { color: var(--green); }
+  @media (max-width: 860px) { .cc-grid { grid-template-columns: 1fr; } }
+</style>

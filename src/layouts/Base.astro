@@ -4,12 +4,33 @@ import '@fontsource-variable/newsreader/opsz.css';
 import '@fontsource-variable/newsreader/opsz-italic.css';
 import '../styles/global.css';
 import Motion from '../components/Motion.astro';
+import { person } from '../data/site';
+/* the hero headline face — preloaded so the kinetic intro never waits on it */
+import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 
-interface Props { title?: string; description?: string; }
+interface Props { title?: string; description?: string; image?: string; noindex?: boolean; motion?: boolean; preloadImage?: string }
 const {
-  title = 'Toli — Motion Design × AI-Integrated Production',
-  description = 'Motion designer & video editor. Eight years of turning complex, expert-heavy products into video people actually watch — with an AI-integrated pipeline.',
+  title = 'Toli Herasymenko — Motion designer & video editor for tech products',
+  description = 'Ads, explainers and product videos for SaaS, EdTech and tech brands — scripted, designed, animated and edited by one senior motion designer. 8 years full-time. Every format, fast rounds.',
+  image = '/og.jpg',
+  noindex = false,
+  motion = false,
+  preloadImage,
 } = Astro.props;
+const site = Astro.site ?? new URL('https://tolimotion.com');
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: person.role,
+  url: site.href,
+  email: `mailto:${person.email}`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Uzhhorod', addressCountry: 'UA' },
+  knowsAbout: ['Motion design', 'Video editing', 'Explainer videos', 'Product animation', 'Video ads', 'After Effects'],
+  sameAs: [person.upworkUrl, ...person.socials.map((s) => s.href)].filter(Boolean),
+};
 ---
 <!doctype html>
 <html lang="en">
@@ -18,15 +39,39 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="preload" href={newsreaderLatin} as="font" type="font/woff2" crossorigin />
+    {preloadImage && <link rel="preload" href={preloadImage} as="image" fetchpriority="high" />}
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="tolimotion" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://tolimotion.com" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#F4F1E8" />
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    <script is:inline>
+      /* Before first paint: ?draft shows the empty slots that still wait for content;
+         the footer's motion switch is remembered per visitor. Both wrapped: storage can be blocked. */
+      (function () {
+        var d = document.documentElement;
+        try {
+          if (new URLSearchParams(location.search).has('draft')) sessionStorage.setItem('draft', '1');
+          if (sessionStorage.getItem('draft') === '1') d.dataset.draft = '1';
+        } catch (e) {}
+        try { if (localStorage.getItem('motion') === 'off') d.dataset.motion = 'off'; } catch (e) {}
+        d.classList.add('js');
+      })();
+    </script>
   </head>
   <body>
     <slot />
-    <Motion />
+    {motion && <Motion />}
   </body>
 </html>

@@ -1,46 +1,206 @@
 ---
+/* Sticky header: logo, section links, availability, one CTA. Under 900 px the links move into a
+   full-screen sheet behind a Menu button (the old header simply hid them on phones). */
 import Spark from './Spark.astro';
+import { person, availability } from '../data/site';
+
+interface Props { home?: boolean }
+const { home = true } = Astro.props;
+const p = home ? '' : '/';
+const links = [
+  { href: `${p}#work`, label: 'Work' },
+  { href: `${p}#services`, label: 'Services' },
+  { href: `${p}#process`, label: 'Process' },
+  { href: `${p}#about`, label: 'About' },
+  { href: `${p}#faq`, label: 'FAQ' },
+];
 ---
-<header class="site-header">
+<header class="site-header" data-header>
   <div class="container header-inner">
-    <a href="#top" class="logo">
-      <Spark size={17} />
-      <span>Toli</span>
+    <a href={home ? '#top' : '/'} class="logo" aria-label={`${person.name} — home`}>
+      <Spark size={18} />
+      <span class="logo-word">{person.short}</span>
     </a>
+
     <nav class="nav" aria-label="Main">
-      <a href="#work">Work</a>
-      <a href="#toolbox">Toolbox</a>
-      <a href="#pipeline">Pipeline</a>
-      <a href="#about">About</a>
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
     </nav>
-    <a class="btn header-cta" href="mailto:hello@tolimotion.com">Get in touch</a>
+
+    <div class="header-right">
+      {availability.label && (
+        <span class="avail" title="Availability">
+          <span class="avail-dot" aria-hidden="true"></span>{availability.label}
+        </span>
+      )}
+      <a class="btn btn--sm header-cta" href={`${p}#contact`}>Start a project</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet" data-menu-btn>
+        <span class="menu-lines" aria-hidden="true"><i></i><i></i></span>
+        <span class="menu-label">Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ph-track" aria-hidden="true"><span class="ph-bar"></span><span class="ph-key"></span></div>
+
+  <div class="menu-sheet" id="menu-sheet" data-menu hidden>
+    <nav class="container menu-nav" aria-label="Menu">
+      {links.map((l, i) => (
+        <a href={l.href} style={`--i:${i}`}><span class="menu-n">0{i + 1}</span>{l.label}</a>
+      ))}
+      <a class="btn menu-cta" href={`${p}#contact`}>Start a project</a>
+      <p class="menu-mail"><a href={`mailto:${person.email}`}>{person.email}</a></p>
+    </nav>
   </div>
 </header>
 
 <style>
-  .site-header { border-bottom: 1px solid var(--line); }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    -webkit-backdrop-filter: saturate(1.2) blur(14px);
+    backdrop-filter: saturate(1.2) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-base) var(--ease-out);
+  }
+  .site-header.is-scrolled { border-bottom-color: var(--line); }
   .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    padding-block: 22px;
+    padding-block: 14px;
   }
   .logo {
     display: inline-flex;
-    /* baseline: the mark sits on the text baseline like a glyph,
-       sized to the cap height of "Toli" */
     align-items: baseline;
-    gap: 10px;
+    gap: 9px;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 24px;
+    font-size: 25px;
+    letter-spacing: -0.01em;
   }
-  .nav { display: flex; gap: 32px; }
-  .nav a { font-size: 15px; font-weight: 500; color: var(--muted); }
+  .nav { display: flex; gap: 30px; }
+  .nav a { font-size: 15px; font-weight: 500; color: var(--muted); transition: color var(--dur-fast) var(--ease-out); }
   .nav a:hover { color: var(--ink); }
-  .header-cta { padding: 11px 24px; font-size: 15px; }
-  @media (max-width: 720px) {
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .avail {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; color: var(--soft);
+    white-space: nowrap;
+  }
+  .avail-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 45%, transparent);
+    animation: pulse 2.4s var(--ease-out) infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 45%, transparent); }
+    70%, 100% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--green) 0%, transparent); }
+  }
+
+  /* Scroll = playhead: a hairline along the header's bottom edge fills as the page plays through.
+     Pure CSS scroll-driven animation; browsers without it simply show nothing. */
+  .ph-track { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+  .ph-bar, .ph-key { display: none; }
+  @supports (animation-timeline: scroll()) {
+    .ph-bar, .ph-key { display: block; position: absolute; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block); }
+    .ph-bar { inset: 0; background: var(--green); transform-origin: 0 50%; transform: scaleX(0); animation-name: ph-fill; }
+    .ph-key { left: 0; top: -3px; width: 8px; height: 8px; margin-left: -4px; background: var(--green); border-radius: 1px; opacity: 0; animation-name: ph-move; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ph-track { display: none; } }
+  :global(html[data-motion="off"]) .ph-track { display: none; }
+  @keyframes ph-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes ph-move {
+    0% { transform: translateX(6px) rotate(45deg); opacity: 0; }
+    2% { opacity: 1; }
+    100% { transform: translateX(calc(100vw - 6px)) rotate(45deg); opacity: 1; }
+  }
+
+  .menu-btn {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .menu-lines { display: grid; gap: 4px; width: 16px; }
+  .menu-lines i { display: block; height: 1.6px; background: var(--ink); border-radius: 2px; transition: transform var(--dur-base) var(--ease-out); }
+  .menu-btn[aria-expanded="true"] .menu-lines i:first-child { transform: translateY(2.8px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] .menu-lines i:last-child { transform: translateY(-2.8px) rotate(-45deg); }
+
+  .menu-sheet {
+    /* the header's backdrop-filter makes it the containing block for fixed children,
+       so the sheet is placed under it and sized to the rest of the screen explicitly */
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: calc(100dvh - var(--header-h, 64px));
+    background: var(--paper);
+    overflow-y: auto;
+    z-index: 49;
+  }
+  .menu-nav { display: flex; flex-direction: column; padding-block: 28px 48px; }
+  .menu-nav > a:not(.btn) {
+    display: flex; align-items: baseline; gap: 16px;
+    padding-block: 14px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-serif);
+    font-size: clamp(34px, 9vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    animation: menu-in 500ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 50ms);
+  }
+  .menu-n { font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--green); font-feature-settings: 'tnum'; }
+  .menu-cta { margin-top: 28px; justify-content: center; }
+  .menu-mail { margin-top: 18px; text-align: center; font-weight: 500; color: var(--soft); }
+  @keyframes menu-in { from { opacity: 0; transform: translateY(16px); } }
+
+  @media (max-width: 1080px) { .avail { display: none; } }
+  @media (max-width: 900px) {
     .nav { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
+  @media (max-width: 520px) {
+    .header-cta { display: none; }
   }
 </style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const sheet = document.querySelector<HTMLElement>('[data-menu]');
+  if (header) {
+    const setH = () => document.documentElement.style.setProperty('--header-h', `${header.offsetHeight}px`);
+    setH();
+    window.addEventListener('resize', setH);
+    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+  if (btn && sheet) {
+    const close = () => {
+      btn.setAttribute('aria-expanded', 'false');
+      sheet.hidden = true;
+      document.body.style.overflow = '';
+    };
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', String(open));
+      sheet.hidden = !open;
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) sheet.querySelector<HTMLElement>('a')?.focus();
+    });
+    sheet.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) { close(); btn.focus(); } });
+    window.matchMedia('(min-width: 901px)').addEventListener('change', (m) => { if (m.matches) close(); });
+  }
+</script>
