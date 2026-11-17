@@ -1,0 +1,23 @@
+// Cloudflare Workers config. Workers Builds runs `npm run build`, then `npx wrangler deploy` (both set in
+// the dashboard). Before 2026-11-17 the repo had no config and wrangler's autoconfig turned every build
+// into the Astro Cloudflare adapter; this file replaces that with plain static assets plus one small Worker.
+// - dist/ is served by Workers Static Assets: 404 page, /work → /work/, public/_headers.
+// - worker/index.js runs first only for .mp4 and answers byte-range requests (Safari and iPhones do not
+//   play video without them). Its file sizes come from worker/video-sizes.mjs, run before every deploy.
+// Keep "name" = the Worker in the dashboard. Never add routes here: they would replace the dashboard's
+// custom domain tolimotion.com.
+{
+  "name": "tolimotion",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-11-17",
+  "build": { "command": "node worker/video-sizes.mjs", "watch_dir": "dist" },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/*.mp4", "/*.MP4"]
+  },
+  "observability": { "enabled": true },
+  "workers_dev": true
+}

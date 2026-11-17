@@ -1,6 +1,6 @@
 # tolimotion.com
 
-Портфоліо Toli. Astro, статика, деплой на Vercel.
+Портфоліо Toli. Astro, статика, деплой на Cloudflare Workers (Workers Builds з гілки `main`). Подробиці — у `CLAUDE.md`.
 
 ## Швидкий старт
 ```bash
@@ -8,21 +8,10 @@ npm install
 npm run dev        # http://localhost:4321
 ```
 
-## Задеплоїти вперше
-1. Створи порожній репозиторій на GitHub (наприклад `tolimotion`).
-2. У цій папці:
-   ```bash
-   git init
-   git add -A
-   git commit -m "v0.1 — static skeleton"
-   git branch -M main
-   git remote add origin git@github.com:ТВІЙ_ЛОГІН/tolimotion.git
-   git push -u origin main
-   ```
-3. vercel.com → Add New → Project → імпортуй репозиторій → Deploy (нічого не міняй, Astro визначиться сам).
-4. Project → Settings → Domains → додай `tolimotion.com` → Vercel покаже DNS-записи → внеси їх у Porkbun (DNS → додати записи A / CNAME, які покаже Vercel).
+## Деплой
+Кожен `git push` у `main` → Cloudflare Workers Builds: `npm run build`, потім `npx wrangler deploy` (налаштування — `wrangler.jsonc`: статика з `dist/` + маленький Worker, що віддає відео частинами для Safari та iPhone).
 
-Далі кожен `git push` — автодеплой.
+Локальна перевірка разом із Worker: `npm run build && npx wrangler dev`.
 
 ## Що далі (фази)
 - Фаза 3: граматика руху (GSAP) — правила вже описані в `CLAUDE.md`.
