@@ -6,7 +6,7 @@
 import LoopVideo from './LoopVideo.astro';
 import Marker from './Marker.astro';
 import { works as allWorks } from '../data/work';
-import { person, media, showPendingClientWork } from '../data/site';
+import { person, media, showPendingClientWork, DRAFT } from '../data/site';
 interface Props { page?: boolean }
 const { page = false } = Astro.props;
 const works = allWorks.filter((w) => showPendingClientWork || w.status !== 'ask');
@@ -78,7 +78,7 @@ const works = allWorks.filter((w) => showPendingClientWork || w.status !== 'ask'
               <span class="tile-film-icon" aria-hidden="true"></span>{w.film.label}
             </button>
           )}
-          {w.status === 'ask' && <span class="draft-flag" aria-hidden="true">Needs client OK</span>}
+          {DRAFT && w.status === 'ask' && <span class="draft-flag" aria-hidden="true">Needs client OK</span>}
         </li>
       ))}
       <li class="tile tile--full private">

@@ -6,7 +6,7 @@ import LoopVideo from '../components/LoopVideo.astro';
 ---
 <Base title="Page not found — Toli Herasymenko" noindex>
   <Header home={false} />
-  <main class="container nf">
+  <main id="main" class="container nf">
     <div>
       <p class="eyebrow eyebrow--green">404 · 00:00:00:00</p>
       <h1 class="h-display nf-title">This frame was <em>cut.</em></h1>
@@ -16,7 +16,7 @@ import LoopVideo from '../components/LoopVideo.astro';
         <a class="btn btn--ghost btn--lg" href="/#contact">Start a project</a>
       </div>
     </div>
-    <div class="nf-media" data-loop-host><LoopVideo name="bf-kinetic" alt="Kinetic type loop: big black and red words fill a tall frame." ratio="9 / 16" /></div>
+    <div class="nf-media" data-loop-host><LoopVideo name="bf-kinetic" eager alt="Kinetic type loop: big black and red words fill a tall frame." ratio="9 / 16" /></div>
   </main>
   <Footer />
 </Base>

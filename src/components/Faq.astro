@@ -2,7 +2,8 @@
 /* FAQ: the questions buyers ask before writing — price, time, revisions, AI, ownership, agencies,
    payment, time zone. Native <details>, works without JS. Draft-only items wait for Toli's facts. */
 import Marker from './Marker.astro';
-import { faq } from '../data/site';
+import { faq as allFaq, DRAFT } from '../data/site';
+const faq = allFaq.filter((f) => DRAFT || !f.draft);
 ---
 <section class="section faq" id="faq" aria-labelledby="faq-title">
   <div class="container faq-grid">

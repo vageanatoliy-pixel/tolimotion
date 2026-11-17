@@ -99,6 +99,9 @@ const poster = `/loops/${name}.jpg`;
     host.addEventListener('pointerenter', () => { if (!reduced.matches) play(fig); });
     host.addEventListener('focusin', () => { if (!reduced.matches) play(fig); });
     host.addEventListener('pointerleave', () => { if (motionOff() || saveData) pause(fig); });
+    host.addEventListener('focusout', (e) => {
+      if (!host.contains(e.relatedTarget as Node) && (motionOff() || saveData)) pause(fig);
+    });
   });
 
   /* The motion switch in the footer flips data-motion on <html>. */

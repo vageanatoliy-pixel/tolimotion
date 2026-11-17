@@ -5,7 +5,7 @@
    vertical cuts 4 Nov). Drafts of client work: Toli to confirm with DestCert before this goes live. */
 import LoopVideo from './LoopVideo.astro';
 import Marker from './Marker.astro';
-import { steps, showPendingClientWork } from '../data/site';
+import { steps, showPendingClientWork, DRAFT } from '../data/site';
 
 const looks = [
   { img: '/loops/proc-ad1-sf-A_waterline.jpg', tag: 'A', name: 'Waterline', verdict: 'Too literal', pick: false },
@@ -85,7 +85,7 @@ const looks = [
           by the second. One hero moment instead of two halves.
         </p>
       </div>
-      <span class="draft-flag" aria-hidden="true">Client drafts — confirm with DestCert</span>
+      {DRAFT && <span class="draft-flag" aria-hidden="true">Client drafts — confirm with DestCert</span>}
     </div>
     )}
   </div>

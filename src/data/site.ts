@@ -3,6 +3,10 @@
    string or an empty array — empty items are not rendered (open the site with ?draft to see the slots).
    Prices, turnaround and payment terms are the ones Toli set for the services prototype on 2026-11-07. */
 
+/* Draft slots and internal notes are rendered only in `npm run dev` or a `PUBLIC_DRAFT=1 npm run build`
+   (then open with ?draft). Production HTML never contains them. */
+export const DRAFT = import.meta.env.DEV || import.meta.env.PUBLIC_DRAFT === '1';
+
 export const person = {
   name: 'Toli Herasymenko',          // DECISION FOR TOLI: public name (logo says "Toli"; legal "Anatolii")
   short: 'Toli',

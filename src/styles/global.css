@@ -173,3 +173,12 @@ html[data-motion="off"] ::view-transition-old(root), html[data-motion="off"] ::v
 
 /* Focus rings that stay visible on the dark work band, the timeline and the green contact card */
 .work :focus-visible, .tl :focus-visible, .cta :focus-visible, .reel :focus-visible, .mcta :focus-visible { outline-color: var(--cream); }
+
+/* Hero intro: hide the headline before the first paint (not after it), only when the intro will run.
+   If the script never comes, the failsafe shows it at 2.5 s. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js[data-intro]:not([data-motion="off"]) .hero-title { opacity: 0; animation: hero-failsafe 0s 2.5s forwards; }
+}
+@keyframes hero-failsafe { to { opacity: 1; } }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

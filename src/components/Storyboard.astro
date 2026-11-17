@@ -32,7 +32,7 @@ const cells = boards.map((b, i) => {
 });
 const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M27 1 38 6l-11 5z" fill="currentColor"/></svg>';
 ---
-<ol class="sb" aria-label={label}>
+<ol class="sb" aria-label={label} data-sb>
   {cells.map((c) => (
     <li class="sb-cell" style={c.style}>
       <div class="sb-frame">
@@ -119,3 +119,14 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
     .sb-vo { font-size: 12.5px; }
   }
 </style>
+
+<script>
+  /* Phones turn the sheet into a swipeable strip: give it a tab stop only while it actually scrolls. */
+  const strips = Array.from(document.querySelectorAll<HTMLElement>('[data-sb]'));
+  const sync = () => strips.forEach((s) => {
+    if (s.scrollWidth > s.clientWidth + 1) s.tabIndex = 0;
+    else s.removeAttribute('tabindex');
+  });
+  sync();
+  window.addEventListener('resize', sync);
+</script>

@@ -1,7 +1,9 @@
 <script>
   /* Motion grammar (redesign 2026-11): ONE kinetic moment — the hero headline on load. Below the first
      screen the footage loops are the motion; the only scroll effect is the header playhead (pure CSS).
-     The headline is never hidden for long: if fonts are slow, it shows anyway. */
+     The headline is hidden before the first paint by global.css (html[data-intro]) so it never flashes
+     in and out; this script releases that hold the moment it takes over — or at once when motion is off.
+     If the script never runs, the CSS failsafe shows the headline at 2.5 s. */
   import { gsap } from 'gsap';
   import { SplitText } from 'gsap/SplitText';
   import { CustomEase } from 'gsap/CustomEase';
@@ -9,8 +11,12 @@
   const html = document.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const off = reduced || html.dataset.motion === 'off';
+  const release = () => { delete html.dataset.intro; };
+  const title = document.querySelector<HTMLElement>('.hero-title');
 
-  if (!off) {
+  if (off || !title) {
+    release();
+  } else {
     gsap.registerPlugin(SplitText, CustomEase);
     CustomEase.create('reveal', '0.22, 1, 0.36, 1');
     gsap.defaults({ ease: 'reveal', duration: 0.7 });
@@ -18,27 +24,24 @@
     /* ---------- Hero: words rise in, the italic settles last ---------- */
     /* Only the headline animates. The lead, buttons and the timeline are never hidden, so they paint
        at once (largest paint) and stay reachable by keyboard from the first frame. */
-    const title = document.querySelector('.hero-title');
-    if (title) {
-      gsap.set(title, { opacity: 0 });
-      let started = false;
-      let intro: gsap.core.Timeline | null = null;
-      const run = () => {
-        if (started) return;
-        started = true;
-        const split = SplitText.create(title, { type: 'words', mask: 'words' });
-        const italic = split.words.filter((w) => w.closest('em'));
-        const plain = split.words.filter((w) => !w.closest('em'));
-        gsap.set(title, { opacity: 1 });
-        /* safety net: a throttled background tab must never leave the first screen blank */
-        setTimeout(() => { if (intro && intro.progress() < 1) intro.progress(1); }, 3200);
-        intro = gsap.timeline()
-          .from(plain, { yPercent: 115, duration: 0.9, stagger: 0.05 })
-          .from(italic, { yPercent: 115, duration: 1.1, stagger: 0.07 }, '-=0.55');
-      };
-      document.fonts.ready.then(run);
-      setTimeout(run, 700); /* slow fonts: start anyway, the fallback face is close enough */
-    }
+    let started = false;
+    let intro: gsap.core.Timeline | null = null;
+    const run = () => {
+      if (started) return;
+      started = true;
+      const split = SplitText.create(title, { type: 'words', mask: 'words' });
+      const italic = split.words.filter((w) => w.closest('em'));
+      const plain = split.words.filter((w) => !w.closest('em'));
+      gsap.set(title, { opacity: 1 });
+      release(); /* only now: if anything above throws, the CSS failsafe still shows the headline */
+      /* safety net: a throttled background tab must never leave the first screen blank */
+      setTimeout(() => { if (intro && intro.progress() < 1) intro.progress(1); }, 3200);
+      intro = gsap.timeline()
+        .from(plain, { yPercent: 115, duration: 0.9, stagger: 0.05 })
+        .from(italic, { yPercent: 115, duration: 1.1, stagger: 0.07 }, '-=0.55');
+    };
+    document.fonts.ready.then(run);
+    setTimeout(run, 700); /* slow fonts: start anyway, the fallback face is close enough */
 
     /* Everything below the first screen stays still on purpose: the loops are the motion.
        (A rise-and-fade on every block reads as a template.) */

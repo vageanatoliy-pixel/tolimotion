@@ -8,7 +8,7 @@ import { person } from '../data/site';
 /* the hero headline face — preloaded so the kinetic intro never waits on it */
 import newsreaderLatin from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 
-interface Props { title?: string; description?: string; image?: string; noindex?: boolean; motion?: boolean; preloadImage?: string }
+interface Props { title?: string; description?: string; image?: string; noindex?: boolean; motion?: boolean; preloadImage?: string; skip?: { href: string; label: string } }
 const {
   title = 'Toli Herasymenko — Motion designer & video editor for tech products',
   description = 'Ads, explainers and product videos for SaaS, EdTech and tech brands — scripted, designed, animated and edited by one senior motion designer. 8 years full-time. Every format, fast rounds.',
@@ -16,6 +16,7 @@ const {
   noindex = false,
   motion = false,
   preloadImage,
+  skip = { href: '#main', label: 'Skip to content' },
 } = Astro.props;
 const site = Astro.site ?? new URL('https://tolimotion.com');
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -33,7 +34,7 @@ const ld = {
 };
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-intro={motion ? '1' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -71,6 +72,7 @@ const ld = {
     </script>
   </head>
   <body>
+    <a class="skip" href={skip.href}>{skip.label}</a>
     <slot />
     {motion && <Motion />}
   </body>

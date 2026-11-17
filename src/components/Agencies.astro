@@ -2,7 +2,7 @@
 /* For agencies: how white-label overflow work runs. Producers asked for capacity, rate and terms —
    those three need Toli's real numbers, so they render only in ?draft mode until filled in site.ts. */
 import Marker from './Marker.astro';
-import { agencies } from '../data/site';
+import { agencies, DRAFT } from '../data/site';
 ---
 <section class="section agencies" id="agencies" aria-labelledby="agencies-title">
   <div class="container ag-grid">
@@ -15,7 +15,7 @@ import { agencies } from '../data/site';
       {agencies.points.map((p) => (
         <li><h3>{p.t}</h3><p>{p.d}</p></li>
       ))}
-      {agencies.terms.map((p) => (
+      {agencies.terms.filter((p) => p.d || DRAFT).map((p) => (
         <li class={p.d ? '' : 'ag-draft'}><h3>{p.t}</h3><p>{p.d || p.missing}</p></li>
       ))}
     </ul>

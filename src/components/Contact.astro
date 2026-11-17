@@ -2,7 +2,7 @@
 /* Contact: a short brief that opens the visitor's mail app with everything filled in (no server,
    nothing stored), plus the plain address with a copy button, a call link and Upwork when Toli adds them. */
 import Spark from './Spark.astro';
-import { person, services } from '../data/site';
+import { person, services, DRAFT } from '../data/site';
 const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not sure yet'];
 ---
 <section class="contact" id="contact" aria-labelledby="contact-title">
@@ -25,17 +25,18 @@ const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not
           <li>If it fits, a 20-minute call about goals, audience and formats.</li>
           <li>A fixed price and a schedule before any work starts.</li>
         </ol>
-        <p class="draft-only">Missing: Cal.com booking link · Upwork profile URL</p>
+        {DRAFT && <p class="draft-only">Missing: Cal.com booking link · Upwork profile URL</p>}
       </div>
 
-      <form class="brief" data-brief novalidate>
+      <form class="brief" data-brief action={`mailto:${person.email}`} method="post" enctype="text/plain">
         <label><span>Your name <span class="opt">optional</span></span><input name="name" autocomplete="name" /></label>
         <label><span>Company or website <span class="opt">optional</span></span><input name="company" autocomplete="organization" /></label>
         <div class="row2">
           <label>What do you need?
             <select name="service" id="brief-service">
               <option value="">Choose…</option>
-              {services.map((s) => <option>{s.name}</option>)}
+              {services.filter((s) => !s.draft).map((s) => <option>{s.name}</option>)}
+              <option>Ongoing work</option>
               <option>Something else</option>
             </select>
           </label>
@@ -47,12 +48,13 @@ const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not
           </label>
         </div>
         <label><span>Deadline <span class="opt">optional</span></span><input name="deadline" placeholder="e.g. mid-January" /></label>
-        <label>A few lines about it<textarea name="message" rows="4" required placeholder="Product, audience, length, formats, links to references…"></textarea></label>
+        <label>A few lines about it<textarea name="message" rows="4" required aria-describedby="brief-err" placeholder="Product, audience, length, formats, links to references…"></textarea></label>
+        <p class="brief-err" id="brief-err" role="alert"></p>
         <button class="btn btn--light btn--lg" type="submit">Send the brief <span aria-hidden="true">→</span></button>
         <p class="brief-note" data-brief-note>Your email app opens with the brief filled in. Nothing is stored on this site.</p>
         <div class="brief-done" data-brief-done hidden>
           <p><b>Email app didn’t open?</b> Copy the brief and send it to <a href={`mailto:${person.email}`}>{person.email}</a> from any mailbox.</p>
-          <textarea readonly rows="6" data-brief-text aria-label="Your brief"></textarea>
+          <textarea id="brief-text" readonly rows="6" data-brief-text aria-label="Your brief"></textarea>
           <button class="btn btn--light" type="button" data-brief-copy>Copy the brief</button>
         </div>
       </form>
@@ -84,17 +86,19 @@ const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not
   .brief { display: grid; gap: 14px; align-content: start; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .brief label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: color-mix(in srgb, var(--cream) 85%, transparent); }
-  .opt { font-weight: 500; opacity: 0.65; }
+  .opt { font-weight: 500; opacity: 0.9; }
   .brief input, .brief select, .brief textarea {
     width: 100%; padding: 12px 14px; border-radius: 12px;
-    border: 1px solid color-mix(in srgb, var(--cream) 28%, transparent);
+    border: 1px solid color-mix(in srgb, var(--cream) 55%, transparent);
     background: color-mix(in srgb, var(--ink) 22%, transparent);
     color: var(--cream); font: inherit; font-size: 15px; font-weight: 500;
   }
   .brief select option { color: var(--ink); }
-  .brief input::placeholder, .brief textarea::placeholder { color: color-mix(in srgb, var(--cream) 50%, transparent); }
+  .brief input::placeholder, .brief textarea::placeholder { color: color-mix(in srgb, var(--cream) 72%, transparent); }
   .brief input:focus-visible, .brief select:focus-visible, .brief textarea:focus-visible { outline: 2px solid var(--cream); outline-offset: 1px; }
-  .brief [aria-invalid="true"] { border-color: var(--scene-yellow); }
+  .brief [aria-invalid="true"] { border-color: var(--cream); box-shadow: 0 0 0 1px var(--cream); }
+  .brief-err { margin-top: -6px; font-size: 13.5px; font-weight: 600; color: var(--cream); }
+  .brief-err:empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); }
   .brief .btn { justify-self: start; margin-top: 4px; }
   .brief-done { display: grid; gap: 10px; padding: 16px; border-radius: 14px; background: color-mix(in srgb, var(--ink) 25%, transparent); font-size: 14px; line-height: 1.5; }
   .brief-done[hidden] { display: none; }
@@ -117,6 +121,13 @@ const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not
 
   /* Brief → a ready email in the visitor's own mail app. */
   const form = document.querySelector<HTMLFormElement>('[data-brief]');
+  const err = form?.querySelector<HTMLElement>('#brief-err');
+  /* Without JS the form still works: the browser checks the required field and posts to mailto:. */
+  if (form) form.noValidate = true;
+  form?.querySelector<HTMLTextAreaElement>('textarea[name="message"]')?.addEventListener('input', (e) => {
+    const t = e.currentTarget as HTMLTextAreaElement;
+    if (t.value.trim() && t.getAttribute('aria-invalid') === 'true') { t.setAttribute('aria-invalid', 'false'); if (err) err.textContent = ''; }
+  });
   form?.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = new FormData(form);
@@ -126,6 +137,7 @@ const budgets = ['Under $500', '$500–1,500', '$1,500–3,000', '$3,000+', 'Not
       el.setAttribute('aria-invalid', String(bad));
       if (bad && ok) { el.focus(); ok = false; }
     });
+    if (err) err.textContent = ok ? '' : 'Add a few lines about the project: what it is and what you need.';
     if (!ok) return;
     const get = (k: string) => String(data.get(k) ?? '').trim();
     const subject = `Project brief — ${get('service') || 'new project'}${get('company') ? ` · ${get('company')}` : ''}`;

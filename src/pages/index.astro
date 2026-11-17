@@ -14,10 +14,9 @@ import Footer from '../components/Footer.astro';
 import ReelDialog from '../components/ReelDialog.astro';
 import MobileCta from '../components/MobileCta.astro';
 ---
-<Base preloadImage="/loops/cissp-ad2-adapts.jpg" motion>
-  <a class="skip" href="#work">Skip to the work</a>
+<Base preloadImage="/loops/cissp-ad2-adapts.jpg" motion skip={{ href: '#work', label: 'Skip to the work' }}>
   <Header />
-  <main>
+  <main id="main">
     <Hero />
     <WorkGrid />
     <Process />

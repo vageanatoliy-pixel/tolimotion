@@ -11,49 +11,49 @@ import CaseCta from '../../components/CaseCta.astro';
 import LoopVideo from '../../components/LoopVideo.astro';
 
 type Cut = {
-  id: string; n: string; name: string; text: string; gif: string; still: string; mp4: string;
+  id: string; n: string; name: string; text: string; gif: string; still: string; mp4: string; loop: string;
   gifSize: string; mp4Size: string; file: string; note: string; alt: string;
 };
 const cuts: Cut[] = [
   {
     id: 'clean', n: '01', name: 'Clean',
     text: 'The calm version. Each screen lands, holds long enough to read from the stands, and hands over to the next through the same yellow bar.',
-    gif: '/work/fitrise/clean-r1.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean-r1.mp4',
+    loop: 'fitrise-led-clean', gif: '/work/fitrise/clean-r1.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean-r1.mp4',
     gifSize: '7.7 MB', mp4Size: '6.0 MB', file: 'Fitrise_LED_Intro_Clean_1440x270_r1', note: '1 px = 1 LED',
     alt: 'Fitrise LED intro, clean cut: yellow text on navy — Excuses scoren niet, Actie wel, Kom in beweging — ending on the Fitrise logo with Personal training, Leefstijlcoaching, Bedrijfsfitness.',
   },
   {
     id: 'flashy', n: '02', name: 'Flashy',
     text: 'Same story, louder. The first line is typed with the bar as a blinking cursor, every hit flashes, the letters jump in a stadium wave and the background pulses with light.',
-    gif: '/work/fitrise/flashy-r1.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy-r1.mp4',
+    loop: 'fitrise-led-flashy', gif: '/work/fitrise/flashy-r1.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy-r1.mp4',
     gifSize: '11.2 MB', mp4Size: '10.0 MB', file: 'Fitrise_LED_Intro_Flashy_1440x270_r1', note: 'Flashes kept under 3 per second',
     alt: 'Fitrise LED intro, flashy cut: the first line is typed letter by letter behind a blinking yellow cursor, words flash on every hit, ending on the Fitrise logo with its three services.',
   },
 ];
-type Reel = { id: string; n: string; name: string; badge?: string; text: string; gif: string; still: string; gifSize: string; file: string; alt: string };
+type Reel = { id: string; n: string; name: string; badge?: string; text: string; gif: string; still: string; gifSize: string; file: string; alt: string; loop: string };
 const reels: Reel[] = [
   {
     id: 's1', n: '01', name: 'Brand serif', badge: 'Closest to brand',
     text: 'IBM Plex Serif — the brand font for quotes — with the key words in yellow italic. Each word slides in and the line re-centres around it.',
-    gif: '/work/fitrise/reels/s1-brand-serif.gif', still: '/work/fitrise/reels/s1-brand-serif.jpg', gifSize: '5.0 MB', file: 'Fitrise_Reel_Captions_01_Brand_Serif',
+    loop: 'fitrise-cap-s1', gif: '/work/fitrise/reels/s1-brand-serif.gif', still: '/work/fitrise/reels/s1-brand-serif.jpg', gifSize: '5.0 MB', file: 'Fitrise_Reel_Captions_01_Brand_Serif',
     alt: 'Caption style 01 on a talking-head reel: white serif words appear one by one under the speaker, the key words “heel snel” in yellow italic.',
   },
   {
     id: 's2', n: '02', name: 'Site italic',
     text: 'Inter Italic, like the headings on fitrise.nl. Words rise from the baseline; key words turn yellow and get the underline from the site menu.',
-    gif: '/work/fitrise/reels/s2-site-italic.gif', still: '/work/fitrise/reels/s2-site-italic.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_02_Site_Italic',
+    loop: 'fitrise-cap-s2', gif: '/work/fitrise/reels/s2-site-italic.gif', still: '/work/fitrise/reels/s2-site-italic.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_02_Site_Italic',
     alt: 'Caption style 02: white italic sans words rise from a baseline, the key words in bold yellow italic with a yellow underline.',
   },
   {
     id: 's3', n: '03', name: 'Highlight bar',
     text: 'Heavy italic caps. Key words sit on a yellow bar cut at the 30° angle of the logo, with the three stripes from the logo mark.',
-    gif: '/work/fitrise/reels/s3-highlight-bar.gif', still: '/work/fitrise/reels/s3-highlight-bar.jpg', gifSize: '5.2 MB', file: 'Fitrise_Reel_Captions_03_Highlight_Bar',
+    loop: 'fitrise-cap-s3', gif: '/work/fitrise/reels/s3-highlight-bar.gif', still: '/work/fitrise/reels/s3-highlight-bar.jpg', gifSize: '5.2 MB', file: 'Fitrise_Reel_Captions_03_Highlight_Bar',
     alt: 'Caption style 03: bold italic capitals punch in, the key words in navy on a slanted yellow bar with three yellow stripes.',
   },
   {
     id: 's4', n: '04', name: 'LED karaoke',
     text: 'The language of the stadium intro: Oswald caps on a navy panel with the yellow bar. The word he is saying turns yellow and a cursor follows it.',
-    gif: '/work/fitrise/reels/s4-led-karaoke.gif', still: '/work/fitrise/reels/s4-led-karaoke.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_04_LED_Karaoke',
+    loop: 'fitrise-cap-s4', gif: '/work/fitrise/reels/s4-led-karaoke.gif', still: '/work/fitrise/reels/s4-led-karaoke.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_04_LED_Karaoke',
     alt: 'Caption style 04: condensed capitals on a navy panel with a yellow edge bar; the spoken word turns yellow with a yellow cursor under it.',
   },
 ];
@@ -92,7 +92,7 @@ const facts = [
   <Header home={false} />
   <div class="container case-back-row"><a class="case-back-link" href="/#work">← All work</a></div>
 
-  <main class="case">
+  <main id="main" class="case">
     <section class="container case-hero">
       <p class="eyebrow eyebrow--green">Case · Stadium LED</p>
       <h1 class="h-display case-title">A 15-second intro for a <em>stadium</em> ribbon.</h1>
@@ -118,15 +118,15 @@ const facts = [
             <p class="cut-text">{c.text}</p>
           </div>
           <figure class="board">
-            <img class="board-img" src={c.still} data-gif={c.gif} width="1440" height="270" alt={c.alt} decoding="async" />
+            <div class="board-img"><LoopVideo name={c.loop} alt={c.alt} ratio="16 / 3" /></div>
             <figcaption><b>Loop · 15 s</b><span>{`1440 × 270 · ${c.note}`}</span></figcaption>
           </figure>
           <div class="actions">
-            <a class="btn" href={c.gif} download={`${c.file}.gif`}>
+            <a class="btn" href={c.gif} download={`${c.file}.gif`} aria-label={`Download the ${c.name} cut as GIF, ${c.gifSize}`}>
               <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0 3.5-3.5M8 10 4.5 6.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               Download GIF <small>{c.gifSize}</small>
             </a>
-            <a class="pill" href={c.mp4} download={`${c.file}_25fps.mp4`}>MP4 <small>{c.mp4Size}</small></a>
+            <a class="pill" href={c.mp4} download={`${c.file}_25fps.mp4`} aria-label={`Download the ${c.name} cut as MP4, 25 fps, ${c.mp4Size}`}>MP4 <small>{c.mp4Size}</small></a>
           </div>
         </article>
       ))}
@@ -152,8 +152,8 @@ const facts = [
 
         <article class="hook" aria-labelledby="hook-title">
           <figure class="phone phone--hero">
-            <img class="phone-img" src="/work/fitrise/reels/hook.jpg" data-gif="/work/fitrise/reels/hook.gif" width="432" height="768" loading="lazy" decoding="async"
-              alt="Animated hook: a yellow pill with “Afgevallen…” blurs in, “en weer snel aangekomen?” appears word by word, a white comet streaks under it and JOJO-EFFECT pops letter by letter in glowing yellow, with floating question marks." />
+            <div class="phone-img"><LoopVideo name="fitrise-hook-full" ratio="9 / 16"
+              alt="Animated hook: a yellow pill with “Afgevallen…” blurs in, “en weer snel aangekomen?” appears word by word, a white comet streaks under it and JOJO-EFFECT pops letter by letter in glowing yellow, with floating question marks." /></div>
           </figure>
           <div class="hook-text">
             <p class="reels-step">01 · The hook</p>
@@ -163,7 +163,7 @@ const facts = [
               the pill, the line word by word, a comet underneath and JOJO-EFFECT popping letter by letter. Everything is
               on screen before he finishes the first sentence — then it keeps breathing, so the frame never freezes.
             </p>
-            <a class="pill phone-dl" href="/work/fitrise/reels/hook.gif" download="Fitrise_Reel_Hook.gif">GIF <small>7.2 MB</small></a>
+            <a class="pill phone-dl" href="/work/fitrise/reels/hook.gif" download="Fitrise_Reel_Hook.gif" aria-label="Download the reel hook as GIF, 7.2 MB">GIF <small>7.2 MB</small></a>
           </div>
         </article>
 
@@ -193,13 +193,13 @@ const facts = [
             {reels.map((r) => (
               <article class="phone-card" aria-labelledby={`${r.id}-title`}>
                 <figure class="phone">
-                  <img class="phone-img" src={r.still} data-gif={r.gif} width="360" height="640" alt={r.alt} loading="lazy" decoding="async" />
+                  <div class="phone-img"><LoopVideo name={r.loop} alt={r.alt} ratio="9 / 16" /></div>
                 </figure>
                 <div class="phone-meta">
                   <p class="phone-n">{r.n}{r.badge && <span class="phone-badge">{r.badge}</span>}</p>
                   <h4 id={`${r.id}-title`} class="h-display phone-title"><em>{r.name}</em></h4>
                   <p class="phone-text">{r.text}</p>
-                  <a class="pill phone-dl" href={r.gif} download={`${r.file}.gif`}>GIF <small>{r.gifSize}</small></a>
+                  <a class="pill phone-dl" href={r.gif} download={`${r.file}.gif`} aria-label={`Download caption style ${r.n}, ${r.name}, as GIF, ${r.gifSize}`}>GIF <small>{r.gifSize}</small></a>
                 </div>
               </article>
             ))}
@@ -271,7 +271,7 @@ const facts = [
 
   /* the GIF sits in a dark LED-board frame */
   .board { margin: 0; padding: clamp(8px, 1.2vw, 14px); background: var(--ink); border-radius: clamp(12px, 1.6vw, 22px); }
-  .board-img { width: 100%; height: auto; aspect-ratio: 1440 / 270; border-radius: 3px; background: #0A1C3D; }
+  .board-img { width: 100%; height: auto; aspect-ratio: 1440 / 270; border-radius: 3px; background: #0A1C3D; overflow: hidden; }
   .board figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 12px 4px 2px; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 55%, var(--ink)); }
   .board figcaption b { font-weight: 500; color: var(--cream); }
 
@@ -306,7 +306,7 @@ const facts = [
   .phones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 32px); }
   .phone-card { display: flex; flex-direction: column; }
   .phone { margin: 0; padding: clamp(6px, 0.7vw, 9px); background: var(--ink); border-radius: clamp(22px, 2.4vw, 30px); }
-  .phone-img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: clamp(16px, 1.8vw, 22px); background: #0A1C3D; object-fit: cover; }
+  .phone-img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: clamp(16px, 1.8vw, 22px); background: #0A1C3D; object-fit: cover; overflow: hidden; }
   .phone-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 18px; flex: 1; }
   .phone-n { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; font-weight: 600; color: var(--green); }
   .phone-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 4px 9px; }

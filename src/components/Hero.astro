@@ -7,7 +7,7 @@
    Reduced motion / motion switch off: no playback, stills only. Sizes are bound to the screen height
    as well, so the monitor sits in the first screen on 1366 × 768 laptops. */
 import LoopVideo from './LoopVideo.astro';
-import { person, clients, media, showPendingClientWork } from '../data/site';
+import { person, clients, media, showPendingClientWork, DRAFT } from '../data/site';
 import { timeline as allClips } from '../data/work';
 
 const timeline = allClips.filter((c) => showPendingClientWork || c.status !== 'ask');
@@ -49,7 +49,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
       </div>
       <figcaption class="mon-bar">
         <span class="mon-name"><b data-mon-title>{timeline[0].title}</b><span data-mon-client>{timeline[0].client}</span></span>
-        <a class="mon-open" href={timeline[0].href} data-mon-link>Open <span aria-hidden="true">→</span></a>
+        <a class="mon-open" href={timeline[0].href} data-mon-link aria-label={`Open ${timeline[0].title}`}>Open <span aria-hidden="true">→</span></a>
       </figcaption>
     </figure>
   </div>
@@ -97,7 +97,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
       <ul class="hc-list">
         {clients.map((c) => <li>{c.name} <span class="hc-what">{c.what}</span></li>)}
       </ul>
-      <p class="hc-upwork draft-only-hero">Upwork record goes here: rating · Job Success · jobs · link (missing)</p>
+      {DRAFT && <p class="hc-upwork draft-only-hero">Upwork record goes here: rating · Job Success · jobs · link (missing)</p>}
     </div>
   )}
 </section>
@@ -131,7 +131,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
   }
   .hero-ctas { margin-top: clamp(16px, 2.6svh, 30px); display: flex; flex-wrap: wrap; gap: 12px; }
   .play-mini { width: 0; height: 0; border-block: 5.5px solid transparent; border-left: 9px solid currentColor; }
-  .btn-note { font-weight: 500; opacity: 0.6; font-feature-settings: 'tnum'; }
+  .btn-note { font-weight: 500; opacity: 0.75; font-feature-settings: 'tnum'; }
 
   /* ---------- Program monitor ---------- */
   .monitor { margin: 0; border-radius: 18px; background: var(--ink); padding: 8px; color: var(--cream); }
@@ -216,6 +216,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
   }
   .tl-clip.is-on .tl-link { outline-color: var(--cream); filter: none; }
   .tl-link:hover { filter: none; }
+  .tl-link:focus-visible { outline-color: var(--cream); outline-width: 3px; filter: none; }
   .tl-name {
     position: absolute; left: 0; right: 0; bottom: 0;
     display: flex; flex-direction: column; gap: 0;
@@ -305,6 +306,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
     let pos = 0.02;          // playhead 0..1 along the track
     let active = -1;
     let hovering = false;
+    let focused = false;     // a clip has keyboard focus: the playhead waits on it
     let scrubbing = false;
     let resumeAt = 0;
     let inView = true;
@@ -332,7 +334,10 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
       items[i].classList.add('is-on');
       if (monTitle) monTitle.textContent = clips[i].dataset.title ?? '';
       if (monClient) monClient.textContent = clips[i].dataset.client ?? '';
-      if (monLink) monLink.href = clips[i].dataset.href ?? '#work';
+      if (monLink) {
+        monLink.href = clips[i].dataset.href ?? '#work';
+        monLink.setAttribute('aria-label', `Open ${clips[i].dataset.title ?? 'this project'}`);
+      }
       const f = fig(i);
       if (f && a && inView && !off() && !a.saveData && !scrubbing) a.play(f);
       else if (f && a && !off()) a.load(f);   // ready for scrubbing
@@ -368,7 +373,7 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
     const tick = (now: number) => {
       const dt = Math.min(64, now - (last || now));
       last = now;
-      if (!phone.matches && inView && !off() && !hovering && now > resumeAt) {
+      if (!phone.matches && inView && !off() && !hovering && !focused && now > resumeAt) {
         pos += dt / PERIOD;
         if (pos > 1) pos = 0;
         layoutDesktop();
@@ -403,6 +408,24 @@ const ticks = Array.from({ length: totalSec / 5 + 1 }, (_, i) => i * 5);
       if (f && a && inView && !off() && !a.saveData) a.play(f);
     });
     track.addEventListener('scroll', () => { if (phone.matches) layoutPhone(); }, { passive: true });
+
+    /* keyboard: Tab through the clips and the playhead jumps to the focused one and holds there */
+    track.addEventListener('focusin', (e) => {
+      const li = (e.target as HTMLElement).closest<HTMLElement>('[data-tl-clip]');
+      if (!li) return;
+      focused = true;
+      if (phone.matches) {
+        li.scrollIntoView({ inline: 'center', block: 'nearest', behavior: off() ? 'auto' : 'smooth' });
+      } else {
+        pos = (li.offsetLeft - track.offsetLeft + li.offsetWidth / 2) / track.offsetWidth;
+        layoutDesktop();
+      }
+    });
+    track.addEventListener('focusout', (e) => {
+      if (track.contains(e.relatedTarget as Node)) return;
+      focused = false;
+      resumeAt = performance.now() + 1200;
+    });
 
     new IntersectionObserver(([e]) => {
       inView = e.isIntersecting;

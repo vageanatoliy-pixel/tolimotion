@@ -4,7 +4,7 @@
    without one the block shows the mark instead of a grey "Photo" circle. */
 import Spark from './Spark.astro';
 import Marker from './Marker.astro';
-import { person, facts, quotes } from '../data/site';
+import { person, facts, quotes, DRAFT } from '../data/site';
 ---
 <section class="section about" id="about" aria-labelledby="about-title">
   <div class="container about-grid">
@@ -14,7 +14,7 @@ import { person, facts, quotes } from '../data/site';
       ) : (
         <div class="photo-empty" aria-hidden="true">
           <Spark size={64} color="var(--cream)" />
-          <span class="draft-note">Portrait 4:5 goes here</span>
+          {DRAFT && <span class="draft-note">Portrait 4:5 goes here</span>}
         </div>
       )}
     </div>
@@ -59,7 +59,7 @@ import { person, facts, quotes } from '../data/site';
         </figure>
       ))}
     </div>
-  ) : (
+  ) : DRAFT && (
     <div class="container quotes quotes--draft" aria-hidden="true">
       {['DestCert — marketing lead', 'Fitrise — owner', 'Liveshops — founder'].map((who) => (
         <figure class="quote quote--slot">

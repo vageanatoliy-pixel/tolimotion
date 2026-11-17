@@ -4,7 +4,8 @@
    with the service preselected. */
 import LoopVideo from './LoopVideo.astro';
 import Marker from './Marker.astro';
-import { services } from '../data/site';
+import { services as allServices, DRAFT } from '../data/site';
+const services = allServices.filter((s) => DRAFT || !s.draft);
 ---
 <section class="section services" id="services" aria-labelledby="services-title">
   <div class="container">
@@ -34,7 +35,7 @@ import { services } from '../data/site';
           <div class="sv-price">
             <p class="sv-from"><span>From</span> {s.from}</p>
             <p class="sv-time">{s.time}</p>
-            <a class="sv-cta" href={`#contact`} data-service={s.name}>Ask about this <span aria-hidden="true">→</span></a>
+            <a class="sv-cta" href={`#contact`} data-service={s.name}>Ask about this<span class="sr-only">: {s.name}</span> <span aria-hidden="true">→</span></a>
           </div>
         </li>
       ))}
