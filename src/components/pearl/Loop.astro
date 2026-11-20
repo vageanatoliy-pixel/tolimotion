@@ -1,0 +1,14 @@
+---
+/* Silent preview loop: a still first; the MP4 (no audio) loads only near the screen, plays while visible,
+   pauses off-screen, never autoplays under reduced motion, the motion switch or Save-Data (then hover/focus
+   plays it). Files: /public/loops/<name>.mp4 + .jpg. Behaviour lives in src/scripts/pearl.js. */
+import { media } from '../../data/site';
+interface Props { name: string; alt: string; ratio?: string; fit?: 'cover' | 'contain'; pos?: string; class?: string; chip?: string; eager?: boolean }
+const { name, alt, ratio = '16 / 9', fit, pos, class: cls = '', chip, eager = false } = Astro.props;
+const style = [`--ratio:${ratio}`, fit && `--fit:${fit}`, pos && `--pos:${pos}`].filter(Boolean).join(';');
+---
+<figure class={`loop ${cls}`.trim()} style={style}>
+  <img src={`/loops/${name}.jpg`} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+  <video data-src={media(`/loops/${name}.mp4`)} muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+  {chip && <span class="loop__chip">{chip}</span>}
+</figure>

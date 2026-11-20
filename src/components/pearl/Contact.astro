@@ -1,0 +1,52 @@
+---
+/* The brief: mail address with Copy, three promises, and a form that opens the visitor's own mail app with the
+   brief filled in (nothing is stored on the site). "Ask about this" links on the services land on #brief and
+   preselect the service. Behaviour: src/scripts/pearl.js. */
+import { person, services } from '../../data/site';
+import { contact } from '../../data/home';
+const live = services.filter((s) => !s.draft);
+const w = contact.title.split(' ');
+const head = w.slice(0, -3).join(' '), mid = w[w.length - 3], tail = w.slice(-2).join(' ');
+---
+<section class="wrap talk section" id="contact" aria-labelledby="contact-title">
+  <h2 class="h-giant talk__title reveal" id="contact-title">{head} <span class="nb">{mid} <span class="dot" aria-hidden="true"></span></span> <span class="nb">{tail}</span></h2>
+  <div class="talk__grid">
+    <div class="talk__side reveal">
+      <p class="t-lead">{contact.sub}</p>
+      <p class="talk__mailrow"><a class="talk__mail" href={`mailto:${person.email}`}>{person.email}</a><button class="pill pill--white pill--sm" type="button" data-copy={person.email} aria-label={`Copy ${person.email}`}>Copy</button></p>
+      <ol class="promises">
+        {contact.promises.map((p) => <li><span>{p}</span></li>)}
+      </ol>
+    </div>
+    <form class="brief reveal" id="brief" data-brief data-mail={person.email} action={`mailto:${person.email}`} method="post" enctype="text/plain">
+      <label><span>Your name <span class="opt">optional</span></span><input name="name" autocomplete="name" /></label>
+      <label><span>Company or website <span class="opt">optional</span></span><input name="company" autocomplete="organization" /></label>
+      <div class="row2">
+        <label>What do you need?
+          <select name="service" id="brief-service">
+            <option value="">Choose…</option>
+            {live.map((s) => <option>{s.name}</option>)}
+            <option>Ongoing work</option>
+            <option>Something else</option>
+          </select>
+        </label>
+        <label>Budget
+          <select name="budget">
+            <option value="">Choose…</option>
+            {contact.budgets.map((b) => <option>{b}</option>)}
+          </select>
+        </label>
+      </div>
+      <label><span>Deadline <span class="opt">optional</span></span><input name="deadline" placeholder="e.g. mid-January" /></label>
+      <label>A few lines about it<textarea name="message" rows="4" required aria-describedby="brief-err" placeholder="Product, audience, length, formats, links to references…"></textarea></label>
+      <p class="brief-err" id="brief-err" role="alert"></p>
+      <button class="pill pill--solid pill--lg" type="submit">Send the brief <span class="arr" aria-hidden="true">→</span></button>
+      <p class="brief-note">{contact.note}</p>
+      <div class="brief-done" data-brief-done hidden tabindex="-1" role="group" aria-label="Email app didn’t open?">
+        <p><b>Email app didn’t open?</b> Copy the brief and send it to <a class="link" href={`mailto:${person.email}`}>{person.email}</a> from any mailbox.</p>
+        <textarea id="brief-text" readonly rows="6" data-brief-text aria-label="Your brief"></textarea>
+        <button class="pill pill--white" type="button" data-brief-copy>Copy the brief</button>
+      </div>
+    </form>
+  </div>
+</section>

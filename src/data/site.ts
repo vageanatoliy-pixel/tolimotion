@@ -45,37 +45,42 @@ export const availability = {
   label: 'Taking new projects',
 };
 
-export type Service = { id: string; name: string; line: string; items: string[]; from: string; time: string; loop: string; ratio?: string; draft?: boolean };
+export type Service = { id: string; name: string; line: string; items: string[]; from: string; time: string; loop: string; alt?: string; pos?: string; ratio?: string; draft?: boolean };
 export const services: Service[] = [
   {
     id: 'product', name: 'Product & UI animation',
     line: 'Your app, shown working: walkthroughs and feature launches built from your own Figma screens.',
     items: ['UI rebuilt as clean, animatable layers', 'Cursor, clicks and camera moves that follow the story', '16:9, 1:1 and 9:16 cuts'],
     from: '$900 for 3 product ads, all formats', time: 'About 10 working days', loop: 'cissp-ad2-real',
+    alt: 'CISSP ad: “Works just like the real exam” above a timed exam question; the cursor picks an answer.',
   },
   {
     id: 'ads', name: 'Video ads',
     line: 'Hook-first ads for Meta, YouTube and LinkedIn, delivered in every format your media buyer needs.',
     items: ['Script polish and hook options', 'Kinetic type, captions, sound design', 'Safe zones for Reels and TikTok'],
     from: '$150 for a trial ad, one format', time: '5 working days', loop: 'cissp-ad1-weak',
+    alt: 'CISSP ad: “More time on your weak spots” — the review guide re-sorts and the weakest exam domains move to the top.',
   },
   {
     id: 'explainers', name: 'Explainers',
     line: 'One idea explained in 60–90 seconds: script, storyboard, animatic, animation and mix.',
     items: ['Storyboard and style frames before animation', 'Voice-over casting and mix', '16:9 master + 9:16 cut'],
     from: '$1,200', time: '3–4 weeks', loop: 'adv-overhead',
+    alt: 'Advertima explainer: a supermarket seen from above, shoppers tagged as they walk the aisles, and the line “Segment turns attributes into addressable media audiences.”',
   },
   {
     id: 'brand', name: 'Logo & brand motion',
     line: 'Logo reveals, app splash screens, LED and event loops, lower thirds and titles.',
     items: ['ProRes with alpha, MP4, Lottie JSON', 'Tested in a Lottie player before delivery', 'Screen-size masters for LED walls'],
     from: '$150', time: 'About 1 week', loop: 'adv-logo',
+    alt: 'Advertima logo reveal: the wordmark resolves on black above the line “Every Store. Smarter.”',
   },
   {
     id: 'editing', name: 'Video editing',
     line: 'Interviews, podcasts, events and reels — cut tight, captioned, coloured and mixed.',
     items: ['Speaker cuts and cold opens', 'Captions in your brand style', 'Cut-downs for every platform'],
-    from: '$350 for a 3–5 minute edit', time: 'About 1 week', loop: 'fitrise-reel-hook',
+    from: '$350 for a 3–5 minute edit', time: 'About 1 week', loop: 'fitrise-reel-hook', pos: '50% 60%',
+    alt: 'Fitrise reel: a coach talks to camera while the hook “Afgevallen… en weer snel aangekomen? JOJO-EFFECT” builds in yellow captions.',
   },
   {
     id: 'partner', name: 'Monthly motion partner', draft: true, // DECISION FOR TOLI: buyers asked for a number here

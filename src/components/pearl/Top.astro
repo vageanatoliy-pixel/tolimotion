@@ -1,0 +1,24 @@
+---
+/* Fixed header: the mark (home), section links, availability, one call to action.
+   On the home page the links are "#about"; everywhere else "/#about". */
+import Mark from './Mark.astro';
+import { person, availability } from '../../data/site';
+interface Props { home?: boolean }
+const { home = false } = Astro.props;
+const p = home ? '' : '/';
+const links = [
+  { href: `${p}#about`, label: 'About' },
+  { href: `${p}#work`, label: 'Work' },
+  { href: `${p}#services`, label: 'Services' },
+  { href: `${p}#process`, label: 'Process' },
+  { href: `${p}#faq`, label: 'FAQ' },
+];
+---
+<header class="top" data-top>
+  <a class="top__logo" href={home ? '#top' : '/'} aria-label={`${person.name} — home`}><Mark /></a>
+  <nav class="top__nav" aria-label="Main">
+    {links.map((l) => <a href={l.href}>{l.label}</a>)}
+  </nav>
+  {availability.label && <span class="avail"><i aria-hidden="true"></i>{availability.label}</span>}
+  <a class="pill pill--solid top__cta" href={`${p}#contact`}>Start a project</a>
+</header>

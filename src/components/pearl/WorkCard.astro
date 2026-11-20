@@ -1,0 +1,23 @@
+---
+/* A work card: cover loop (or three vertical loops), client, title, one line, role and meta.
+   With `href` the whole card is a link (case study); otherwise it is an article with an id to jump to. */
+import Loop from './Loop.astro';
+import type { Work } from '../../data/work';
+interface Props { w: Work; href?: string; cta?: string; anchor?: boolean }
+const { w, href, cta, anchor = true } = Astro.props;
+const Tag = href ? 'a' : 'article';
+---
+<Tag class="card reveal" id={anchor ? w.id : undefined} href={href} data-loop-host>
+  <div class={`card__cover${w.trio ? ' card__cover--trio' : ''}`}>
+    {w.trio
+      ? w.trio.map((t) => <Loop name={t.loop} alt={t.alt} ratio="9 / 16" chip={t.label} />)
+      : <Loop name={w.loop} alt={w.alt} ratio={w.span === 'tall' ? '16 / 9' : w.ratio} fit={w.fit} pos={w.pos} />}
+  </div>
+  <div class="card__body">
+    <p class="card__client">{w.client}</p>
+    <h3>{w.title}{href && <span class="arr" aria-hidden="true"> →</span>}</h3>
+    <p class="card__line">{w.line}</p>
+    <p class="card__meta"><span>{w.role}</span><span>{w.meta}</span></p>
+    {cta && <span class="pill pill--white pill--sm">{cta}</span>}
+  </div>
+</Tag>

@@ -1,33 +1,346 @@
 ---
-import Base from '../layouts/Base.astro';
-import Header from '../components/Header.astro';
-import Hero from '../components/Hero.astro';
-import WorkGrid from '../components/WorkGrid.astro';
-import Process from '../components/Process.astro';
-import Services from '../components/Services.astro';
-import AiNote from '../components/AiNote.astro';
-import Agencies from '../components/Agencies.astro';
-import About from '../components/About.astro';
-import Faq from '../components/Faq.astro';
-import Contact from '../components/Contact.astro';
-import Footer from '../components/Footer.astro';
-import ReelDialog from '../components/ReelDialog.astro';
-import MobileCta from '../components/MobileCta.astro';
+/* Home: the whole portfolio on one page in the "Pearl" look (owner decision 2026-11-21).
+   Order: hero → about → work (three full cases + smaller pieces) → services and prices → process →
+   agencies → AI → FAQ → contact. Copy comes from src/data (site.ts, work.ts, cases.ts, home.ts). */
+import Pearl from '../layouts/Pearl.astro';
+import Loop from '../components/pearl/Loop.astro';
+import Film from '../components/pearl/Film.astro';
+import Stage from '../components/pearl/Stage.astro';
+import Facts from '../components/pearl/Facts.astro';
+import Features from '../components/pearl/Features.astro';
+import WorkCard from '../components/pearl/WorkCard.astro';
+import Contact from '../components/pearl/Contact.astro';
+import { person, clients, services, facts, agencies, steps, faq } from '../data/site';
+import { works } from '../data/work';
+import { cisspAds, cisspFacts, cissp, fitCuts, fitReels, fitTitles, fitFacts, fitrise } from '../data/cases';
+import { hero, about, workIntro, servicesIntro, process, agenciesIntro, ai, faqIntro } from '../data/home';
+
+const W = Object.fromEntries(works.map((w) => [w.id, w]));
+const live = services.filter((s) => !s.draft);
+const liveFaq = faq.filter((f) => !f.draft && f.a);
+const clientAnchor: Record<string, string> = {
+  'Destination Certification': '#work-cissp', Advertima: '#work-advertima', Fitrise: '#work-fitrise', Liveshops: '#work-liveshops',
+};
+const adChip = (n: string, len: string) => `Watch ad ${Number(n)} · 0:${len.replace(/\D/g, '').padStart(2, '0')}`;
+const privateMail = `mailto:${person.email}?subject=${encodeURIComponent('Private reel request')}`;
 ---
-<Base preloadImage="/loops/cissp-ad2-adapts.jpg" motion skip={{ href: '#work', label: 'Skip to the work' }}>
-  <Header />
+<Pearl home skip={{ href: '#work', label: 'Skip to the work' }}>
   <main id="main">
-    <Hero />
-    <WorkGrid />
-    <Process />
-    <Services />
-    <Agencies />
-    <AiNote />
-    <About />
-    <Faq />
+
+    <!-- ============ HERO ============ -->
+    <section class="hero section" id="top">
+      <p class="wrap crumbs"><span><b>{person.name}</b></span><span>{person.role}</span><span>{person.years} years full-time</span><span>{person.city}</span></p>
+      <div class="wrap hero__body">
+        <h1 class="h-hero indent">{hero.h1}</h1>
+        <div class="hero__intro">
+          <p class="t-lead">{hero.lead}</p>
+          <div class="hero__cta">
+            <a class="pill pill--solid pill--lg" href="#contact">Start a project <span class="arr" aria-hidden="true">→</span></a>
+            <button class="pill pill--white pill--lg" type="button" data-play="reel"><span class="tri" aria-hidden="true"></span>Watch the reel <span class="note">{hero.reel.length}</span></button>
+          </div>
+          <div class="clients">
+            <p class="label">Clients</p>
+            <ul>
+              {clients.map((c) => (
+                <li><a href={clientAnchor[c.name] ?? '#work'}>{c.name} <span>{c.what}</span></a></li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="hero__media">
+        <Film id="reel" src={hero.reel.src} poster={hero.reel.poster} title="Showreel" chip={`Watch the reel · ${hero.reel.length}`} />
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="wrap about section" id="about" aria-labelledby="about-title">
+      <aside class="about__side">
+        <Stage>About</Stage>
+        <a class="link-arrow" href={`mailto:${person.email}`}>{person.email} <span aria-hidden="true">↗</span></a>
+        <button class="pill pill--white pill--sm" type="button" data-copy={person.email} aria-label={`Copy ${person.email}`}>Copy</button>
+      </aside>
+      <div class="about__main">
+        <div class="about__text reveal">
+          <h2 class="h-xl" id="about-title">{about.title}</h2>
+          {about.paragraphs.map((p) => <p class="t-lead-s">{p}</p>)}
+        </div>
+        <ul class="trio reveal">
+          {about.trio.map(([t, d]) => <li><h3>{t}</h3><p>{d}</p></li>)}
+        </ul>
+        <Facts rows={facts} class="reveal" />
+      </div>
+    </section>
+
+    <!-- ============ WORK ============ -->
+    <section class="section" id="work" aria-labelledby="work-title">
+      <div class="wrap work-head">
+        <div class="glow glow--a" aria-hidden="true"></div>
+        <h2 class="h-giant reveal" id="work-title">{workIntro.title}</h2>
+        <div class="work-head__lead reveal">
+          <Stage>{workIntro.label}</Stage>
+          <p>{workIntro.note[0]}<a class="link" href="#contact">{workIntro.note[1]}</a>{workIntro.note[2]}</p>
+        </div>
+      </div>
+
+      <div class="wrap stack cases">
+
+        <!-- 01 · CISSP MasterClass ads -->
+        <article class="case" id={W['work-cissp'].id}>
+          <div class="block indent reveal">
+            <Stage num="01">{W['work-cissp'].client}</Stage>
+            <h3 class="h-xl">{W['work-cissp'].title}</h3>
+            <div class="case__intro">
+              <div class="prose">
+                <p class="t-lead">{W['work-cissp'].line}</p>
+                <p class="case__links"><a class="pill pill--white" href="/work/cissp-masterclass-ads/">{W['work-cissp'].cta}<span class="sr-only">: {W['work-cissp'].title}, with storyboards and downloads</span> <span class="arr" aria-hidden="true">→</span></a></p>
+              </div>
+              <Facts rows={cisspFacts} />
+            </div>
+          </div>
+          {cisspAds.map((ad) => (
+            <Fragment>
+              <div class="block block--sub indent reveal">
+                <Stage num={`Ad ${ad.n}`} cap={false}>{ad.len}</Stage>
+                <h4 class="h-l">{ad.name}</h4>
+                <p class="note">{ad.text}</p>
+              </div>
+              <figure class="media reveal">
+                <Film id={ad.id} src={ad.film.src} poster={ad.film.poster} title={`Ad ${ad.n}, ${ad.name}`} chip={adChip(ad.n, ad.len)} />
+                <figcaption><b>16:9</b><span>YouTube · Web</span><span>{ad.film.note}</span></figcaption>
+              </figure>
+            </Fragment>
+          ))}
+          <div class="formats reveal">
+            {cisspAds.flatMap((ad) => ad.formats.map((f) => (
+              <figure data-loop-host>
+                <Loop name={f.loop} alt={f.alt} ratio={f.ratio === '1:1' ? '1 / 1' : '9 / 16'} />
+                <figcaption><span><b>Ad {ad.n} · {f.ratio}</b>{f.use}</span></figcaption>
+              </figure>
+            )))}
+          </div>
+          <p class="note indent reveal">{cissp.reframed}</p>
+          <Features items={cissp.notes} level="h4" class="reveal" label="How the CISSP ads were made" />
+        </article>
+
+        <!-- 02 · Advertima -->
+        <article class="case" id={W['work-advertima'].id}>
+          <div class="block indent reveal">
+            <Stage num="02">{W['work-advertima'].client}</Stage>
+            <h3 class="h-xl">{W['work-advertima'].title}</h3>
+            <div class="prose"><p class="t-lead">{W['work-advertima'].line}</p></div>
+            <ul class="meta"><li>{W['work-advertima'].role}</li><li>{W['work-advertima'].meta}</li></ul>
+            <p class="case__links"><a class="pill pill--white" href="/work/advertima-audience-ai/">{W['work-advertima'].cta}<span class="sr-only">: {W['work-advertima'].title}, Advertima</span> <span class="arr" aria-hidden="true">→</span></a></p>
+          </div>
+          <figure class="media reveal">
+            <Film id="advertima" src={W['work-advertima'].film!.src} poster={W['work-advertima'].film!.poster} title="Audience AI explainer, Advertima" chip={W['work-advertima'].film!.label} />
+            <figcaption><b>16:9</b><span>42 s · sound on</span></figcaption>
+          </figure>
+          <div class="pair reveal">
+            <Loop name="adv-holo" alt="Advertima explainer: a family in a supermarket turns into glowing anonymous figures inside a sensor view, with small data labels." cls="loop--lg" />
+            <Loop name={W['work-advertima'].loop} alt={W['work-advertima'].alt} cls="loop--lg" />
+          </div>
+        </article>
+
+        <!-- smaller pieces: product UI and app motion first, they are what the services sell -->
+        <div class="cards">
+          {['work-cat', 'work-liveshops', 'work-review', 'work-formats'].map((id) => <WorkCard w={W[id]} />)}
+        </div>
+
+        <!-- 03 · Fitrise -->
+        <article class="case" id={W['work-fitrise'].id}>
+          <div class="block indent reveal">
+            <Stage num="03">{W['work-fitrise'].client}</Stage>
+            <h3 class="h-xl">{W['work-fitrise'].title}</h3>
+            <div class="case__intro">
+              <div class="prose">
+                <p class="t-lead">{W['work-fitrise'].line}</p>
+                <p>{fitrise.lead}</p>
+                <p class="case__links"><a class="pill pill--white" href="/work/fitrise-stadium-intro/">{W['work-fitrise'].cta}<span class="sr-only">: {W['work-fitrise'].title}, with downloads</span> <span class="arr" aria-hidden="true">→</span></a></p>
+              </div>
+              <Facts rows={fitFacts} />
+            </div>
+          </div>
+          {fitCuts.map((c) => (
+            <Fragment>
+              <div class="block block--sub indent reveal">
+                <Stage num={c.n} cap={false}>Loop · 15 s</Stage>
+                <h4 class="h-l">{c.name} cut</h4>
+                <p class="note">{c.text}</p>
+              </div>
+              <figure class="media reveal" data-loop-host>
+                <Loop name={c.loop} alt={c.alt} ratio="16 / 3" cls="loop--led" />
+                <figcaption><b>1440 × 270</b><span>{c.note}</span></figcaption>
+              </figure>
+            </Fragment>
+          ))}
+          <Features items={fitrise.notes} level="h4" class="reveal" label="Built for the wall" />
+
+          <div class="block indent reveal">
+            <Stage>Instagram Reels</Stage>
+            <h4 class="h-xl">{fitrise.reels.title}</h4>
+            <p class="note">{fitrise.reels.lead}</p>
+          </div>
+          <div class="duo reveal" data-loop-host>
+            <Loop name={fitrise.reels.hook.loop} alt={fitrise.reels.hook.alt} ratio="9 / 16" />
+            <div class="block block--sub">
+              <Stage num="01" cap={false}>The hook</Stage>
+              <h5 class="h-l">{fitrise.reels.hook.title}</h5>
+              <p class="note">{fitrise.reels.hook.copy}</p>
+            </div>
+          </div>
+          <div class="block block--sub indent reveal">
+            <Stage num="02" cap={false}>Titles</Stage>
+            <h5 class="h-l">{fitrise.reels.titlesTitle}</h5>
+          </div>
+          <ul class="phones reveal">
+            {fitTitles.map((t) => (
+              <li class="phone">
+                <img class="shot" src={t.img} width="540" height="960" alt={t.alt} loading="lazy" decoding="async" />
+                <p class="n">{t.n}{t.badge && <span class="badge">{t.badge}</span>}</p>
+                <h6>{t.name}</h6>
+                <p>{t.text}</p>
+              </li>
+            ))}
+          </ul>
+          <div class="block block--sub indent reveal">
+            <Stage num="03" cap={false}>Captions</Stage>
+            <h5 class="h-l">{fitrise.reels.captionsTitle}</h5>
+          </div>
+          <ul class="phones reveal">
+            {fitReels.map((r) => (
+              <li class="phone" data-loop-host>
+                <Loop name={r.loop} alt={r.alt} ratio="9 / 16" />
+                <p class="n">{r.n}{r.badge && <span class="badge">{r.badge}</span>}</p>
+                <h6>{r.name}</h6>
+                <p>{r.text}</p>
+              </li>
+            ))}
+          </ul>
+          <Features items={fitrise.reels.notes} level="h4" class="reveal" label="How the reels were made" />
+        </article>
+
+        <div class="private reveal">
+          {workIntro.privateWork.map(([t, d]) => (
+            <a href={privateMail}><b>{t}</b><span>{d}</span><i>Ask for the private reel <span class="arr" aria-hidden="true">→</span></i></a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="wrap section" id="services" aria-labelledby="services-title">
+      <div class="glow glow--b" aria-hidden="true"></div>
+      <div class="stack">
+        <div class="head2 reveal">
+          <div class="block">
+            <Stage>Services and prices</Stage>
+            <h2 class="h-xl" id="services-title">{servicesIntro.title}</h2>
+          </div>
+          <p>{servicesIntro.note}</p>
+        </div>
+        <ul class="services">
+          {live.map((s) => (
+            <li class="sv reveal" data-loop-host>
+              <div class="sv__media"><Loop name={s.loop} alt={s.alt ?? `${s.name} example`} ratio="16 / 10" pos={s.pos} /></div>
+              <div>
+                <h3>{s.name}</h3>
+                <p class="sv__line">{s.line}</p>
+                <ul class="sv__items">{s.items.map((it) => <li>{it}</li>)}</ul>
+              </div>
+              <div class="sv__price">
+                <p class="sv__from"><span>From</span>{s.from}</p>
+                <p class="sv__time">{s.time}</p>
+                <a class="pill pill--line pill--sm" href="#brief" data-service={s.name}>Ask about this<span class="sr-only">: {s.name}</span> <span class="arr" aria-hidden="true">→</span></a>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p class="sv-foot reveal"><b>Agencies:</b> white-label under NDA, your specs and naming — <a class="link" href="#agencies">how it works</a>. <b>Ongoing work:</b> an hourly contract with a weekly limit you set — ask for the rate.</p>
+      </div>
+    </section>
+
+    <!-- ============ PROCESS ============ -->
+    <section class="wrap section" id="process" aria-labelledby="process-title">
+      <div class="stack">
+        <div class="block indent reveal">
+          <Stage>Process</Stage>
+          <h2 class="h-xl" id="process-title">{process.title}</h2>
+          <p class="note">{process.lead}</p>
+        </div>
+        <ol class="steps reveal">
+          {steps.map((s) => <li class="step"><p class="n">{s.n}</p><h3>{s.name}</h3><p>{s.text}</p><p class="you">{s.you}</p></li>)}
+        </ol>
+        <div class="inside reveal">
+          <div class="inside__head">
+            <Stage>Inside one project</Stage>
+            <h3 class="h-l">{process.inside.title}</h3>
+            <p>{process.inside.lead}</p>
+          </div>
+          <div class="inside__stages">
+            <figure data-loop-host><Loop name={process.inside.rough.loop} alt={process.inside.rough.alt} /><figcaption><span class="date">{process.inside.rough.date}</span><b>{process.inside.rough.name}</b>{process.inside.rough.text}</figcaption></figure>
+            <figure class="inside__looks">
+              <div class="looks">
+                {process.inside.looks.map((l) => (
+                  <div class={`look${l.pick ? ' look--pick' : ''}`}><img src={l.img} alt={`Style frame ${l.tag}, ${l.name}: “An inch deep.”`} loading="lazy" decoding="async" width="960" height="540" /><span>{l.tag} · {l.verdict}</span></div>
+                ))}
+              </div>
+              <figcaption><span class="date">{process.inside.looksCaption.date}</span><b>{process.inside.looksCaption.name}</b>{process.inside.looksCaption.text}</figcaption>
+            </figure>
+            <figure data-loop-host><Loop name={process.inside.final.loop} alt={process.inside.final.alt} /><figcaption><span class="date">{process.inside.final.date}</span><b>{process.inside.final.name}</b>{process.inside.final.text}</figcaption></figure>
+          </div>
+          <div class="decision">
+            <figure data-loop-host><Loop name={process.inside.before.loop} alt={process.inside.before.alt} /><figcaption>{process.inside.before.text}</figcaption></figure>
+            <span class="arrow" aria-hidden="true">→</span>
+            <figure data-loop-host><Loop name={process.inside.after.loop} alt={process.inside.after.alt} /><figcaption>{process.inside.after.text}</figcaption></figure>
+            <p><b>Decision:</b> {process.inside.decision}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FOR AGENCIES ============ -->
+    <section class="wrap section" id="agencies" aria-labelledby="agencies-title">
+      <div class="stack">
+        <div class="block indent reveal">
+          <Stage>For agencies</Stage>
+          <h2 class="h-xl" id="agencies-title">{agenciesIntro.title}</h2>
+          <p class="note">{agenciesIntro.lead}</p>
+        </div>
+        <Features items={agencies.points.map((p) => [p.t, p.d] as [string, string])} cols={2} class="reveal" />
+      </div>
+    </section>
+
+    <!-- ============ AI ============ -->
+    <section class="wrap section" id="ai" aria-labelledby="ai-title">
+      <div class="glow glow--c" aria-hidden="true"></div>
+      <div class="stack">
+        <div class="block indent reveal">
+          <Stage>AI in the pipeline</Stage>
+          <h2 class="h-xl" id="ai-title">{ai.title}</h2>
+        </div>
+        <div class="ai reveal">
+          <figure data-loop-host><Loop name={ai.loop} alt={ai.alt} /><figcaption>{ai.caption}</figcaption></figure>
+          <div class="cols3">
+            {ai.cols.map(([h, items]) => <div><h3>{h}</h3><ul>{items.map((i) => <li>{i}</li>)}</ul></div>)}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="wrap about section" id="faq" aria-labelledby="faq-title">
+      <aside class="about__side">
+        <Stage>Questions</Stage>
+        <h2 class="h-l" id="faq-title">{faqIntro.title}</h2>
+        <p class="t-small muted">{faqIntro.side}</p>
+      </aside>
+      <div class="faq reveal">
+        {liveFaq.map((f) => <details><summary><span>{f.q}</span><i aria-hidden="true"></i></summary><p>{f.a}</p></details>)}
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
     <Contact />
   </main>
-  <Footer />
-  <ReelDialog />
-  <MobileCta />
-</Base>
+</Pearl>

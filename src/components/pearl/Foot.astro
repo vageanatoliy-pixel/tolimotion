@@ -1,0 +1,15 @@
+---
+/* Footer: name, role, city with live local time, mail, the motion switch (pauses every loop and animation). */
+import { person } from '../../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="wrap foot">
+  <p><b>{person.name}</b> — {person.role}. {person.city} — <span data-localtime data-tz={person.tz}>Kyiv time</span></p>
+  <div class="foot__right">
+    <a class="link" href={`mailto:${person.email}`}>{person.email}</a>
+    {person.upworkUrl && <a class="link" href={person.upworkUrl} rel="me noopener" target="_blank">Upwork</a>}
+    {person.socials.map((s) => <a class="link" href={s.href} rel="me noopener" target="_blank">{s.label}</a>)}
+    <button class="motion-switch" type="button" data-motion-switch aria-pressed="true"><i aria-hidden="true"></i><span data-motion-label>Motion on</span></button>
+  </div>
+  <p class="foot__copy">© {year} {person.name}</p>
+</footer>

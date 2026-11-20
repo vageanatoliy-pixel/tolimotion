@@ -1,0 +1,88 @@
+---
+/* The one layout of the site ("Pearl", 2026-11-21): head (SEO, social cards, structured data, fonts),
+   the pastel aurora behind the first screen, header, footer and the behaviour script.
+   Pages pass their own title / description; `home` switches the header links between "#x" and "/#x". */
+import '../styles/pearl.css';
+import Top from '../components/pearl/Top.astro';
+import Foot from '../components/pearl/Foot.astro';
+import { person } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  home?: boolean;
+  preloadImage?: string;
+  skip?: { href: string; label: string };
+}
+const {
+  title = 'Toli Herasymenko — Motion designer & video editor for tech products',
+  description = 'Ads, explainers and product videos for SaaS, EdTech and tech brands — scripted, designed, animated and edited by one senior motion designer. 8 years full-time. Every format, fast rounds.',
+  image = '/og.jpg',
+  noindex = false,
+  home = false,
+  preloadImage,
+  skip = { href: '#main', label: 'Skip to content' },
+} = Astro.props;
+const site = Astro.site ?? new URL('https://tolimotion.com');
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+const ld = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: person.role,
+  url: site.href,
+  email: `mailto:${person.email}`,
+  address: { '@type': 'PostalAddress', addressLocality: 'Uzhhorod', addressCountry: 'UA' },
+  knowsAbout: ['Motion design', 'Video editing', 'Explainer videos', 'Product animation', 'Video ads', 'After Effects'],
+  sameAs: [person.upworkUrl, ...person.socials.map((s) => s.href)].filter(Boolean),
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="preload" href="/fonts/outfit-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
+    {preloadImage && <link rel="preload" href={preloadImage} as="image" fetchpriority="high" />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="tolimotion" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#f8f8fb" />
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    <script is:inline>
+      /* Before the first paint: the footer's motion switch is remembered per visitor (storage can be blocked). */
+      (function () {
+        var d = document.documentElement;
+        try { if (localStorage.getItem('motion') === 'off') d.dataset.motion = 'off'; } catch (e) {}
+        d.classList.add('js');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href={skip.href}>{skip.label}</a>
+    <!-- pastel aurora behind the first screen: CSS gradients, no image -->
+    <div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <Top home={home} />
+    <slot />
+    <Foot />
+    <p class="sr-only" role="status" data-status></p>
+    <!-- pastel dusk behind the last screen -->
+    <div class="dusk" aria-hidden="true"></div>
+    <script>import '../scripts/pearl.js';</script>
+  </body>
+</html>

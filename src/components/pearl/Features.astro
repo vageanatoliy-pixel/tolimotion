@@ -1,0 +1,9 @@
+---
+/* A row of white cards: [title, text] pairs. `cols` = 2 or 3. */
+interface Props { items: [string, string][]; cols?: 2 | 3; level?: 'h3' | 'h4'; class?: string; label?: string }
+const { items, cols = 3, level = 'h3', class: cls = '', label } = Astro.props;
+const H = level;
+---
+<ul class={`features${cols === 2 ? ' features--2' : ''} ${cls}`.trim()} aria-label={label}>
+  {items.map(([t, d]) => <li class="feature"><H>{t}</H><p>{d}</p></li>)}
+</ul>

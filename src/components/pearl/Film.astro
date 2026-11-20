@@ -1,0 +1,17 @@
+---
+/* A film with sound. The still is a lazy <img> (a video poster always downloads at once); nothing of the film
+   downloads until the click. Native controls ship in the markup for visitors without JS; the script hides them
+   until the film starts. Once started, the overlay stays away, so a paused film can be scrubbed.
+   One film plays at a time. A button elsewhere with data-play="<id>" scrolls to this film and starts it. */
+import { media } from '../../data/site';
+interface Props { id?: string; src: string; poster: string; title: string; chip: string; eager?: boolean }
+const { id, src, poster, title, chip, eager = false } = Astro.props;
+---
+<figure class="film" id={id}>
+  <img src={poster} alt="" width="1920" height="1080" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  <video src={media(src)} preload="none" playsinline controls aria-label={title}></video>
+  <button class="film__btn" type="button">
+    <span class="film__play"><span class="tri" aria-hidden="true"></span></span>
+    <span class="film__chip">{chip}</span><span class="sr-only">, {title}, with sound</span>
+  </button>
+</figure>

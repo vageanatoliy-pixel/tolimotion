@@ -1,0 +1,28 @@
+---
+/* End of a case page: one line tied to the case, the brief, then the next case. */
+import Loop from './Loop.astro';
+import Stage from './Stage.astro';
+import { person } from '../../data/site';
+interface Props { ask: string; subject: string; next: { href: string; client: string; title: string; loop: string; alt: string } }
+const { ask, subject, next } = Astro.props;
+---
+<section class="wrap section case-end" aria-labelledby="case-end-title">
+  <div class="block reveal">
+    <Stage>Your project</Stage>
+    <h2 class="h-xl" id="case-end-title">{ask}</h2>
+    <p class="note">Send a few lines. I reply within one working day with questions or a fixed quote.</p>
+    <div class="hero__cta">
+      <a class="pill pill--solid pill--lg" href="/#contact">Send a brief <span class="arr" aria-hidden="true">→</span></a>
+      <a class="pill pill--white pill--lg" href={`mailto:${person.email}?subject=${encodeURIComponent(subject)}`}>{person.email}</a>
+    </div>
+    <p class="case-end__all"><a class="link" href="/work/">All work</a> · <a class="link" href="/#services">Services & prices</a></p>
+  </div>
+  <a class="card case-end__next reveal" href={next.href} data-loop-host>
+    <div class="card__cover"><Loop name={next.loop} alt={next.alt} /></div>
+    <div class="card__body">
+      <p class="card__client">Next case</p>
+      <h3>{next.title} <span class="arr" aria-hidden="true">→</span></h3>
+      <p class="card__line">{next.client}</p>
+    </div>
+  </a>
+</section>

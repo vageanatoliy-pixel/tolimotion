@@ -1,342 +1,100 @@
 ---
-/* Case page: Fitrise stadium LED intro (two cuts, downloadable).
-   Files live in /public/work/fitrise/. The GIFs are heavy (7.7 + 11.2 MB), so the page first shows a light
-   still (the final frame) and swaps in the GIF once a board is on screen after the visitor scrolls or moves —
-   the page stays light on first load. prefers-reduced-motion keeps the still. No <video> here (site rule 2). */
-import Base from '../../layouts/Base.astro';
-import Spark from '../../components/Spark.astro';
-import Footer from '../../components/Footer.astro';
-import Header from '../../components/Header.astro';
-import CaseCta from '../../components/CaseCta.astro';
-import LoopVideo from '../../components/LoopVideo.astro';
-
-type Cut = {
-  id: string; n: string; name: string; text: string; gif: string; still: string; mp4: string; loop: string;
-  gifSize: string; mp4Size: string; file: string; note: string; alt: string;
-};
-const cuts: Cut[] = [
-  {
-    id: 'clean', n: '01', name: 'Clean',
-    text: 'The calm version. Each screen lands, holds long enough to read from the stands, and hands over to the next through the same yellow bar.',
-    loop: 'fitrise-led-clean', gif: '/work/fitrise/clean-r1.gif', still: '/work/fitrise/clean.png', mp4: '/work/fitrise/clean-r1.mp4',
-    gifSize: '7.7 MB', mp4Size: '6.0 MB', file: 'Fitrise_LED_Intro_Clean_1440x270_r1', note: '1 px = 1 LED',
-    alt: 'Fitrise LED intro, clean cut: yellow text on navy — Excuses scoren niet, Actie wel, Kom in beweging — ending on the Fitrise logo with Personal training, Leefstijlcoaching, Bedrijfsfitness.',
-  },
-  {
-    id: 'flashy', n: '02', name: 'Flashy',
-    text: 'Same story, louder. The first line is typed with the bar as a blinking cursor, every hit flashes, the letters jump in a stadium wave and the background pulses with light.',
-    loop: 'fitrise-led-flashy', gif: '/work/fitrise/flashy-r1.gif', still: '/work/fitrise/flashy.png', mp4: '/work/fitrise/flashy-r1.mp4',
-    gifSize: '11.2 MB', mp4Size: '10.0 MB', file: 'Fitrise_LED_Intro_Flashy_1440x270_r1', note: 'Flashes kept under 3 per second',
-    alt: 'Fitrise LED intro, flashy cut: the first line is typed letter by letter behind a blinking yellow cursor, words flash on every hit, ending on the Fitrise logo with its three services.',
-  },
-];
-type Reel = { id: string; n: string; name: string; badge?: string; text: string; gif: string; still: string; gifSize: string; file: string; alt: string; loop: string };
-const reels: Reel[] = [
-  {
-    id: 's1', n: '01', name: 'Brand serif', badge: 'Closest to brand',
-    text: 'IBM Plex Serif — the brand font for quotes — with the key words in yellow italic. Each word slides in and the line re-centres around it.',
-    loop: 'fitrise-cap-s1', gif: '/work/fitrise/reels/s1-brand-serif.gif', still: '/work/fitrise/reels/s1-brand-serif.jpg', gifSize: '5.0 MB', file: 'Fitrise_Reel_Captions_01_Brand_Serif',
-    alt: 'Caption style 01 on a talking-head reel: white serif words appear one by one under the speaker, the key words “heel snel” in yellow italic.',
-  },
-  {
-    id: 's2', n: '02', name: 'Site italic',
-    text: 'Inter Italic, like the headings on fitrise.nl. Words rise from the baseline; key words turn yellow and get the underline from the site menu.',
-    loop: 'fitrise-cap-s2', gif: '/work/fitrise/reels/s2-site-italic.gif', still: '/work/fitrise/reels/s2-site-italic.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_02_Site_Italic',
-    alt: 'Caption style 02: white italic sans words rise from a baseline, the key words in bold yellow italic with a yellow underline.',
-  },
-  {
-    id: 's3', n: '03', name: 'Highlight bar',
-    text: 'Heavy italic caps. Key words sit on a yellow bar cut at the 30° angle of the logo, with the three stripes from the logo mark.',
-    loop: 'fitrise-cap-s3', gif: '/work/fitrise/reels/s3-highlight-bar.gif', still: '/work/fitrise/reels/s3-highlight-bar.jpg', gifSize: '5.2 MB', file: 'Fitrise_Reel_Captions_03_Highlight_Bar',
-    alt: 'Caption style 03: bold italic capitals punch in, the key words in navy on a slanted yellow bar with three yellow stripes.',
-  },
-  {
-    id: 's4', n: '04', name: 'LED karaoke',
-    text: 'The language of the stadium intro: Oswald caps on a navy panel with the yellow bar. The word he is saying turns yellow and a cursor follows it.',
-    loop: 'fitrise-cap-s4', gif: '/work/fitrise/reels/s4-led-karaoke.gif', still: '/work/fitrise/reels/s4-led-karaoke.jpg', gifSize: '6.1 MB', file: 'Fitrise_Reel_Captions_04_LED_Karaoke',
-    alt: 'Caption style 04: condensed capitals on a navy panel with a yellow edge bar; the spoken word turns yellow with a yellow cursor under it.',
-  },
-];
-type Title = { id: string; n: string; name: string; badge?: string; text: string; img: string; alt: string };
-const titles: Title[] = [
-  { id: 't1', n: '01', name: 'Brand quote', badge: 'Closest to brand',
-    text: 'His words as a quote in IBM Plex Serif, his name in yellow caps, the logo mark as a tonal pattern.',
-    img: '/work/fitrise/reels/t1-brand-quote.jpg',
-    alt: 'Title design 01: quote “Wat je bent afgevallen, ben je ook weer heel snel aangekomen.” in white serif with the last words in yellow, name Ulrich Heidstra in yellow caps, on a navy fade.' },
-  { id: 't2', n: '02', name: 'Site hero',
-    text: 'The fitrise.nl hero: yellow Inter Italic over a darkened photo, with the yellow button.',
-    img: '/work/fitrise/reels/t2-site-hero.jpg',
-    alt: 'Title design 02: “Afgevallen… en weer snel aangekomen?” in large yellow italic, a yellow Jojo-effect button below.' },
-  { id: 't3', n: '03', name: 'Stripes',
-    text: 'Bold italic caps on slanted bars; the stripes of the logo rise into the yellow arrow.',
-    img: '/work/fitrise/reels/t3-stripes.jpg',
-    alt: 'Title design 03: white italic caps on slanted navy bars, Jojo-effect in navy on a yellow arrow bar, four yellow stripes rising from the corner.' },
-  { id: 't4', n: '04', name: 'LED campaign',
-    text: 'The stadium intro on a phone: Oswald on navy, the yellow bar, the slash and the 30° stripes.',
-    img: '/work/fitrise/reels/t4-led-campaign.jpg',
-    alt: 'Title design 04: condensed white and yellow capitals on a navy panel with a yellow bar and slash, Jojo-effect large.' },
-];
-const facts = [
-  ['Client', 'Fitrise'],
-  ['Canvas', '1440 × 270 px'],
-  ['Screen', 'P6 LED, 9.6 × 1.8 m'],
-  ['Length', '15 s · 25 fps'],
-  ['Role', 'Storyboard, motion'],
-  ['Year', '2026'],
-];
+/* Case page: Fitrise stadium LED intro (two cuts, downloadable) and the reel system for the founder's
+   Instagram talks (hook, four title looks, four caption styles). Copy: src/data/cases.ts. */
+import Pearl from '../../layouts/Pearl.astro';
+import Loop from '../../components/pearl/Loop.astro';
+import Stage from '../../components/pearl/Stage.astro';
+import Facts from '../../components/pearl/Facts.astro';
+import Features from '../../components/pearl/Features.astro';
+import CaseEnd from '../../components/pearl/CaseEnd.astro';
+import { fitCuts, fitReels, fitTitles, fitFacts, fitrise } from '../../data/cases';
+const R = fitrise.reels;
+const DL = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0 3.5-3.5M8 10 4.5 6.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 ---
-<Base
-  title="Fitrise stadium intro — Toli Herasymenko"
-  description="A 15-second logo intro for Fitrise on a 1440 × 270 stadium LED ribbon — two cuts, clean and flashy — plus four caption styles for the coach’s Instagram reels."
->
-  <Header home={false} />
-  <div class="container case-back-row"><a class="case-back-link" href="/#work">← All work</a></div>
-
-  <main id="main" class="case">
-    <section class="container case-hero">
-      <p class="eyebrow eyebrow--green">Case · Stadium LED</p>
-      <h1 class="h-display case-title">A 15-second intro for a <em>stadium</em> ribbon.</h1>
-      <p class="case-lead">
-        Logo intro for Fitrise — personal training, lifestyle coaching and corporate fitness — made for a
-        9.6 × 1.8 m LED board. One yellow bar carries all four screens: it writes the line, floods the wall,
-        fires across and lands as the slash in the logo.
-      </p>
-      <div class="hero-strip" data-loop-host>
-        <LoopVideo name="fitrise-led-flashy" alt="The flashy cut playing: bold words punch across the navy LED strip, the yellow bar sweeps and the Fitrise logo resolves." ratio="16 / 3" eager />
+<Pearl title={fitrise.seoTitle} description={fitrise.description}>
+  <main id="main">
+    <section class="hero section case-hero" aria-labelledby="case-title">
+      <p class="wrap crumbs"><span><a href="/#work">← All work</a></span><span>{fitrise.label}</span></p>
+      <div class="wrap hero__body">
+        <h1 class="h-hero indent" id="case-title">{fitrise.title}</h1>
+        <div class="case__intro indent">
+          <p class="t-lead">{fitrise.lead}</p>
+          <Facts rows={fitFacts} />
+        </div>
       </div>
-      <dl class="facts">
-        {facts.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
-      </dl>
+      <div class="hero__media" data-loop-host>
+        <Loop name={fitrise.heroLoop.name} alt={fitrise.heroLoop.alt} ratio="16 / 3" cls="loop--lg" eager />
+      </div>
     </section>
 
-    <section class="container cuts" aria-label="Two cuts">
-      {cuts.map((c) => (
-        <article class="cut" aria-labelledby={`${c.id}-title`}>
-          <div class="cut-head">
-            <span class="cut-n">{c.n}</span>
-            <h2 id={`${c.id}-title`} class="h-display cut-title"><em>{c.name}</em> cut</h2>
-            <p class="cut-text">{c.text}</p>
+    <section class="wrap section case" aria-label="Two cuts">
+      {fitCuts.map((c) => (
+        <Fragment>
+          <div class="block block--sub indent reveal" id={c.id}>
+            <Stage num={c.n} cap={false}>Loop · 15 s</Stage>
+            <h2 class="h-xl">{c.name} cut</h2>
+            <p class="note">{c.text}</p>
           </div>
-          <figure class="board">
-            <div class="board-img"><LoopVideo name={c.loop} alt={c.alt} ratio="16 / 3" /></div>
-            <figcaption><b>Loop · 15 s</b><span>{`1440 × 270 · ${c.note}`}</span></figcaption>
+          <figure class="media reveal" data-loop-host>
+            <Loop name={c.loop} alt={c.alt} ratio="16 / 3" cls="loop--led" />
+            <figcaption><b>1440 × 270</b><span>{c.note}</span></figcaption>
           </figure>
-          <div class="actions">
-            <a class="btn" href={c.gif} download={`${c.file}.gif`} aria-label={`Download the ${c.name} cut as GIF, ${c.gifSize}`}>
-              <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0 3.5-3.5M8 10 4.5 6.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Download GIF <small>{c.gifSize}</small>
-            </a>
-            <a class="pill" href={c.mp4} download={`${c.file}_25fps.mp4`} aria-label={`Download the ${c.name} cut as MP4, 25 fps, ${c.mp4Size}`}>MP4 <small>{c.mp4Size}</small></a>
-          </div>
-        </article>
-      ))}
-    </section>
-
-    <section class="container notes" aria-label="Built for the wall">
-      <div class="note"><h3>Pixel-true</h3><p>Rendered at exactly 1440 × 270, so the player maps one pixel to one LED. No scaling, no soft edges.</p></div>
-      <div class="note"><h3>Flat brand colours</h3><p>Navy, yellow and white straight from the brand. No gradients or fine lines that shimmer on camera.</p></div>
-      <div class="note"><h3>Safe to flash</h3><p>Full-screen flashes only at the big transitions, checked frame by frame against the broadcast limit of three per second.</p></div>
-    </section>
-
-    <section id="reels" class="reels" aria-labelledby="reels-title">
-      <div class="container">
-        <div class="reels-head">
-          <p class="eyebrow eyebrow--green">Next · Instagram Reels</p>
-          <h2 id="reels-title" class="h-display reels-title">From the stadium <em>to the phone</em>.</h2>
-          <p class="reels-lead">
-            Fitrise founder Ulrich Heidstra films short talks about training and lifestyle. Three layers make a reel stop
-            the scroll and still look like Fitrise: a hook for the first second, a title in the brand look and captions that
-            follow his voice. All built on one 11-second clip about the yo-yo effect.
+          <p class="case__links indent reveal">
+            <a class="pill pill--solid dl" href={c.gif} download={`${c.file}.gif`}><Fragment set:html={DL} />Download GIF <small>{c.gifSize}</small><span class="sr-only">: {c.name} cut</span></a>
+            <a class="pill pill--white dl" href={c.mp4} download={`${c.file}_25fps.mp4`}>MP4 <small>{c.mp4Size}</small><span class="sr-only">: {c.name} cut, 25 fps</span></a>
           </p>
-        </div>
+        </Fragment>
+      ))}
+      <Features items={fitrise.notes} class="reveal" label="Built for the wall" />
+    </section>
 
-        <article class="hook" aria-labelledby="hook-title">
-          <figure class="phone phone--hero">
-            <div class="phone-img"><LoopVideo name="fitrise-hook-full" ratio="9 / 16"
-              alt="Animated hook: a yellow pill with “Afgevallen…” blurs in, “en weer snel aangekomen?” appears word by word, a white comet streaks under it and JOJO-EFFECT pops letter by letter in glowing yellow, with floating question marks." /></div>
-          </figure>
-          <div class="hook-text">
-            <p class="reels-step">01 · The hook</p>
-            <h3 id="hook-title" class="h-display reels-sub">One line, <em>landed in a second</em>.</h3>
-            <p class="reels-copy">
-              The opener lifts the strongest line of the talk into a glowing lockup in Fitrise yellow and navy: a flash,
-              the pill, the line word by word, a comet underneath and JOJO-EFFECT popping letter by letter. Everything is
-              on screen before he finishes the first sentence — then it keeps breathing, so the frame never freezes.
-            </p>
-            <a class="pill phone-dl" href="/work/fitrise/reels/hook.gif" download="Fitrise_Reel_Hook.gif" aria-label="Download the reel hook as GIF, 7.2 MB">GIF <small>7.2 MB</small></a>
-          </div>
-        </article>
-
-        <div class="reels-block">
-          <p class="reels-step">02 · Titles</p>
-          <h3 class="h-display reels-sub">The same moment, <em>four ways</em>.</h3>
-          <div class="phones">
-            {titles.map((t) => (
-              <article class="phone-card" aria-labelledby={`${t.id}-title`}>
-                <figure class="phone">
-                  <img class="phone-img" src={t.img} width="540" height="960" alt={t.alt} loading="lazy" decoding="async" />
-                </figure>
-                <div class="phone-meta">
-                  <p class="phone-n">{t.n}{t.badge && <span class="phone-badge">{t.badge}</span>}</p>
-                  <h4 id={`${t.id}-title`} class="h-display phone-title"><em>{t.name}</em></h4>
-                  <p class="phone-text">{t.text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div class="reels-block">
-          <p class="reels-step">03 · Captions</p>
-          <h3 class="h-display reels-sub">Every word <em>on the frame he says it</em>.</h3>
-          <div class="phones">
-            {reels.map((r) => (
-              <article class="phone-card" aria-labelledby={`${r.id}-title`}>
-                <figure class="phone">
-                  <div class="phone-img"><LoopVideo name={r.loop} alt={r.alt} ratio="9 / 16" /></div>
-                </figure>
-                <div class="phone-meta">
-                  <p class="phone-n">{r.n}{r.badge && <span class="phone-badge">{r.badge}</span>}</p>
-                  <h4 id={`${r.id}-title`} class="h-display phone-title"><em>{r.name}</em></h4>
-                  <p class="phone-text">{r.text}</p>
-                  <a class="pill phone-dl" href={r.gif} download={`${r.file}.gif`} aria-label={`Download caption style ${r.n}, ${r.name}, as GIF, ${r.gifSize}`}>GIF <small>{r.gifSize}</small></a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div class="notes notes--reels">
-          <div class="note"><h3>Sound off, still clear</h3><p>Words are timed to his voice from a word-level transcript of the Dutch audio. Nothing is paraphrased.</p></div>
-          <div class="note"><h3>Brand, not preset</h3><p>Navy, yellow, Inter and IBM Plex Serif straight from the Fitrise style sheet, and the stripes of the logo mark.</p></div>
-          <div class="note"><h3>One template, every reel</h3><p>Each style is an After Effects template: a new clip and its transcript go in, the words time and centre themselves.</p></div>
+    <section class="wrap section case" id="reels" aria-labelledby="reels-title">
+      <div class="block indent reveal">
+        <Stage>{R.label}</Stage>
+        <h2 class="h-xl" id="reels-title">{R.title}</h2>
+        <p class="note">{R.lead}</p>
+      </div>
+      <div class="duo reveal" data-loop-host>
+        <Loop name={R.hook.loop} alt={R.hook.alt} ratio="9 / 16" />
+        <div class="block block--sub">
+          <Stage num="01" cap={false}>The hook</Stage>
+          <h3 class="h-l">{R.hook.title}</h3>
+          <p class="note">{R.hook.copy}</p>
+          <p><a class="pill pill--white pill--sm dl" href={R.hook.gif} download={`${R.hook.file}.gif`}><Fragment set:html={DL} />GIF <small>{R.hook.gifSize}</small><span class="sr-only">: the reel hook</span></a></p>
         </div>
       </div>
+      <div class="block block--sub indent reveal">
+        <Stage num="02" cap={false}>Titles</Stage>
+        <h3 class="h-l">{R.titlesTitle}</h3>
+      </div>
+      <ul class="phones reveal">
+        {fitTitles.map((t) => (
+          <li class="phone">
+            <img class="shot" src={t.img} width="540" height="960" alt={t.alt} loading="lazy" decoding="async" />
+            <p class="n">{t.n}{t.badge && <span class="badge">{t.badge}</span>}</p>
+            <h4 class="phone__t">{t.name}</h4>
+            <p>{t.text}</p>
+          </li>
+        ))}
+      </ul>
+      <div class="block block--sub indent reveal">
+        <Stage num="03" cap={false}>Captions</Stage>
+        <h3 class="h-l">{R.captionsTitle}</h3>
+      </div>
+      <ul class="phones reveal">
+        {fitReels.map((r) => (
+          <li class="phone" data-loop-host>
+            <Loop name={r.loop} alt={r.alt} ratio="9 / 16" />
+            <p class="n">{r.n}{r.badge && <span class="badge">{r.badge}</span>}</p>
+            <h4 class="phone__t">{r.name}</h4>
+            <p>{r.text}</p>
+            <a class="pill pill--white pill--sm dl" href={r.gif} download={`${r.file}.gif`}><Fragment set:html={DL} />GIF <small>{r.gifSize}</small><span class="sr-only">: caption style {r.n}, {r.name}</span></a>
+          </li>
+        ))}
+      </ul>
+      <Features items={R.notes} level="h3" class="reveal" label="How the reels were made" />
     </section>
-    <CaseCta ask="Need a screen intro, a logo animation or a reel system?" subject="Project like the Fitrise intro" next={{ href: '/work/cissp-masterclass-ads/', client: 'Destination Certification', title: 'CISSP MasterClass ads', loop: 'cissp-ad1-sort', alt: 'CISSP ad: a personal review guide re-sorts itself, pulling the weakest exam domains to the top.' }} />
+
+    <CaseEnd ask={fitrise.ask} subject={fitrise.subject} next={{ href: '/work/cissp-masterclass-ads/', client: 'Destination Certification', title: 'CISSP MasterClass ads', loop: 'cissp-ad1-sort', alt: 'CISSP ad: a personal review guide re-sorts itself, pulling the weakest exam domains to the top.' }} />
   </main>
-
-  <Footer />
-</Base>
-
-<script>
-  /* Swap the still for the GIF once a board is on screen — armed by the first scroll / pointer / key,
-     so the heavy GIFs never load before the visitor engages. Reduced motion keeps the still. */
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img[data-gif]'));
-  if (!reduced && imgs.length && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        const img = e.target as HTMLImageElement;
-        io.unobserve(img);
-        const pre = new Image();
-        pre.onload = () => { img.src = pre.src; img.closest('.board')?.classList.add('is-live'); };
-        pre.src = img.dataset.gif ?? '';
-      }
-    }, { threshold: 0.25 });
-    const arm = () => {
-      ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.removeEventListener(ev, arm));
-      imgs.forEach((img) => io.observe(img));
-    };
-    ['scroll', 'pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach((ev) => window.addEventListener(ev, arm, { passive: true }));
-  }
-</script>
-
-<style>
-  .case-back-row { padding-top: 18px; }
-  .case-back-link { font-size: 14px; font-weight: 600; color: var(--muted); }
-  .case-back-link:hover { color: var(--green); }
-  .case-header { border-bottom: 1px solid var(--line); }
-  .case-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 22px; }
-  .case-logo { display: inline-flex; align-items: baseline; gap: 10px; font-family: var(--font-serif); font-weight: 500; font-size: 24px; }
-  .case-back { font-size: 14px; padding: 9px 16px; color: var(--soft); transition: border-color var(--dur-fast) var(--ease-out); }
-  .case-back:hover { border-color: var(--ink); color: var(--ink); }
-
-  .case-hero { padding-block: clamp(28px, 4vw, 56px) clamp(36px, 4vw, 48px); }
-  .hero-strip { margin-top: 28px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 0 10px var(--ink); }
-  .case-title { font-size: clamp(40px, 6.4vw, 82px); line-height: 1.02; letter-spacing: -0.02em; margin-top: 22px; max-width: 15ch; }
-  .case-title em { font-style: italic; color: var(--green); }
-  .case-lead { font-family: var(--font-serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.5; color: var(--soft); max-width: 46ch; margin-top: 26px; }
-  .facts { display: grid; grid-template-columns: repeat(6, auto); gap: 16px 40px; margin: 44px 0 0; padding-top: 28px; border-top: 1px solid var(--line); }
-  .facts dt { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-  .facts dd { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.35; }
-
-  .cuts { display: grid; gap: clamp(64px, 8vw, 96px); padding-block: clamp(32px, 4vw, 48px) clamp(48px, 6vw, 72px); }
-  .cut-head { display: grid; grid-template-columns: auto 1fr; gap: 6px 22px; align-items: baseline; margin-bottom: 24px; }
-  .cut-n { grid-row: span 2; font-size: 14px; font-weight: 600; color: var(--green); }
-  .cut-title { font-size: clamp(28px, 3.4vw, 40px); letter-spacing: -0.015em; }
-  .cut-title em { font-style: italic; color: var(--green); }
-  .cut-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.5; color: var(--soft); max-width: 60ch; }
-
-  /* the GIF sits in a dark LED-board frame */
-  .board { margin: 0; padding: clamp(8px, 1.2vw, 14px); background: var(--ink); border-radius: clamp(12px, 1.6vw, 22px); }
-  .board-img { width: 100%; height: auto; aspect-ratio: 1440 / 270; border-radius: 3px; background: #0A1C3D; overflow: hidden; }
-  .board figcaption { display: flex; justify-content: space-between; gap: 12px; padding: 12px 4px 2px; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: color-mix(in srgb, var(--cream) 55%, var(--ink)); }
-  .board figcaption b { font-weight: 500; color: var(--cream); }
-
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px; }
-  .actions .btn { font-size: 15px; padding: 14px 24px; gap: 10px; }
-  .actions small { font-size: 12px; font-weight: 500; opacity: 0.7; margin-left: 2px; }
-  .actions .pill { gap: 8px; padding: 13px 20px; transition: border-color var(--dur-fast) var(--ease-out); }
-  .actions .pill:hover { border-color: var(--ink); }
-
-  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-block: 0 clamp(56px, 8vw, 96px); }
-  .note { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; }
-  .note h3 { font-family: var(--font-serif); font-weight: 500; font-size: 21px; line-height: 1.2; margin-bottom: 8px; }
-  .note p { font-size: 15px; color: var(--soft); }
-
-  /* reels: four phone-sized caption styles below the LED cuts */
-  .reels { border-top: 1px solid var(--line); padding-block: clamp(56px, 8vw, 96px) clamp(56px, 8vw, 96px); }
-  .reels-head { max-width: 60ch; margin-bottom: clamp(32px, 4vw, 48px); }
-  .reels-title { font-size: clamp(32px, 4.2vw, 52px); letter-spacing: -0.015em; margin-top: 18px; }
-  .reels-title em { font-style: italic; color: var(--green); }
-  .reels-lead { font-family: var(--font-serif); font-size: clamp(18px, 1.8vw, 20px); line-height: 1.5; color: var(--soft); margin-top: 20px; }
-  .reels-step { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
-  .reels-sub { font-size: clamp(26px, 3vw, 36px); letter-spacing: -0.012em; margin: 10px 0 clamp(22px, 2.6vw, 30px); }
-  .reels-sub em { font-style: italic; color: var(--green); }
-  .reels-copy { font-family: var(--font-serif); font-size: 18px; line-height: 1.55; color: var(--soft); max-width: 46ch; }
-  .reels-block { margin-top: clamp(64px, 8vw, 104px); }
-  .hook { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
-  .hook-text { display: flex; flex-direction: column; align-items: flex-start; }
-  .hook-text .reels-sub { margin-bottom: 18px; }
-  .hook-text .phone-dl { margin-top: 26px; }
-  .phone--hero { border-radius: clamp(26px, 3vw, 38px); padding: clamp(7px, 0.9vw, 11px); }
-  .phone--hero .phone-img { border-radius: clamp(20px, 2.3vw, 28px); }
-  .phones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 32px); }
-  .phone-card { display: flex; flex-direction: column; }
-  .phone { margin: 0; padding: clamp(6px, 0.7vw, 9px); background: var(--ink); border-radius: clamp(22px, 2.4vw, 30px); }
-  .phone-img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; border-radius: clamp(16px, 1.8vw, 22px); background: #0A1C3D; object-fit: cover; overflow: hidden; }
-  .phone-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 18px; flex: 1; }
-  .phone-n { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-size: 14px; font-weight: 600; color: var(--green); }
-  .phone-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); border-radius: 999px; padding: 4px 9px; }
-  .phone-title { font-size: clamp(22px, 2vw, 26px); letter-spacing: -0.01em; margin: 0; }
-  .phone-title em { font-style: italic; }
-  .phone-text { font-size: 15px; line-height: 1.5; color: var(--soft); }
-  .phone-dl { margin-top: auto; gap: 6px; padding: 9px 16px; font-size: 14px; transition: border-color var(--dur-fast) var(--ease-out); }
-  .phone-dl:hover { border-color: var(--ink); }
-  .phone-dl small { font-size: 12px; font-weight: 500; opacity: 0.7; }
-  .notes--reels { padding: clamp(40px, 5vw, 56px) 0 0; }
-
-  @media (max-width: 1080px) {
-    .phones { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 48px; }
-  }
-  @media (max-width: 720px) {
-    .hook { grid-template-columns: 1fr; }
-    .phone--hero { max-width: 340px; }
-  }
-  @media (max-width: 900px) {
-    .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .notes { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 560px) {
-    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
-    .cut-head { grid-template-columns: 1fr; }
-    .cut-n { grid-row: auto; }
-    .board figcaption span { display: none; }
-    .actions .btn, .actions .pill { flex: 1 1 auto; justify-content: center; }
-    .phones { column-gap: 16px; }
-    .phone-text { font-size: 14px; }
-    .phone-badge { font-size: 9px; padding: 3px 8px; white-space: nowrap; }
-  }
-</style>
+</Pearl>

@@ -1,0 +1,6 @@
+---
+/* The small label above a heading: the gradient capsule, an optional number, the text. */
+interface Props { num?: string; cap?: boolean; class?: string }
+const { num, cap = true, class: cls = '' } = Astro.props;
+---
+<p class={`stage ${cls}`.trim()}>{cap && <span class="cap" aria-hidden="true"></span>}{num && <span class="num">{num}</span>}<slot /></p>

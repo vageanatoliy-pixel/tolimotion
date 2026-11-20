@@ -1,33 +1,29 @@
 ---
-import Base from '../layouts/Base.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import LoopVideo from '../components/LoopVideo.astro';
+import Pearl from '../layouts/Pearl.astro';
+import Stage from '../components/pearl/Stage.astro';
+import Loop from '../components/pearl/Loop.astro';
 ---
-<Base title="Page not found — Toli Herasymenko" noindex>
-  <Header home={false} />
-  <main id="main" class="container nf">
-    <div>
-      <p class="eyebrow eyebrow--green">404 · 00:00:00:00</p>
-      <h1 class="h-display nf-title">This frame was <em>cut.</em></h1>
-      <p class="nf-sub">The page you asked for is not in the edit. The work and the brief form are one click away.</p>
-      <div class="nf-actions">
-        <a class="btn btn--lg" href="/#work">See the work</a>
-        <a class="btn btn--ghost btn--lg" href="/#contact">Start a project</a>
+<Pearl title="Page not found — Toli Herasymenko" noindex>
+  <main id="main">
+    <section class="hero section nf" aria-labelledby="nf-title">
+      <div class="wrap nf__grid">
+        <div class="block">
+          <Stage>404 · 00:00:00:00</Stage>
+          <h1 class="h-hero" id="nf-title">This frame was cut.</h1>
+          <p class="t-lead">The page you asked for is not in the edit. The work and the brief form are one click away.</p>
+          <div class="hero__cta">
+            <a class="pill pill--solid pill--lg" href="/#work">See the work</a>
+            <a class="pill pill--white pill--lg" href="/#contact">Start a project</a>
+          </div>
+        </div>
+        <div class="nf__media" data-loop-host><Loop name="bf-kinetic" eager alt="Kinetic type loop: big black and red words fill a tall frame." ratio="9 / 16" /></div>
       </div>
-    </div>
-    <div class="nf-media" data-loop-host><LoopVideo name="bf-kinetic" eager alt="Kinetic type loop: big black and red words fill a tall frame." ratio="9 / 16" /></div>
+    </section>
   </main>
-  <Footer />
-</Base>
+</Pearl>
 
 <style>
-  .nf { display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center; min-height: 70vh; padding-block: 64px; }
-  .nf-title { margin-top: 14px; font-size: clamp(44px, 7vw, 96px); line-height: 1; letter-spacing: -0.03em; }
-  .nf-title em { font-style: italic; color: var(--green); }
-  .nf-sub { margin-top: 16px; max-width: 44ch; font-size: 17px; line-height: 1.6; color: var(--soft); }
-  .nf-actions { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; }
-  .nf-media { max-width: 300px; justify-self: center; }
-  .nf-media :global(.loop) { border-radius: 18px; }
-  @media (max-width: 760px) { .nf { grid-template-columns: 1fr; } .nf-media { max-width: 200px; justify-self: start; } }
+  .nf__grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 96px); align-items: center; min-height: 60vh; }
+  .nf__media { max-width: 300px; justify-self: center; width: 100%; }
+  @media (max-width: 760px) { .nf__grid { grid-template-columns: 1fr; } .nf__media { max-width: 200px; justify-self: start; } }
 </style>

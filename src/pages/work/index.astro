@@ -1,22 +1,46 @@
 ---
-/* /work/ — the same selected work as the home page, on its own URL (it used to be a 404). */
-import Base from '../../layouts/Base.astro';
-import Header from '../../components/Header.astro';
-import WorkGrid from '../../components/WorkGrid.astro';
-import Contact from '../../components/Contact.astro';
-import Footer from '../../components/Footer.astro';
-import ReelDialog from '../../components/ReelDialog.astro';
+/* /work/ — every piece as a card (case studies link to their pages, the rest to their block on the home page),
+   the private-work notes and the brief. */
+import Pearl from '../../layouts/Pearl.astro';
+import Stage from '../../components/pearl/Stage.astro';
+import WorkCard from '../../components/pearl/WorkCard.astro';
+import Contact from '../../components/pearl/Contact.astro';
+import { person } from '../../data/site';
+import { works } from '../../data/work';
+import { workIntro } from '../../data/home';
+const pages: Record<string, string> = {
+  'work-cissp': '/work/cissp-masterclass-ads/',
+  'work-advertima': '/work/advertima-audience-ai/',
+  'work-fitrise': '/work/fitrise-stadium-intro/',
+};
+const order = ['work-cissp', 'work-advertima', 'work-fitrise', 'work-cat', 'work-liveshops', 'work-review', 'work-formats'];
+const W = Object.fromEntries(works.map((w) => [w.id, w]));
+const privateMail = `mailto:${person.email}?subject=${encodeURIComponent('Private reel request')}`;
 ---
-<Base title="Work — Toli Herasymenko, motion designer & video editor" description="Selected work: product ads for Destination Certification, an AI explainer for Advertima, a stadium LED intro for Fitrise, an app splash for Liveshops — loops, roles, formats and case studies.">
-  <Header home={false} />
-  <main id="main" class="work-page">
-    <WorkGrid page />
+<Pearl title="Work — Toli Herasymenko, motion designer & video editor" description="Selected work: product ads for Destination Certification, an AI explainer for Advertima, a stadium LED intro for Fitrise, an app splash for Liveshops — loops, roles, formats and case studies.">
+  <main id="main">
+    <section class="hero section" aria-labelledby="work-page-title">
+      <p class="wrap crumbs"><span><a href="/">{person.name}</a></span><span>{workIntro.label}</span></p>
+      <div class="wrap hero__body">
+        <h1 class="h-hero indent" id="work-page-title">Selected work.</h1>
+        <div class="hero__intro">
+          <p class="t-lead">{workIntro.note[0]}<a class="link" href="#contact">{workIntro.note[1]}</a>{workIntro.note[2]}</p>
+        </div>
+      </div>
+    </section>
+    <section class="wrap section" aria-labelledby="all-work">
+      <h2 class="sr-only" id="all-work">All work</h2>
+      <div class="stack">
+        <div class="cards">
+          {order.filter((id) => W[id]).map((id) => <WorkCard w={W[id]} href={pages[id]} cta={pages[id] ? 'Case study' : undefined} />)}
+        </div>
+        <div class="private reveal">
+          {workIntro.privateWork.map(([t, d]) => (
+            <a href={privateMail}><b>{t}</b><span>{d}</span><i>Ask for the private reel <span class="arr" aria-hidden="true">→</span></i></a>
+          ))}
+        </div>
+      </div>
+    </section>
     <Contact />
   </main>
-  <Footer />
-  <ReelDialog />
-</Base>
-
-<style>
-  .work-page :global(.work) { margin-top: 0; border-radius: 0; }
-</style>
+</Pearl>

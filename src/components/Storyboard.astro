@@ -48,7 +48,11 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
 </ol>
 
 <style>
+  /* "Pearl" colours (2026-11-21): white boards with soft grey blocks on the light page. */
   .sb {
+    --sb-line: rgba(14, 14, 20, 0.16);
+    --sb-tint: #efeff5;
+    --sb-mid: rgba(14, 14, 20, 0.2);
     --gx: 30px;
     --gy: 34px;
     --aw: 18px;
@@ -57,31 +61,31 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
     column-gap: var(--gx); row-gap: var(--gy);
   }
   .sb-cell { position: relative; grid-column: var(--c4); grid-row: var(--r4); }
-  .sb-frame { position: relative; aspect-ratio: 16 / 9; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
-  .sb-frame :global(svg) { display: block; width: 100%; height: 100%; border-radius: 7px; }
+  .sb-frame { position: relative; aspect-ratio: 16 / 9; background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); }
+  .sb-frame :global(svg) { display: block; width: 100%; height: 100%; border-radius: 10px; }
 
   /* board drawing — grey and white only */
-  .sb-frame :global(.bg) { fill: var(--card); }
-  .sb-frame :global(.bg-tint) { fill: var(--band); }
-  .sb-frame :global(.ui) { fill: var(--band); stroke: var(--line); stroke-width: 1; }
-  .sb-frame :global(.bg-tint ~ .ui), .sb-frame :global(.bg-tint ~ g .ui) { fill: color-mix(in srgb, var(--line) 55%, var(--band)); }
-  .sb-frame :global(.card) { fill: var(--card); stroke: var(--line); stroke-width: 1; }
-  .sb-frame :global(.mid) { fill: var(--line); }
+  .sb-frame :global(.bg) { fill: var(--surface); }
+  .sb-frame :global(.bg-tint) { fill: var(--sb-tint); }
+  .sb-frame :global(.ui) { fill: var(--sb-tint); stroke: var(--sb-line); stroke-width: 1; }
+  .sb-frame :global(.bg-tint ~ .ui), .sb-frame :global(.bg-tint ~ g .ui) { fill: #e4e4ec; }
+  .sb-frame :global(.card) { fill: var(--surface); stroke: var(--sb-line); stroke-width: 1; }
+  .sb-frame :global(.mid) { fill: var(--sb-mid); }
   .sb-frame :global(.dark) { fill: var(--muted); }
-  .sb-frame :global(.ghost) { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 3 3; }
-  .sb-frame :global(.badge) { fill: none; stroke: var(--line); stroke-width: 6; stroke-linecap: round; }
-  .sb-frame :global(.wave), .sb-frame :global(.ridge) { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; }
-  .sb-frame :global(.t) { font-family: var(--font-sans); }
-  .sb-frame :global(.ink) { fill: var(--soft); }
+  .sb-frame :global(.ghost) { fill: none; stroke: var(--sb-mid); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .sb-frame :global(.badge) { fill: none; stroke: var(--sb-mid); stroke-width: 6; stroke-linecap: round; }
+  .sb-frame :global(.wave), .sb-frame :global(.ridge) { fill: none; stroke: var(--sb-mid); stroke-width: 1.5; stroke-linejoin: round; }
+  .sb-frame :global(.t) { font-family: var(--font); }
+  .sb-frame :global(.ink) { fill: var(--ink); }
   .sb-frame :global(.mute) { fill: var(--muted); }
-  .sb-frame :global(.note) { fill: var(--muted); font-style: italic; font-weight: 500; }
+  .sb-frame :global(.note) { fill: var(--muted); font-weight: 500; }
   /* motion marks */
   .sb-frame :global(.mv) { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 3 2.5; stroke-linecap: round; }
   .sb-frame :global(.mvh) { fill: var(--muted); }
   .sb-frame :global(.frame) { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
   .sb-frame :global(.ring) { fill: none; stroke: var(--muted); stroke-width: 1.2; }
   .sb-frame :global(.brk) { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-linecap: round; }
-  .sb-frame :global(.cur) { fill: var(--card); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
+  .sb-frame :global(.cur) { fill: var(--surface); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
 
   /* arrows between boards: centred in the gap */
   .sb-arrow { position: absolute; display: none; width: var(--aw); color: var(--muted); line-height: 0; }
@@ -91,12 +95,12 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
   .to-left { left: calc(var(--gx) / -2); top: 50%; transform: translate(-50%, -50%) scaleX(-1); }
   .to-down { left: 50%; top: calc(100% + var(--gy) / 2); transform: translate(-50%, -50%) rotate(90deg); }
 
-  .sb-head { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; }
-  .sb-num { font-size: 12px; font-weight: 600; color: var(--green); }
-  .sb-t { font-size: 12px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .sb-title { font-family: var(--font-serif); font-weight: 500; font-size: 16.5px; line-height: 1.2; }
-  .sb-action { font-size: 13px; line-height: 1.45; color: var(--soft); margin-top: 4px; }
-  .sb-vo { font-family: var(--font-serif); font-style: italic; font-size: 13.5px; line-height: 1.4; color: var(--muted); margin-top: 4px; }
+  .sb-head { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
+  .sb-num { font-size: var(--fs-ui); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .sb-t { font-size: var(--fs-ui); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .sb-title { font-weight: 600; font-size: clamp(16px, 1.3vw, 24px); line-height: 1.2; }
+  .sb-action { font-size: clamp(14px, 1.05vw, 19px); line-height: 1.45; color: var(--ink-70); margin-top: 4px; }
+  .sb-vo { font-size: clamp(14px, 1.05vw, 19px); line-height: 1.4; color: var(--muted); margin-top: 4px; }
 
   @media (max-width: 1000px) {
     .sb { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -109,14 +113,13 @@ const ARROW = '<svg viewBox="0 0 40 12" aria-hidden="true"><path d="M2 6H31" fil
   @media (max-width: 640px) {
     .sb {
       grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78vw; --gx: 14px; --aw: 14px;
-      overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 8px;
+      overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding: 4px 4px 12px;
+      margin-inline: -4px;
     }
     .sb-cell { grid-column: auto; grid-row: 1; scroll-snap-align: start; }
     .sb-arrow { display: none !important; }
     .sb-head { flex-wrap: wrap; gap: 2px 6px; }
-    .sb-title { flex-basis: 100%; font-size: 15px; }
-    .sb-action { font-size: 12px; }
-    .sb-vo { font-size: 12.5px; }
+    .sb-title { flex-basis: 100%; }
   }
 </style>
 
